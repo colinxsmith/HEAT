@@ -3,11 +3,13 @@ import { NgModule } from '@angular/core';
 
 
 import { AppComponent } from './app.component';
+import { HeatmapComponent } from './heatmap/heatmap.component';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HeatmapComponent
   ],
   imports: [
     BrowserModule
