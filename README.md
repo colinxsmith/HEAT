@@ -1,4 +1,4 @@
-Heat map in d3 v4 and angular data is included
+Heat map in d3 v4 and angular; data is included
 
 
 # HEAT
