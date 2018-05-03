@@ -1,34 +1,73 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit , ViewEncapsulation} from '@angular/core';
 import * as d3 from 'd3';
 @Component({
   selector: 'app-heatmap',
-  template: ' ',
-  styleUrls: ['./heatmap.component.css']
+  template: '<button  (click)="setTrans()"> Transpose</button><button (click)="setSquares()">Squares</button>',
+  styleUrls: ['./heatmap.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class HeatmapComponent implements OnInit {
-
+  heatData = [{ y: 1, x: 1, value: 21 }, { y: 1, x: 2, value: 12 }, { y: 1, x: 3, value: 65 },
+  { y: 1, x: 4, value: 3 }, { y: 1, x: 5, value: 1 }, { y: 1, x: 6, value: 57 }, { y: 1, x: 7, value: 1 }, { y: 2, x: 1, value: 7 },
+  { y: 2, x: 2, value: 1 }, { y: 2, x: 3, value: 5 }, { y: 2, x: 4, value: 1 }, { y: 2, x: 5, value: 0 }, { y: 2, x: 6, value: 1 },
+  { y: 2, x: 7, value: 0 }, { y: 3, x: 1, value: 31 }, { y: 3, x: 2, value: 1 }, { y: 3, x: 3, value: 4 }, { y: 3, x: 4, value: 19 },
+  { y: 3, x: 5, value: 0 }, { y: 3, x: 6, value: 9 }, { y: 3, x: 7, value: 0 }, { y: 4, x: 1, value: 58 }, { y: 4, x: 2, value: 0 },
+  { y: 4, x: 3, value: 4 }, { y: 4, x: 4, value: 19 }, { y: 4, x: 5, value: 0 }, { y: 4, x: 6, value: 18 }, { y: 4, x: 7, value: 0 },
+  { y: 5, x: 1, value: 48 }, { y: 5, x: 2, value: 3 }, { y: 5, x: 3, value: 29 }, { y: 5, x: 4, value: 23 },
+  { y: 5, x: 5, value: 0 },
+  { y: 5, x: 6, value: 28 }, { y: 5, x: 7, value: 1 }, { y: 6, x: 1, value: 26 }, { y: 6, x: 2, value: 0 }, { y: 6, x: 3, value: 5 },
+  { y: 6, x: 4, value: 18 }, { y: 6, x: 5, value: 0 }, { y: 6, x: 6, value: 7 }, { y: 6, x: 7, value: 1 }, { y: 7, x: 1, value: 23 },
+  { y: 7, x: 2, value: 2 }, { y: 7, x: 3, value: 4 }, { y: 7, x: 4, value: 21 }, { y: 7, x: 5, value: 0 }, { y: 7, x: 6, value: 9 },
+  { y: 7, x: 7, value: 1 }, { y: 8, x: 1, value: 16 }, { y: 8, x: 2, value: 2 }, { y: 8, x: 3, value: 7 }, { y: 8, x: 4, value: 9 },
+  { y: 8, x: 5, value: 0 }, { y: 8, x: 6, value: 3 }, { y: 8, x: 7, value: 0 }, { y: 9, x: 1, value: 6 },
+  { y: 9, x: 2, value: 0 }, { y: 9, x: 3, value: 0 }, { y: 9, x: 4, value: 1 }, { y: 9, x: 5, value: 0 },
+  { y: 9, x: 6, value: 5 }, { y: 9, x: 7, value: 0 }, { y: 10, x: 1, value: 12 }, { y: 10, x: 2, value: 1 },
+  { y: 10, x: 3, value: 13 }, { y: 10, x: 4, value: 11 }, { y: 10, x: 5, value: 0 }, { y: 10, x: 6, value: 6 },
+  { y: 10, x: 7, value: 1 }, { y: 11, x: 1, value: 18 }, { y: 11, x: 2, value: 1 }, { y: 11, x: 3, value: 21 },
+  { y: 11, x: 4, value: 18 }, { y: 11, x: 5, value: 0 }, { y: 11, x: 6, value: 11 }, { y: 11, x: 7, value: 0 },
+  { y: 12, x: 1, value: 0 }, { y: 12, x: 2, value: 0 }, { y: 12, x: 3, value: 0 }, { y: 12, x: 4, value: 0 },
+  { y: 12, x: 5, value: 0 }, { y: 12, x: 6, value: 1 }, { y: 12, x: 7, value: 0 }, { y: 13, x: 1, value: 9 },
+  { y: 13, x: 2, value: 0 }, { y: 13, x: 3, value: 0 }, { y: 13, x: 4, value: 0 }, { y: 13, x: 5, value: 0 },
+  { y: 13, x: 6, value: 4 }, { y: 13, x: 7, value: 0 }, { y: 14, x: 1, value: 1 }, { y: 14, x: 2, value: 0 },
+  { y: 14, x: 3, value: 0 }, { y: 14, x: 4, value: 0 }, { y: 14, x: 5, value: 0 }, { y: 14, x: 6, value: 0 },
+  { y: 14, x: 7, value: 0 }, { y: 15, x: 1, value: 276 }, { y: 15, x: 2, value: 23 },
+  { y: 15, x: 3, value: 157 }, { y: 15, x: 4, value: 143 }, { y: 15, x: 5, value: 1 },
+  { y: 15, x: 6, value: 159 }, { y: 15, x: 7, value: 5 }];
+  transpose = false;
+  squares = false;
   constructor() { }
 
   ngOnInit() {
     this.setUp();
   }
 
+  setTrans() {
+    this.transpose = !this.transpose;
+    d3.select('app-heatmap').select('svg').remove();
+    this.setUp();
+  }
+  setSquares() {
+    this.squares = !this.squares;
+    d3.select('app-heatmap').select('svg').remove();
+    this.setUp();
+  }
+
   setUp() {
-    let squares: boolean;
-    const temp = d3.select('body').append('g').attr('class', 'heatcolours'),
-      colourrange: any[] = [];
-    colourrange[0] = temp.style('fill');
-    colourrange[1] = temp.style('stroke');
-    temp.remove();
-    const labelsXY: { x: string[], y: string[] } = { x: [' '], y: [' '] };
-    let transpose = true, x: string[], y: string[];
+    const squares = this.squares,
+      transpose = this.transpose,
+      colourrange = ['red', 'blue'],
+      labelsXY = { x: [' '], y: [' '] }, heatData: {x: number, y: number, value: number}[] = [];
+      console.log('transpose' + transpose);
+      let x: string[], y: string[];
     x = ['CGT', 'Consol Port', 'JHP OEIC 100%', 'JHP OEIC sig', 'New Port', 'Other deferal', 'Transitioning'],
       y = ['Risk', 'Concentration', 'Max hld wgt', 'Buy-list', 'Sector', 'AA EQ UK KE', 'AA EQ INT KE', 'AA SV BD KE',
         'AA CP BD KE', 'AA CA KE', 'AA AB RT KE', 'AA COMM KE', 'AA HEDGE KE', 'AA PROP KE', 'Total'];
     if (transpose) {
+      console.log('labels XY');
       labelsXY.x = y;
       labelsXY.y = x;
     } else {
+      console.log('labels XX');
       labelsXY.x = x;
       labelsXY.y = y;
     }
@@ -41,203 +80,153 @@ export class HeatmapComponent implements OnInit {
     if (labelsXY.x[buckets - 1] === 'Total') { buckets--; }
     const coloursd = d3.scaleLinear()
       .domain([0, buckets])
-      .range([
-        +d3.rgb(colourrange[0]),
-        +d3.rgb(colourrange[1])
-      ]),
-      datasets = ['data3.tsv', 'data3.tsv'],
+      .range([d3.rgb(colourrange[0]), d3.rgb(colourrange[1])]),
       colors: number[] = [];
     labelsXY.x.forEach(function (d, ii) {
       colors[ii] = coloursd(ii);
     });
 
-  const svg = d3.select('app-heatmap').append('svg')
+    const svg = d3.select('app-heatmap').append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
 
-  dayLabels = svg.selectAll('.yLabel')
-      .data(labelsXY.y)
-      .enter().append('text')
+      dayLabels = svg.selectAll('.yLabel')
+        .data(labelsXY.y)
+        .enter().append('text')
         .text((d) => d)
         .attr('x', 0)
         .attr('y', 0)
         .style('text-anchor', 'end')
-        .attr('transform', (d, i) => `translate(-5,${(i + 0.6) * gridSize})` )
-        .attr('class', 'yLabel mono axis-y' ),
+        .attr('transform', (d, i) => `translate(-5,${(i + 0.6) * gridSize})`)
+        .attr('class', 'yLabel mono axis-y'),
 
-   timeLabels = svg.selectAll('.xLabel')
-      .data(labelsXY.x)
-      .enter().append('text')
+      timeLabels = svg.selectAll('.xLabel')
+        .data(labelsXY.x)
+        .enter().append('text')
         .text((d) => d)
         .attr('x', 0)
         .attr('y', 0)
         .style('text-anchor', 'right')
         .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
-        .attr('class', 'xLabel mono axis-x');
+        .attr('class', 'xLabel mono axis-x'),
 
-    const  type = function (d: {x: number, y: number, value: number}) {
-      if (transpose) {
+      type = function (d: { x: number, y: number, value: number }) {
+        if (transpose) {
+          console.log('value XY');
           return {
-              y: d.x,
-              x: d.y,
-              value: d.value
+            y: d.x,
+            x: d.y,
+            value: d.value
           };
-      } else {
+        } else {
+          console.log('values XX');
           return {
-              y: d.y,
-              x: d.x,
-              value: d.value
+            y: d.y,
+            x: d.x,
+            value: d.value
           };
-      }
-}, totalsX = [], totalsY = [],
-      heatmapChart = function (tsvFile, circ) {
-        console.log(colourrange);
-        coloursd.range([+d3.rgb(colourrange[0]), +d3.rgb(colourrange[1])]);
-        labelsXY.x.forEach(function (d, ii) {
-          colors[ii] = coloursd(ii);
-        });
-        d3.tsv(tsvFile,  (error, data: { x: number, y: number, value: number }[]) => {
-          if (error) { throw error; }
-          const datan = [], totalsXX = [], totalsYY = [];
-          data.forEach(function (d) {
-            if (labelsXY.y[d.y - 1] === 'Total') {
-              totalsYY.push(d.value);
-            } else if (labelsXY.x[d.x - 1] === 'Total') {
-              totalsXX.push(d.value);
-            } else {
-              datan.push(d);
-            }
-          });
-          data = datan;
-          const colorScale: d3.ScaleQuantile<number> = d3.scaleQuantile()
-            .domain([0, buckets, d3.max(data, (d: { x: number, y: number, value: number }) => d.value)])
-            .range(colors);
-
-          const cards = svg.selectAll('.values')
-            .data(data, (d: { x: number, y: number, value: number }) => d.y + ':' + d.x);
-
-
-          if (circ) {
-            cards.enter().append('circle')
-              .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
-              .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
-              .attr('class', 'values circle bordered')
-              .attr('r', gridSize / 2.5)
-              .style('fill', colors[0])
-              .merge(cards)
-              .transition()
-              .duration(100)
-              .style('fill', (d) => colorScale(d.value));
+        }
+      }, totalsX = [], totalsY = [], THIS = this,
+      heatmapChart = function (circ: boolean) {
+        THIS.heatData.forEach(function (d) {
+          d = type(d);
+          if (labelsXY.y[d.y - 1] === 'Total') {
+            totalsY.push(d.value);
+          } else if (labelsXY.x[d.x - 1] === 'Total') {
+            totalsX.push(d.value);
           } else {
-            cards.enter().append('rect')
-              .attr('x', (d) => (d.x - 1) * gridSize)
-              .attr('y', (d) => (d.y - 1) * gridSize)
-              .attr('rx', 0)
-              .attr('ry', 0)
-              .attr('class', 'values rect bordered')
-              .attr('width', gridSize)
-              .attr('height', gridSize)
-              .style('fill', colors[0])
-              .merge(cards)
-              .transition()
-              .duration(100)
-              .style('fill', (d) => colorScale(d.value));
+            heatData.push(d);
           }
-          cards.exit().remove();
+        });
+        const colorScale: d3.ScaleQuantile<number> = d3.scaleQuantile()
+          .domain([0, buckets, d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
+          .range(colors);
 
-       cards.enter().append('text')
+        const cards = svg.selectAll('.values')
+          .data(heatData, (d: { x: number, y: number, value: number }) => d.y + ':' + d.x);
+
+
+        if (circ) {
+          cards.enter().append('circle')
+            .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
+            .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
+            .attr('class', 'values circle bordered')
+            .attr('r', gridSize / 2.5)
+            .style('fill', colors[0])
+            .merge(cards)
+            .transition()
+            .duration(100)
+            .style('fill', (d) => colorScale(d.value));
+        } else {
+          cards.enter().append('rect')
+            .attr('x', (d) => (d.x - 1) * gridSize)
+            .attr('y', (d) => (d.y - 1) * gridSize)
+            .attr('rx', 0)
+            .attr('ry', 0)
+            .attr('class', 'values rect bordered')
+            .attr('width', gridSize)
+            .attr('height', gridSize)
+            .style('fill', colors[0])
+            .merge(cards)
+            .transition()
+            .duration(100)
+            .style('fill', (d) => colorScale(d.value));
+        }
+        cards.exit().remove();
+
+        cards.enter().append('text')
           .attr('x', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('y', (d) => (d.y - 1 + 0.45) * gridSize)
           .attr('dy', 3)
-    .attr('class', 'text datavals')
-          .html((d) => ' ' + d.value);
+          .attr('class', 'datavals')
+          .text((d) => ' ' + d.value);
 
-   const totsy = svg.selectAll('.totalsY')
-  .data(totalsY).enter().append('g').append('text');
+        const totsy = svg.selectAll('.totalsY')
+          .data(totalsY).enter().append('g').append('text');
 
-          totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
+        totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
           .attr('y', labelsXY.y.length * gridSize - 6)
-    .attr('class', 'text totalsY')
-         .html((d) => d);
-      totsy.exit().remove();
-   const totsx = svg.selectAll('.totalsX')
-  .data(totalsX).enter().append('g').append('text');
+          .attr('class', 'text totalsY')
+          .text((d) => d);
+        totsy.exit().remove();
+        const totsx = svg.selectAll('.totalsX')
+          .data(totalsX).enter().append('g').append('text');
 
-          totsx.attr('y', (d, i) => (i + 0.45) * gridSize + 3)
+        totsx.attr('y', (d, i) => (i + 0.45) * gridSize + 3)
           .attr('x', labelsXY.x.length * gridSize - 25)
-    .attr('class', 'text totalsX')
-         .html((d) => d);
-      totsx.exit().remove();
-colorScale.quantiles();
-     const legend = svg.selectAll('.legend')
+          .attr('class', 'text totalsX')
+          .text((d) => d);
+        totsx.exit().remove();
+        colorScale.quantiles();
+        const legend = svg.selectAll('.legend')
           .data([].concat(colorScale.quantiles()), (d) => d);
 
-      const legend_g = legend.enter().append('g')
+        const legend_g = legend.enter().append('g')
           .attr('class', 'legend');
 
-      legend_g.append('rect')
-        .attr('x', (d, i) => legendElementWidth * i)
-        .attr('y', function() {
-    console.log(height + ((buckets === labelsXY.x.length) ? 0 : 10));
-    return height + ((buckets === labelsXY.x.length) ? 0 : 10);
-    })
-        .attr('width', legendElementWidth)
-        .attr('height', gridSize / 2)
-        .style('fill', (d, i) => colors[i]);
+        legend_g.append('rect')
+          .attr('x', (d, i) => legendElementWidth * i)
+          .attr('y', function () {
+            console.log(height + ((buckets === labelsXY.x.length) ? 0 : 10));
+            return height + ((buckets === labelsXY.x.length) ? 0 : 10);
+          })
+          .attr('width', legendElementWidth)
+          .attr('height', gridSize / 2)
+          .style('fill', (d, i) => colors[i]);
 
-      legend_g.append('text')
-        .attr('class', 'mono')
-        .text((d) => '≥ ' + Math.round(d))
-        .attr('x', (d, i) => legendElementWidth * i)
-        .attr('y', height + gridSize * 1.5);
+        legend_g.append('text')
+          .attr('class', 'mono')
+          .text((d) => '≥ ' + Math.round(d))
+          .attr('x', (d, i) => legendElementWidth * i)
+          .attr('y', height + gridSize * 1.5);
 
-      legend.exit().remove();
-    });
-  };
+        legend.exit().remove();
 
-  heatmapChart(datasets[1], squares  ? 0 : 1);
+      };
 
-  const datasetpicker = d3.select('#dataset-picker')
-    .selectAll('.dataset-button')
-    .data(datasets);
-
-  datasetpicker.enter()
-    .append('input')
-    .attr('value', (d, i) => `Data ${d} with ${(i % 2 === 0 ? 'circles.' : 'squares.')}`)
-    .attr('type', 'button')
-    .attr('class', 'dataset-button')
-    .on('click', function(d, i) {
-  d3.selectAll('.values').remove();
-  d3.selectAll('.legend').remove();
-  d3.selectAll('.totalsY').remove();
-  squares = (i === 1 ? true : false);
-  heatmapChart(d, (i % 2 === 0 ? 1 : 0));
-  });
-const colourpick = d3.select('#colour-picker')
-.selectAll('text')
-.data(colourrange);
-
-colourpick.enter()
-.append('input')
-.attr('type', 'text')
-.attr('name', (d, i) => `Choose ${i === 0 ? 'lower' : 'upper'} colour`)
-.attr('value', (d) => d)
-.on('change', function(d, i, obb) {
-  colourrange[i] = obb[i].value;
-  console.log(colourrange);
-  });
-
-    const transposer = d3.select('#transpose')
-    .selectAll('button').data([transpose])
-    .enter()
-    .append('input')
-    .attr('type', 'button')
-    .attr('value', 'Transpose')
-    .on('click', function(d) {
-    location.reload();
-  });
-}
+    heatmapChart(squares ? false : true);
+  }
 }
 
