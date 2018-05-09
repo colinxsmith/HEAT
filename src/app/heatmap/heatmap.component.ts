@@ -236,6 +236,9 @@ export class HeatmapComponent implements OnInit {
     { x: 'Moscow', y: 'M', value: 3.000000 },
     { x: 'Edinburgh', y: 'G', value: 22.000000 },
   ];
+  managerX: string[] = [];
+  managerY: string[] = [];
+  managerPlot: {x: number, y: number, value: number}[] = [];
   heatData = [{ y: 1, x: 1, value: 21 }, { y: 1, x: 2, value: 12 }, { y: 1, x: 3, value: 65 },
   { y: 1, x: 4, value: 3 }, { y: 1, x: 5, value: 1 }, { y: 1, x: 6, value: 57 }, { y: 1, x: 7, value: 1 }, { y: 2, x: 1, value: 7 },
   { y: 2, x: 2, value: 1 }, { y: 2, x: 3, value: 5 }, { y: 2, x: 4, value: 1 }, { y: 2, x: 5, value: 0 }, { y: 2, x: 6, value: 1 },
@@ -264,41 +267,63 @@ export class HeatmapComponent implements OnInit {
   { y: 15, x: 6, value: 159 }, { y: 15, x: 7, value: 5 }];
   xLabels = ['CGT', 'Consol Port', 'JHP OEIC 100%', 'JHP OEIC sig', 'New Port', 'Other deferal', 'Transitioning'];
   yLabels = ['Risk', 'Concentration', 'Max hld wgt', 'Buy-list', 'Sector', 'AA EQ UK KE', 'AA EQ INT KE', 'AA SV BD KE',
-      'AA CP BD KE', 'AA CA KE', 'AA AB RT KE', 'AA COMM KE', 'AA HEDGE KE', 'AA PROP KE', 'Total'];
+    'AA CP BD KE', 'AA CA KE', 'AA AB RT KE', 'AA COMM KE', 'AA HEDGE KE', 'AA PROP KE', 'Total'];
   butName = 'Squares';
-  transpose = false;
+  transpose = true;
   squares = true;
   constructor() { }
 
   managerProcess() {
-    const xmap = {}, ymap = {};
-    let ix = 0, iy = 0;
+    const here = this, xmap = {}, ymap = {}, revi = [], revj = [];
+    let ix = 0, iy = 0, i = 0, j = 0, ij = 0;
     this.managerData.forEach(function (d) {
-      if (! (xmap[d.x] > -1)) {
-      xmap[d.x] = ix++;
+      if (!(xmap[d.x] > -1)) {
+        here.managerX.push(d.x);
+        revi.push(ix);
+        xmap[d.x] = ix++;
       }
+      if (!(ymap[d.y] > -1)) {
+        here.managerY.push(d.y);
+        revj.push(iy);
+        ymap[d.y] = iy++;
+      }
+     // here.managerPlot.push({ x: xmap[d.x], y: ymap[d.y], value: d.value });
     });
+    for (i = 0; i < revi.length; ++i) {
+      for (j = 0; j < revj.length; ++j) {
+        if (ij < here.managerData.length && here.managerData[ij].x === here.managerX[i]
+          && here.managerData[ij].y === here.managerY[j]) {
+          here.managerPlot.push({ x: i, y: j, value: here.managerData[ij].value });
+          ij++;
+        } else {
+          here.managerPlot.push({ x: i, y: j, value: 0 });
+        }
+      }
+    }
   }
   ngOnInit() {
     this.managerProcess();
     this.butName = this.squares ? 'Circles' : 'Squares';
-    this.setUp();
+  //  this.setUp(this.xLabels, this.yLabels, this.heatData);
+    this.setUp(this.managerX, this.managerY, this.managerPlot);
   }
 
   setTrans() {
     this.transpose = !this.transpose;
     this.butName = this.squares ? 'Circles' : 'Squares';
     d3.select('app-heatmap').select('svg').remove();
-    this.setUp();
+  //  this.setUp(this.xLabels, this.yLabels, this.heatData);
+    this.setUp(this.managerX, this.managerY, this.managerPlot);
   }
   setSquares() {
     this.squares = !this.squares;
     this.butName = this.squares ? 'Circles' : 'Squares';
     d3.select('app-heatmap').select('svg').remove();
-    this.setUp();
+  //  this.setUp(this.xLabels, this.yLabels, this.heatData);
+    this.setUp(this.managerX, this.managerY, this.managerPlot);
   }
 
-  setUp() {
+  setUp(managerX: string[], managerY: string[], managerPlot: {x: number, y: number, value: number}[]) {
     const squares = this.squares,
       transpose = this.transpose,
       colourrange = ['red', 'blue'],
@@ -306,12 +331,12 @@ export class HeatmapComponent implements OnInit {
       console.log('transpose' + transpose);
     if (transpose) {
       console.log('labels XY');
-      labelsXY.x = this.yLabels;
-      labelsXY.y = this.xLabels;
+      labelsXY.x = managerY;
+      labelsXY.y = managerX;
     } else {
       console.log('labels XX');
-      labelsXY.x = this.xLabels;
-      labelsXY.y = this.yLabels;
+      labelsXY.x = managerX;
+      labelsXY.y = managerY;
     }
     let buckets = labelsXY.x.length;
     const margin = { top: 120, right: 0, bottom: 100, left: 130 },
@@ -342,7 +367,7 @@ export class HeatmapComponent implements OnInit {
         .attr('x', 0)
         .attr('y', 0)
         .style('text-anchor', 'end')
-        .attr('transform', (d, i) => `translate(-5,${(i + 0.6) * gridSize})`)
+        .attr('transform', (d, i) => `translate(-25,${(i - 0.5) * gridSize})`)
         .attr('class', 'yLabel mono axis-y'),
 
       timeLabels = svg.selectAll('.xLabel')
@@ -352,7 +377,7 @@ export class HeatmapComponent implements OnInit {
         .attr('x', 0)
         .attr('y', 0)
         .style('text-anchor', 'right')
-        .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
+        .attr('transform', (d, i) => `translate(${(i - 0.55) * gridSize},-25) rotate(270)`)
         .attr('class', 'xLabel mono axis-x'),
 
       type = function (d: { x: number, y: number, value: number }) {
@@ -373,7 +398,7 @@ export class HeatmapComponent implements OnInit {
         }
       }, totalsX = [], totalsY = [], THIS = this,
       heatmapChart = function (circ: boolean) {
-        THIS.heatData.forEach(function (d) {
+        managerPlot.forEach(function (d) {
           d = type(d);
           if (labelsXY.y[d.y - 1] === 'Total') {
             totalsY.push(d.value);
