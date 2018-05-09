@@ -287,14 +287,12 @@ export class HeatmapComponent implements OnInit {
         revj.push(iy);
         ymap[d.y] = iy++;
       }
-     // here.managerPlot.push({ x: xmap[d.x], y: ymap[d.y], value: d.value });
     });
     for (i = 0; i < revi.length; ++i) {
       for (j = 0; j < revj.length; ++j) {
         if (ij < here.managerData.length && here.managerData[ij].x === here.managerX[i]
           && here.managerData[ij].y === here.managerY[j]) {
-          here.managerPlot.push({ x: i, y: j, value: here.managerData[ij].value });
-          ij++;
+          here.managerPlot.push({ x: i, y: j, value: here.managerData[ij++].value });
         } else {
           here.managerPlot.push({ x: i, y: j, value: 0 });
         }
@@ -328,18 +326,16 @@ export class HeatmapComponent implements OnInit {
       transpose = this.transpose,
       colourrange = ['red', 'blue'],
       labelsXY = { x: [' '], y: [' '] }, heatData: {x: number, y: number, value: number}[] = [];
-      console.log('transpose' + transpose);
     if (transpose) {
-      console.log('labels XY');
       labelsXY.x = managerY;
       labelsXY.y = managerX;
     } else {
-      console.log('labels XX');
       labelsXY.x = managerX;
       labelsXY.y = managerY;
     }
     let buckets = labelsXY.x.length;
-    const margin = { top: 120, right: 0, bottom: 100, left: 130 },
+    console.log(buckets);
+    const margin = { top: 120, right: 10, bottom: 100, left: 130 },
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
@@ -382,27 +378,23 @@ export class HeatmapComponent implements OnInit {
 
       type = function (d: { x: number, y: number, value: number }) {
         if (transpose) {
-          console.log('value XY');
           return {
             y: d.x,
             x: d.y,
             value: d.value
           };
         } else {
-          console.log('values XX');
           return {
             y: d.y,
             x: d.x,
             value: d.value
           };
         }
-      }, totalsX = [], totalsY = [], THIS = this,
+      }, totalsX = [], THIS = this,
       heatmapChart = function (circ: boolean) {
         managerPlot.forEach(function (d) {
           d = type(d);
-          if (labelsXY.y[d.y - 1] === 'Total') {
-            totalsY.push(d.value);
-          } else if (labelsXY.x[d.x - 1] === 'Total') {
+          if (labelsXY.x[d.x - 1] === 'Total') {
             totalsX.push(d.value);
           } else {
             heatData.push(d);
@@ -413,7 +405,7 @@ export class HeatmapComponent implements OnInit {
           .range(colors);
 
         const cards = svg.selectAll('.values')
-          .data(heatData, (d: { x: number, y: number, value: number }) => d.y + ':' + d.x);
+          .data(heatData, (d: { x: number, y: number, value: number }) => d.x + ':' + d.y);
 
 
         if (circ) {
@@ -451,14 +443,7 @@ export class HeatmapComponent implements OnInit {
           .attr('class', 'datavals')
           .text((d) => ' ' + d.value);
 
-        const totsy = svg.selectAll('.totalsY')
-          .data(totalsY).enter().append('g').append('text');
 
-        totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
-          .attr('y', labelsXY.y.length * gridSize - 6)
-          .attr('class', 'text totalsY')
-          .text((d) => d);
-        totsy.exit().remove();
         const totsx = svg.selectAll('.totalsX')
           .data(totalsX).enter().append('g').append('text');
 
@@ -477,7 +462,6 @@ export class HeatmapComponent implements OnInit {
         legend_g.append('rect')
           .attr('x', (d, i) => legendElementWidth * i)
           .attr('y', function () {
-            console.log(height + ((buckets === labelsXY.x.length) ? 0 : 10));
             return height + ((buckets === labelsXY.x.length) ? 0 : 10);
           })
           .attr('width', legendElementWidth)
