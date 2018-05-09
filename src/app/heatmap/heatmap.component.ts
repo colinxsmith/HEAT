@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { RGBColor } from 'd3';
 @Component({
   selector: 'app-heatmap',
-  template: '<button  (click)="setTrans()"> Transpose</button><button (click)="setSquares()">Squares</button>',
+  template: '<button  (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
@@ -34,21 +34,28 @@ export class HeatmapComponent implements OnInit {
   { y: 14, x: 7, value: 0 }, { y: 15, x: 1, value: 276 }, { y: 15, x: 2, value: 23 },
   { y: 15, x: 3, value: 157 }, { y: 15, x: 4, value: 143 }, { y: 15, x: 5, value: 1 },
   { y: 15, x: 6, value: 159 }, { y: 15, x: 7, value: 5 }];
-  transpose = false;
+  xLabels = ['CGT', 'Consol Port', 'JHP OEIC 100%', 'JHP OEIC sig', 'New Port', 'Other deferal', 'Transitioning'];
+  yLabels = ['Risk', 'Concentration', 'Max hld wgt', 'Buy-list', 'Sector', 'AA EQ UK KE', 'AA EQ INT KE', 'AA SV BD KE',
+      'AA CP BD KE', 'AA CA KE', 'AA AB RT KE', 'AA COMM KE', 'AA HEDGE KE', 'AA PROP KE', 'Total'];
+  butName = 'Squares';
+transpose = false;
   squares = false;
   constructor() { }
 
   ngOnInit() {
+    this.butName = this.squares ? 'Circles' : 'Squares';
     this.setUp();
   }
 
   setTrans() {
     this.transpose = !this.transpose;
+    this.butName = this.squares ? 'Circles' : 'Squares';
     d3.select('app-heatmap').select('svg').remove();
     this.setUp();
   }
   setSquares() {
     this.squares = !this.squares;
+    this.butName = this.squares ? 'Circles' : 'Squares';
     d3.select('app-heatmap').select('svg').remove();
     this.setUp();
   }
@@ -59,18 +66,14 @@ export class HeatmapComponent implements OnInit {
       colourrange = ['red', 'blue'],
       labelsXY = { x: [' '], y: [' '] }, heatData: {x: number, y: number, value: number}[] = [];
       console.log('transpose' + transpose);
-      let x: string[], y: string[];
-    x = ['CGT', 'Consol Port', 'JHP OEIC 100%', 'JHP OEIC sig', 'New Port', 'Other deferal', 'Transitioning'],
-      y = ['Risk', 'Concentration', 'Max hld wgt', 'Buy-list', 'Sector', 'AA EQ UK KE', 'AA EQ INT KE', 'AA SV BD KE',
-        'AA CP BD KE', 'AA CA KE', 'AA AB RT KE', 'AA COMM KE', 'AA HEDGE KE', 'AA PROP KE', 'Total'];
     if (transpose) {
       console.log('labels XY');
-      labelsXY.x = y;
-      labelsXY.y = x;
+      labelsXY.x = this.yLabels;
+      labelsXY.y = this.xLabels;
     } else {
       console.log('labels XX');
-      labelsXY.x = x;
-      labelsXY.y = y;
+      labelsXY.x = this.xLabels;
+      labelsXY.y = this.yLabels;
     }
     let buckets = labelsXY.x.length;
     const margin = { top: 120, right: 0, bottom: 100, left: 130 },
@@ -155,11 +158,11 @@ export class HeatmapComponent implements OnInit {
             .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
             .attr('class', 'values circle bordered')
             .attr('r', gridSize / 2.5)
-            .style('fill', ' ' +colors[0])
+            .style('fill', ' ' + colors[0])
             .merge(cards)
             .transition()
             .duration(100)
-            .style('fill', (d) => ' '+ colorScale(d.value));
+            .style('fill', (d) => ' ' + colorScale(d.value));
         } else {
           cards.enter().append('rect')
             .attr('x', (d) => (d.x - 1) * gridSize)
@@ -215,7 +218,7 @@ export class HeatmapComponent implements OnInit {
           })
           .attr('width', legendElementWidth)
           .attr('height', gridSize / 2)
-          .style('fill', (d, i) => ' '+colors[i]);
+          .style('fill', (d, i) => ' ' + colors[i]);
 
         legend_g.append('text')
           .attr('class', 'mono')
