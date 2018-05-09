@@ -38,8 +38,8 @@ export class HeatmapComponent implements OnInit {
   yLabels = ['Risk', 'Concentration', 'Max hld wgt', 'Buy-list', 'Sector', 'AA EQ UK KE', 'AA EQ INT KE', 'AA SV BD KE',
       'AA CP BD KE', 'AA CA KE', 'AA AB RT KE', 'AA COMM KE', 'AA HEDGE KE', 'AA PROP KE', 'Total'];
   butName = 'Squares';
-transpose = false;
-  squares = false;
+  transpose = false;
+  squares = true;
   constructor() { }
 
   ngOnInit() {
@@ -81,8 +81,9 @@ transpose = false;
       height = 500 - margin.top - margin.bottom,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
-    if (labelsXY.x[buckets - 1] === 'Total') { buckets--; }
-    const coloursd = d3.scaleLinear<RGBColor>()
+      if (labelsXY.x[buckets - 1] === 'Total') { buckets--; }
+
+      const coloursd = d3.scaleLinear<RGBColor>()
       .domain([0, buckets])
       .range([d3.rgb(colourrange[0]), d3.rgb(colourrange[1])]),
       colors: RGBColor[] = [];
