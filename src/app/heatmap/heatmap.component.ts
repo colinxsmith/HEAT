@@ -1,5 +1,6 @@
 import { Component, OnInit , ViewEncapsulation} from '@angular/core';
 import * as d3 from 'd3';
+import { RGBColor } from 'd3';
 @Component({
   selector: 'app-heatmap',
   template: '<button  (click)="setTrans()"> Transpose</button><button (click)="setSquares()">Squares</button>',
@@ -78,10 +79,10 @@ export class HeatmapComponent implements OnInit {
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
     if (labelsXY.x[buckets - 1] === 'Total') { buckets--; }
-    const coloursd = d3.scaleLinear()
+    const coloursd = d3.scaleLinear<RGBColor>()
       .domain([0, buckets])
       .range([d3.rgb(colourrange[0]), d3.rgb(colourrange[1])]),
-      colors: number[] = [];
+      colors: RGBColor[] = [];
     labelsXY.x.forEach(function (d, ii) {
       colors[ii] = coloursd(ii);
     });
@@ -140,7 +141,7 @@ export class HeatmapComponent implements OnInit {
             heatData.push(d);
           }
         });
-        const colorScale: d3.ScaleQuantile<number> = d3.scaleQuantile()
+        const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
           .domain([0, buckets, d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colors);
 
@@ -154,11 +155,11 @@ export class HeatmapComponent implements OnInit {
             .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
             .attr('class', 'values circle bordered')
             .attr('r', gridSize / 2.5)
-            .style('fill', colors[0])
+            .style('fill', ' ' +colors[0])
             .merge(cards)
             .transition()
             .duration(100)
-            .style('fill', (d) => colorScale(d.value));
+            .style('fill', (d) => ' '+ colorScale(d.value));
         } else {
           cards.enter().append('rect')
             .attr('x', (d) => (d.x - 1) * gridSize)
@@ -168,11 +169,11 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'values rect bordered')
             .attr('width', gridSize)
             .attr('height', gridSize)
-            .style('fill', colors[0])
+            .style('fill', ' ' + colors[0])
             .merge(cards)
             .transition()
             .duration(100)
-            .style('fill', (d) => colorScale(d.value));
+            .style('fill', (d) => ' ' + colorScale(d.value));
         }
         cards.exit().remove();
 
@@ -214,7 +215,7 @@ export class HeatmapComponent implements OnInit {
           })
           .attr('width', legendElementWidth)
           .attr('height', gridSize / 2)
-          .style('fill', (d, i) => colors[i]);
+          .style('fill', (d, i) => ' '+colors[i]);
 
         legend_g.append('text')
           .attr('class', 'mono')
