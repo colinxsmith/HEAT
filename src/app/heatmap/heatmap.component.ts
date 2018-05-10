@@ -3,14 +3,15 @@ import * as d3 from 'd3';
 import { RGBColor } from 'd3';
 @Component({
   selector: 'app-heatmap',
-  template: '<button  (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button>',
+  template: '<button  (click)="setPad()"> {{padButt}}</button><button  (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of diags">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
 export class HeatmapComponent implements OnInit {
-  managerX = [];
-  managerY = [];
-  managerPlot = [];
+  diags = ['Clients', 'BMIDs'];
+  managerX: string[] = [];
+  managerY: string[] = [];
+  managerPlot: {x: number, y: number, value: number}[] = [];
   managerData = [
     { x: 'London', y: 'A', value: 155.000000 },
     { x: 'London', y: 'B', value: 45.000000 },
@@ -239,6 +240,234 @@ export class HeatmapComponent implements OnInit {
     { x: 'Moscow', y: 'M', value: 3.000000 },
     { x: 'Edinburgh', y: 'G', value: 22.000000 },
   ];
+  managerData1 = [
+    {x: 'London', y: 'A', value: 166.000000 },
+{x: 'London', y: 'B', value: 47.000000 },
+{x: 'London', y: 'C', value: 159.000000 },
+{x: 'London', y: 'D', value: 389.000000 },
+{x: 'London', y: 'E', value: 155.000000 },
+{x: 'London', y: 'F', value: 50.000000 },
+{x: 'London', y: 'G', value: 150.000000 },
+{x: 'London', y: 'H', value: 264.000000 },
+{x: 'London', y: 'I', value: 467.000000 },
+{x: 'London', y: 'J', value: 47.000000 },
+{x: 'London', y: 'K', value: 123.000000 },
+{x: 'London', y: 'L', value: 74.000000 },
+{x: 'London', y: 'M', value: 509.000000 },
+{x: 'London', y: 'N', value: 404.000000 },
+{x: 'London', y: 'O', value: 22.000000 },
+{x: 'London', y: 'P', value: 162.000000 },
+{x: 'London', y: 'R', value: 98.000000 },
+{x: 'London', y: 'S', value: 328.000000 },
+{x: 'London', y: 'T', value: 222.000000 },
+{x: 'London', y: 'U', value: 3.000000 },
+{x: 'London', y: 'V', value: 157.000000 },
+{x: 'London', y: 'W', value: 7.000000 },
+{x: 'London', y: 'X', value: 12.000000 },
+{x: 'London', y: 'Y', value: 7.000000 },
+{x: 'London', y: 'Z', value: 24.000000 },
+{x: 'New York', y: 'A', value: 433.000000 },
+{x: 'New York', y: 'B', value: 388.000000 },
+{x: 'New York', y: 'C', value: 540.000000 },
+{x: 'New York', y: 'D', value: 258.000000 },
+{x: 'New York', y: 'E', value: 157.000000 },
+{x: 'New York', y: 'F', value: 50.000000 },
+{x: 'New York', y: 'G', value: 191.000000 },
+{x: 'New York', y: 'H', value: 1.000000 },
+{x: 'New York', y: 'I', value: 136.000000 },
+{x: 'New York', y: 'J', value: 23.000000 },
+{x: 'New York', y: 'K', value: 4.000000 },
+{x: 'New York', y: 'L', value: 49.000000 },
+{x: 'New York', y: 'M', value: 58.000000 },
+{x: 'New York', y: 'N', value: 49.000000 },
+{x: 'New York', y: 'O', value: 25.000000 },
+{x: 'New York', y: 'P', value: 438.000000 },
+{x: 'New York', y: 'R', value: 1.000000 },
+{x: 'New York', y: 'S', value: 26.000000 },
+{x: 'New York', y: 'T', value: 582.000000 },
+{x: 'New York', y: 'U', value: 116.000000 },
+{x: 'New York', y: 'V', value: 4.000000 },
+{x: 'New York', y: 'W', value: 98.000000 },
+{x: 'New York', y: 'X', value: 1.000000 },
+{x: 'New York', y: 'Y', value: 95.000000 },
+{x: 'New York', y: 'Z', value: 24.000000 },
+{x: 'Paris', y: 'A', value: 113.000000 },
+{x: 'Paris', y: 'B', value: 316.000000 },
+{x: 'Paris', y: 'C', value: 43.000000 },
+{x: 'Paris', y: 'D', value: 30.000000 },
+{x: 'Paris', y: 'E', value: 87.000000 },
+{x: 'Paris', y: 'F', value: 62.000000 },
+{x: 'Paris', y: 'G', value: 340.000000 },
+{x: 'Paris', y: 'H', value: 284.000000 },
+{x: 'Paris', y: 'I', value: 102.000000 },
+{x: 'Paris', y: 'J', value: 34.000000 },
+{x: 'Paris', y: 'K', value: 12.000000 },
+{x: 'Paris', y: 'L', value: 188.000000 },
+{x: 'Paris', y: 'M', value: 2.000000 },
+{x: 'Paris', y: 'N', value: 125.000000 },
+{x: 'Paris', y: 'O', value: 127.000000 },
+{x: 'Paris', y: 'P', value: 282.000000 },
+{x: 'Paris', y: 'R', value: 772.000000 },
+{x: 'Paris', y: 'S', value: 5.000000 },
+{x: 'Paris', y: 'T', value: 168.000000 },
+{x: 'Paris', y: 'U', value: 15.000000 },
+{x: 'Paris', y: 'V', value: 31.000000 },
+{x: 'Paris', y: 'W', value: 298.000000 },
+{x: 'Paris', y: 'X', value: 27.000000 },
+{x: 'Paris', y: 'Y', value: 10.000000 },
+{x: 'Frankfurt', y: 'A', value: 5.000000 },
+{x: 'Frankfurt', y: 'B', value: 44.000000 },
+{x: 'Frankfurt', y: 'C', value: 2.000000 },
+{x: 'Frankfurt', y: 'D', value: 5.000000 },
+{x: 'Frankfurt', y: 'E', value: 114.000000 },
+{x: 'Frankfurt', y: 'F', value: 36.000000 },
+{x: 'Frankfurt', y: 'G', value: 319.000000 },
+{x: 'Frankfurt', y: 'H', value: 154.000000 },
+{x: 'Frankfurt', y: 'I', value: 21.000000 },
+{x: 'Frankfurt', y: 'J', value: 375.000000 },
+{x: 'Frankfurt', y: 'K', value: 1.000000 },
+{x: 'Frankfurt', y: 'L', value: 81.000000 },
+{x: 'Frankfurt', y: 'M', value: 177.000000 },
+{x: 'Frankfurt', y: 'N', value: 166.000000 },
+{x: 'Frankfurt', y: 'O', value: 62.000000 },
+{x: 'Frankfurt', y: 'P', value: 1.000000 },
+{x: 'Frankfurt', y: 'R', value: 260.000000 },
+{x: 'Frankfurt', y: 'S', value: 674.000000 },
+{x: 'Frankfurt', y: 'T', value: 177.000000 },
+{x: 'Frankfurt', y: 'U', value: 200.000000 },
+{x: 'Frankfurt', y: 'V', value: 354.000000 },
+{x: 'Frankfurt', y: 'W', value: 2.000000 },
+{x: 'Frankfurt', y: 'X', value: 74.000000 },
+{x: 'Frankfurt', y: 'Y', value: 12.000000 },
+{x: 'Tokyo', y: 'A', value: 229.000000 },
+{x: 'Tokyo', y: 'B', value: 68.000000 },
+{x: 'Tokyo', y: 'C', value: 226.000000 },
+{x: 'Tokyo', y: 'D', value: 316.000000 },
+{x: 'Tokyo', y: 'E', value: 233.000000 },
+{x: 'Tokyo', y: 'F', value: 147.000000 },
+{x: 'Tokyo', y: 'G', value: 190.000000 },
+{x: 'Tokyo', y: 'H', value: 3.000000 },
+{x: 'Tokyo', y: 'I', value: 56.000000 },
+{x: 'Tokyo', y: 'J', value: 87.000000 },
+{x: 'Tokyo', y: 'K', value: 54.000000 },
+{x: 'Tokyo', y: 'L', value: 46.000000 },
+{x: 'Tokyo', y: 'M', value: 3.000000 },
+{x: 'Tokyo', y: 'N', value: 292.000000 },
+{x: 'Tokyo', y: 'O', value: 250.000000 },
+{x: 'Tokyo', y: 'P', value: 151.000000 },
+{x: 'Tokyo', y: 'R', value: 8.000000 },
+{x: 'Tokyo', y: 'S', value: 4.000000 },
+{x: 'Tokyo', y: 'T', value: 15.000000 },
+{x: 'Tokyo', y: 'U', value: 41.000000 },
+{x: 'Tokyo', y: 'V', value: 346.000000 },
+{x: 'Tokyo', y: 'W', value: 151.000000 },
+{x: 'Tokyo', y: 'X', value: 14.000000 },
+{x: 'Tokyo', y: 'Y', value: 79.000000 },
+{x: 'Sydney', y: 'A', value: 234.000000 },
+{x: 'Sydney', y: 'B', value: 7.000000 },
+{x: 'Sydney', y: 'C', value: 406.000000 },
+{x: 'Sydney', y: 'D', value: 634.000000 },
+{x: 'Sydney', y: 'E', value: 239.000000 },
+{x: 'Sydney', y: 'F', value: 5.000000 },
+{x: 'Sydney', y: 'G', value: 134.000000 },
+{x: 'Sydney', y: 'H', value: 149.000000 },
+{x: 'Sydney', y: 'I', value: 41.000000 },
+{x: 'Sydney', y: 'J', value: 651.000000 },
+{x: 'Sydney', y: 'L', value: 1.000000 },
+{x: 'Sydney', y: 'M', value: 235.000000 },
+{x: 'Sydney', y: 'N', value: 1.000000 },
+{x: 'Sydney', y: 'R', value: 18.000000 },
+{x: 'Sydney', y: 'S', value: 9.000000 },
+{x: 'Sydney', y: 'T', value: 274.000000 },
+{x: 'Sydney', y: 'U', value: 6.000000 },
+{x: 'Sydney', y: 'W', value: 440.000000 },
+{x: 'Sydney', y: 'X', value: 3.000000 },
+{x: 'Hong Kong', y: 'A', value: 40.000000 },
+{x: 'Hong Kong', y: 'B', value: 47.000000 },
+{x: 'Hong Kong', y: 'C', value: 9.000000 },
+{x: 'Hong Kong', y: 'D', value: 5.000000 },
+{x: 'Hong Kong', y: 'E', value: 126.000000 },
+{x: 'Hong Kong', y: 'F', value: 205.000000 },
+{x: 'Hong Kong', y: 'G', value: 247.000000 },
+{x: 'Hong Kong', y: 'H', value: 5.000000 },
+{x: 'Hong Kong', y: 'I', value: 9.000000 },
+{x: 'Hong Kong', y: 'J', value: 24.000000 },
+{x: 'Hong Kong', y: 'M', value: 312.000000 },
+{x: 'Hong Kong', y: 'N', value: 121.000000 },
+{x: 'Hong Kong', y: 'R', value: 75.000000 },
+{x: 'Hong Kong', y: 'S', value: 212.000000 },
+{x: 'Hong Kong', y: 'T', value: 60.000000 },
+{x: 'Hong Kong', y: 'U', value: 13.000000 },
+{x: 'Hong Kong', y: 'W', value: 82.000000 },
+{x: 'Hong Kong', y: 'X', value: 250.000000 },
+{x: 'Geneva', y: 'A', value: 40.000000 },
+{x: 'Geneva', y: 'B', value: 14.000000 },
+{x: 'Geneva', y: 'C', value: 385.000000 },
+{x: 'Geneva', y: 'D', value: 16.000000 },
+{x: 'Geneva', y: 'E', value: 40.000000 },
+{x: 'Geneva', y: 'G', value: 404.000000 },
+{x: 'Geneva', y: 'H', value: 243.000000 },
+{x: 'Geneva', y: 'I', value: 1.000000 },
+{x: 'Geneva', y: 'J', value: 499.000000 },
+{x: 'Geneva', y: 'M', value: 1.000000 },
+{x: 'Geneva', y: 'N', value: 1.000000 },
+{x: 'Geneva', y: 'R', value: 36.000000 },
+{x: 'Geneva', y: 'S', value: 440.000000 },
+{x: 'Geneva', y: 'T', value: 1.000000 },
+{x: 'Geneva', y: 'U', value: 175.000000 },
+{x: 'Geneva', y: 'W', value: 363.000000 },
+{x: 'Geneva', y: 'X', value: 63.000000 },
+{x: 'Toronto', y: 'A', value: 222.000000 },
+{x: 'Toronto', y: 'B', value: 275.000000 },
+{x: 'Toronto', y: 'C', value: 12.000000 },
+{x: 'Toronto', y: 'D', value: 162.000000 },
+{x: 'Toronto', y: 'G', value: 182.000000 },
+{x: 'Toronto', y: 'H', value: 332.000000 },
+{x: 'Toronto', y: 'J', value: 2.000000 },
+{x: 'Toronto', y: 'M', value: 28.000000 },
+{x: 'Toronto', y: 'N', value: 1.000000 },
+{x: 'Toronto', y: 'R', value: 25.000000 },
+{x: 'Toronto', y: 'S', value: 1.000000 },
+{x: 'Toronto', y: 'T', value: 84.000000 },
+{x: 'Toronto', y: 'U', value: 143.000000 },
+{x: 'Toronto', y: 'W', value: 109.000000 },
+{x: 'Dubai', y: 'A', value: 113.000000 },
+{x: 'Dubai', y: 'C', value: 1.000000 },
+{x: 'Dubai', y: 'D', value: 337.000000 },
+{x: 'Dubai', y: 'G', value: 96.000000 },
+{x: 'Dubai', y: 'J', value: 210.000000 },
+{x: 'Dubai', y: 'M', value: 52.000000 },
+{x: 'Dubai', y: 'N', value: 192.000000 },
+{x: 'Dubai', y: 'R', value: 8.000000 },
+{x: 'Dubai', y: 'S', value: 31.000000 },
+{x: 'Dubai', y: 'T', value: 271.000000 },
+{x: 'Dubai', y: 'U', value: 5.000000 },
+{x: 'Luxembourg', y: 'A', value: 42.000000 },
+{x: 'Luxembourg', y: 'C', value: 215.000000 },
+{x: 'Luxembourg', y: 'D', value: 75.000000 },
+{x: 'Luxembourg', y: 'G', value: 49.000000 },
+{x: 'Luxembourg', y: 'J', value: 3.000000 },
+{x: 'Luxembourg', y: 'M', value: 191.000000 },
+{x: 'Luxembourg', y: 'N', value: 1.000000 },
+{x: 'Luxembourg', y: 'R', value: 189.000000 },
+{x: 'Luxembourg', y: 'S', value: 201.000000 },
+{x: 'Luxembourg', y: 'T', value: 25.000000 },
+{x: 'Luxembourg', y: 'U', value: 1.000000 },
+{x: 'Madrid', y: 'A', value: 300.000000 },
+{x: 'Madrid', y: 'D', value: 73.000000 },
+{x: 'Madrid', y: 'G', value: 615.000000 },
+{x: 'Madrid', y: 'J', value: 73.000000 },
+{x: 'Madrid', y: 'M', value: 7.000000 },
+{x: 'Madrid', y: 'R', value: 75.000000 },
+{x: 'Oslo', y: 'G', value: 9.000000 },
+{x: 'Oslo', y: 'J', value: 7.000000 },
+{x: 'Oslo', y: 'M', value: 121.000000 },
+{x: 'Oslo', y: 'R', value: 2.000000 },
+{x: 'Moscow', y: 'G', value: 6.000000 },
+{x: 'Moscow', y: 'J', value: 142.000000 },
+{x: 'Moscow', y: 'M', value: 3.000000 },
+{x: 'Edinburgh', y: 'G', value: 26.000000 }
+  ];
   heatData = [{ y: 1, x: 1, value: 21 }, { y: 1, x: 2, value: 12 }, { y: 1, x: 3, value: 65 },
   { y: 1, x: 4, value: 3 }, { y: 1, x: 5, value: 1 }, { y: 1, x: 6, value: 57 }, { y: 1, x: 7, value: 1 }, { y: 2, x: 1, value: 7 },
   { y: 2, x: 2, value: 1 }, { y: 2, x: 3, value: 5 }, { y: 2, x: 4, value: 1 }, { y: 2, x: 5, value: 0 }, { y: 2, x: 6, value: 1 },
@@ -269,14 +498,34 @@ export class HeatmapComponent implements OnInit {
   yLabels = ['Risk', 'Concentration', 'Max hld wgt', 'Buy-list', 'Sector', 'AA EQ UK KE', 'AA EQ INT KE', 'AA SV BD KE',
       'AA CP BD KE', 'AA CA KE', 'AA AB RT KE', 'AA COMM KE', 'AA HEDGE KE', 'AA PROP KE', 'Total'];
   butName = 'Squares';
-  transpose = false;
+  transpose = true;
   squares = true;
-  constructor() { }
+  chosenData = this.diags[0];
+  pad = true;
+  padButt = 'Don\'t pad';
+  colourrange = ['lightgreen', 'cyan'];
 
-  managerProcess() {
+  constructor() { }
+  chooseData(daig) {
+    this.chosenData = daig;
+    if (this.chosenData === this.diags[0]) {
+      this.managerProcess(this.managerData);
+    }    else if (this.chosenData === this.diags[1]) {
+      this.managerProcess(this.managerData1);
+    }
+    this.butName = this.squares ? 'Circles' : 'Squares';
+//    this.setUp(this.xLabels, this.yLabels, this.heatData);
+    this.setUp(this.managerX, this.managerY, this.managerPlot);
+  }
+  managerProcess(dataV: {x: string, y: string, value: number}[]) {
+    console.log(this.chosenData);
+    d3.selectAll('svg').remove();
     const here = this, xmap = {}, ymap = {}, revi = [], revj = [];
+    this.managerX = [];
+    this.managerY = [];
+    this.managerPlot = [];
     let ix = 0, iy = 0, i = 0, j = 0, ij = 0;
-    this.managerData.forEach(function (d) {
+    dataV.forEach(function (d) {
       if (!(xmap[d.x] > -1)) {
         here.managerX.push(d.x);
         revi.push(ix);
@@ -290,23 +539,45 @@ export class HeatmapComponent implements OnInit {
     });
     for (i = 0; i < revi.length; ++i) {
       for (j = 0; j < revj.length; ++j) {
-        if (ij < here.managerData.length && here.managerData[ij].x === here.managerX[i]
-          && here.managerData[ij].y === here.managerY[j]) {
-          here.managerPlot.push({ x: i + 1, y: j + 1, value: here.managerData[ij++].value });
+        if (ij < dataV.length && dataV[ij].x === here.managerX[i]
+          && dataV[ij].y === here.managerY[j]) {
+          here.managerPlot.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
         } else {
-          here.managerPlot.push({ x: i + 1, y: j + 1, value: 0 });
+          if (here.pad) { here.managerPlot.push({ x: i + 1, y: j + 1, value: 0 }); }
         }
       }
     }
   }
   ngOnInit() {
-    this.managerProcess();
+    if (this.chosenData === this.diags[0]) {
+      this.managerProcess(this.managerData);
+    }    else if (this.chosenData === this.diags[1]) {
+      this.managerProcess(this.managerData1);
+    }
     this.butName = this.squares ? 'Circles' : 'Squares';
 //    this.setUp(this.xLabels, this.yLabels, this.heatData);
     this.setUp(this.managerX, this.managerY, this.managerPlot);
   }
 
+  setPad() {
+    this.padButt = this.pad ? 'Pad with zero' : 'Don\'t pad';
+    this.pad = !this.pad;
+    if (this.chosenData === this.diags[0]) {
+      this.managerProcess(this.managerData);
+    }    else if (this.chosenData === this.diags[1]) {
+      this.managerProcess(this.managerData1);
+    }
+    this.butName = this.squares ? 'Circles' : 'Squares';
+    d3.select('app-heatmap').select('svg').remove();
+  //  this.setUp(this.xLabels, this.yLabels, this.heatData);
+    this.setUp(this.managerX, this.managerY, this.managerPlot);
+  }
   setTrans() {
+    if (this.chosenData === this.diags[0]) {
+      this.managerProcess(this.managerData);
+    }    else if (this.chosenData === this.diags[1]) {
+      this.managerProcess(this.managerData1);
+    }
     this.transpose = !this.transpose;
     this.butName = this.squares ? 'Circles' : 'Squares';
     d3.select('app-heatmap').select('svg').remove();
@@ -314,6 +585,11 @@ export class HeatmapComponent implements OnInit {
     this.setUp(this.managerX, this.managerY, this.managerPlot);
   }
   setSquares() {
+    if (this.chosenData === this.diags[0]) {
+      this.managerProcess(this.managerData);
+    }    else if (this.chosenData === this.diags[1]) {
+      this.managerProcess(this.managerData1);
+    }
     this.squares = !this.squares;
     this.butName = this.squares ? 'Circles' : 'Squares';
     d3.select('app-heatmap').select('svg').remove();
@@ -324,7 +600,6 @@ export class HeatmapComponent implements OnInit {
   setUp(xLabels: string[], yLabels: string[], dataXY: {x: number, y: number, value: number}[]) {
     const squares = this.squares,
       transpose = this.transpose,
-      colourrange = ['red', 'blue'],
       labelsXY = { x: [' '], y: [' '] }, heatData: {x: number, y: number, value: number}[] = [];
       console.log('transpose= ' + transpose);
     if (transpose) {
@@ -345,7 +620,7 @@ export class HeatmapComponent implements OnInit {
 
       const coloursd = d3.scaleLinear<RGBColor>()
       .domain([0, buckets])
-      .range([d3.rgb(colourrange[0]), d3.rgb(colourrange[1])]),
+      .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
       colors: RGBColor[] = [];
     labelsXY.x.forEach(function (d, ii) {
       colors[ii] = coloursd(ii);
