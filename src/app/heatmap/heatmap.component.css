@@ -14,13 +14,13 @@ circle.bordered {
 }
 
 text.mono {
-    font-size: 7px;
+    font-size: 10px;
     font-family: Calibri, sans-serif;
     fill: green;
 }
 
 text.datavals {
-    font-size: 7px;
+    font-size: 9px;
     font-family: Calibri, sans-serif;
     text-anchor: middle;
 }

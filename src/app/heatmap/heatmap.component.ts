@@ -8,6 +8,9 @@ import { RGBColor } from 'd3';
   encapsulation: ViewEncapsulation.None
 })
 export class HeatmapComponent implements OnInit {
+  managerX = [];
+  managerY = [];
+  managerPlot = [];
   managerData = [
     { x: 'London', y: 'A', value: 155.000000 },
     { x: 'London', y: 'B', value: 45.000000 },
@@ -236,9 +239,6 @@ export class HeatmapComponent implements OnInit {
     { x: 'Moscow', y: 'M', value: 3.000000 },
     { x: 'Edinburgh', y: 'G', value: 22.000000 },
   ];
-  managerX: string[] = [];
-  managerY: string[] = [];
-  managerPlot: {x: number, y: number, value: number}[] = [];
   heatData = [{ y: 1, x: 1, value: 21 }, { y: 1, x: 2, value: 12 }, { y: 1, x: 3, value: 65 },
   { y: 1, x: 4, value: 3 }, { y: 1, x: 5, value: 1 }, { y: 1, x: 6, value: 57 }, { y: 1, x: 7, value: 1 }, { y: 2, x: 1, value: 7 },
   { y: 2, x: 2, value: 1 }, { y: 2, x: 3, value: 5 }, { y: 2, x: 4, value: 1 }, { y: 2, x: 5, value: 0 }, { y: 2, x: 6, value: 1 },
@@ -267,9 +267,9 @@ export class HeatmapComponent implements OnInit {
   { y: 15, x: 6, value: 159 }, { y: 15, x: 7, value: 5 }];
   xLabels = ['CGT', 'Consol Port', 'JHP OEIC 100%', 'JHP OEIC sig', 'New Port', 'Other deferal', 'Transitioning'];
   yLabels = ['Risk', 'Concentration', 'Max hld wgt', 'Buy-list', 'Sector', 'AA EQ UK KE', 'AA EQ INT KE', 'AA SV BD KE',
-    'AA CP BD KE', 'AA CA KE', 'AA AB RT KE', 'AA COMM KE', 'AA HEDGE KE', 'AA PROP KE', 'Total'];
+      'AA CP BD KE', 'AA CA KE', 'AA AB RT KE', 'AA COMM KE', 'AA HEDGE KE', 'AA PROP KE', 'Total'];
   butName = 'Squares';
-  transpose = true;
+  transpose = false;
   squares = true;
   constructor() { }
 
@@ -292,9 +292,9 @@ export class HeatmapComponent implements OnInit {
       for (j = 0; j < revj.length; ++j) {
         if (ij < here.managerData.length && here.managerData[ij].x === here.managerX[i]
           && here.managerData[ij].y === here.managerY[j]) {
-          here.managerPlot.push({ x: i, y: j, value: here.managerData[ij++].value });
+          here.managerPlot.push({ x: i + 1, y: j + 1, value: here.managerData[ij++].value });
         } else {
-          here.managerPlot.push({ x: i, y: j, value: 0 });
+          here.managerPlot.push({ x: i + 1, y: j + 1, value: 0 });
         }
       }
     }
@@ -302,7 +302,7 @@ export class HeatmapComponent implements OnInit {
   ngOnInit() {
     this.managerProcess();
     this.butName = this.squares ? 'Circles' : 'Squares';
-  //  this.setUp(this.xLabels, this.yLabels, this.heatData);
+//    this.setUp(this.xLabels, this.yLabels, this.heatData);
     this.setUp(this.managerX, this.managerY, this.managerPlot);
   }
 
@@ -321,21 +321,22 @@ export class HeatmapComponent implements OnInit {
     this.setUp(this.managerX, this.managerY, this.managerPlot);
   }
 
-  setUp(managerX: string[], managerY: string[], managerPlot: {x: number, y: number, value: number}[]) {
+  setUp(xLabels: string[], yLabels: string[], dataXY: {x: number, y: number, value: number}[]) {
     const squares = this.squares,
       transpose = this.transpose,
       colourrange = ['red', 'blue'],
       labelsXY = { x: [' '], y: [' '] }, heatData: {x: number, y: number, value: number}[] = [];
+      console.log('transpose= ' + transpose);
     if (transpose) {
-      labelsXY.x = managerY;
-      labelsXY.y = managerX;
+      labelsXY.x = yLabels;
+      labelsXY.y = xLabels;
     } else {
-      labelsXY.x = managerX;
-      labelsXY.y = managerY;
+      labelsXY.x = xLabels;
+      labelsXY.y = yLabels;
     }
     let buckets = labelsXY.x.length;
     console.log(buckets);
-    const margin = { top: 120, right: 10, bottom: 100, left: 130 },
+    const margin = { top: 120, right: 0, bottom: 100, left: 130 },
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
@@ -363,7 +364,7 @@ export class HeatmapComponent implements OnInit {
         .attr('x', 0)
         .attr('y', 0)
         .style('text-anchor', 'end')
-        .attr('transform', (d, i) => `translate(-25,${(i - 0.5) * gridSize})`)
+        .attr('transform', (d, i) => `translate(-5,${(i + 0.6) * gridSize})`)
         .attr('class', 'yLabel mono axis-y'),
 
       timeLabels = svg.selectAll('.xLabel')
@@ -373,7 +374,7 @@ export class HeatmapComponent implements OnInit {
         .attr('x', 0)
         .attr('y', 0)
         .style('text-anchor', 'right')
-        .attr('transform', (d, i) => `translate(${(i - 0.55) * gridSize},-25) rotate(270)`)
+        .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
         .attr('class', 'xLabel mono axis-x'),
 
       type = function (d: { x: number, y: number, value: number }) {
@@ -390,11 +391,13 @@ export class HeatmapComponent implements OnInit {
             value: d.value
           };
         }
-      }, totalsX = [], THIS = this,
+      }, totalsX = [], totalsY = [], THIS = this,
       heatmapChart = function (circ: boolean) {
-        managerPlot.forEach(function (d) {
+        dataXY.forEach(function (d) {
           d = type(d);
-          if (labelsXY.x[d.x - 1] === 'Total') {
+          if (labelsXY.y[d.y - 1] === 'Total') {
+            totalsY.push(d.value);
+          } else if (labelsXY.x[d.x - 1] === 'Total') {
             totalsX.push(d.value);
           } else {
             heatData.push(d);
@@ -405,7 +408,7 @@ export class HeatmapComponent implements OnInit {
           .range(colors);
 
         const cards = svg.selectAll('.values')
-          .data(heatData, (d: { x: number, y: number, value: number }) => d.x + ':' + d.y);
+          .data(heatData, (d: { x: number, y: number, value: number }) => d.y + ':' + d.x);
 
 
         if (circ) {
@@ -443,7 +446,14 @@ export class HeatmapComponent implements OnInit {
           .attr('class', 'datavals')
           .text((d) => ' ' + d.value);
 
+        const totsy = svg.selectAll('.totalsY')
+          .data(totalsY).enter().append('g').append('text');
 
+        totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
+          .attr('y', labelsXY.y.length * gridSize - 6)
+          .attr('class', 'text totalsY')
+          .text((d) => d);
+        totsy.exit().remove();
         const totsx = svg.selectAll('.totalsX')
           .data(totalsX).enter().append('g').append('text');
 
