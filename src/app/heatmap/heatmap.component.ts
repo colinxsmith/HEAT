@@ -508,14 +508,7 @@ export class HeatmapComponent implements OnInit {
   constructor() { }
   chooseData(daig) {
     this.chosenData = daig;
-    if (this.chosenData === this.diags[0]) {
-      this.managerProcess(this.managerData);
-    }    else if (this.chosenData === this.diags[1]) {
-      this.managerProcess(this.managerData1);
-    }
-    this.butName = this.squares ? 'Circles' : 'Squares';
-//    this.setUp(this.xLabels, this.yLabels, this.heatData);
-    this.setUp(this.managerX, this.managerY, this.managerPlot);
+    this.ngOnInit();
   }
   managerProcess(dataV: {x: string, y: string, value: number}[]) {
     console.log(this.chosenData);
@@ -562,39 +555,17 @@ export class HeatmapComponent implements OnInit {
   setPad() {
     this.padButt = this.pad ? 'Pad with zero' : 'Don\'t pad';
     this.pad = !this.pad;
-    if (this.chosenData === this.diags[0]) {
-      this.managerProcess(this.managerData);
-    }    else if (this.chosenData === this.diags[1]) {
-      this.managerProcess(this.managerData1);
-    }
-    this.butName = this.squares ? 'Circles' : 'Squares';
-    d3.select('app-heatmap').select('svg').remove();
-  //  this.setUp(this.xLabels, this.yLabels, this.heatData);
-    this.setUp(this.managerX, this.managerY, this.managerPlot);
+    this.ngOnInit();
   }
   setTrans() {
-    if (this.chosenData === this.diags[0]) {
-      this.managerProcess(this.managerData);
-    }    else if (this.chosenData === this.diags[1]) {
-      this.managerProcess(this.managerData1);
-    }
     this.transpose = !this.transpose;
     this.butName = this.squares ? 'Circles' : 'Squares';
-    d3.select('app-heatmap').select('svg').remove();
-  //  this.setUp(this.xLabels, this.yLabels, this.heatData);
-    this.setUp(this.managerX, this.managerY, this.managerPlot);
+    this.ngOnInit();
   }
   setSquares() {
-    if (this.chosenData === this.diags[0]) {
-      this.managerProcess(this.managerData);
-    }    else if (this.chosenData === this.diags[1]) {
-      this.managerProcess(this.managerData1);
-    }
     this.squares = !this.squares;
     this.butName = this.squares ? 'Circles' : 'Squares';
-    d3.select('app-heatmap').select('svg').remove();
-  //  this.setUp(this.xLabels, this.yLabels, this.heatData);
-    this.setUp(this.managerX, this.managerY, this.managerPlot);
+    this.ngOnInit();
   }
 
   setUp(xLabels: string[], yLabels: string[], dataXY: {x: number, y: number, value: number}[]) {
