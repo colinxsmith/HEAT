@@ -3,7 +3,8 @@ import * as d3 from 'd3';
 import { RGBColor } from 'd3';
 @Component({
   selector: 'app-heatmap',
-  template: '<button  (click)="setPad()"> {{padButt}}</button><button  (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of diags">{{i}}</option></select>',
+  // tslint:disable-next-line:max-line-length
+  template: '<input  (change)="changeC1($event)" value={{colourrange[0]}}><input (change)="changeC2($event)" value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of diags">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
@@ -1193,6 +1194,12 @@ export class HeatmapComponent implements OnInit {
   chooseData(daig) {
     this.chosenData = daig;
     this.ngOnInit();
+  }
+  changeC1(event) {
+    this.colourrange[0] = event.target.value;
+  }
+  changeC2(event) {
+    this.colourrange[1] = event.target.value;
   }
   managerProcess(dataV: {x: string, y: string, value: number}[]) {
     console.log(this.chosenData);
