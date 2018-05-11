@@ -4,7 +4,7 @@ import { RGBColor } from 'd3';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<input  (change)="changeC1($event)" value={{colourrange[0]}}><input (change)="changeC2($event)" value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of diags">{{i}}</option></select>',
+  template: '<input  (input)="colourrange[0] = $event.target.value"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of diags">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
@@ -6208,18 +6208,12 @@ export class HeatmapComponent implements OnInit {
   chosenData = this.diags[0];
   pad = true;
   padButt = 'Don\'t pad';
-  colourrange = ['lightgreen', 'cyan'];
+  colourrange = ['red', 'orange'];
 
   constructor() { }
   chooseData(daig) {
     this.chosenData = daig;
     this.ngOnInit();
-  }
-  changeC1(event) {
-    this.colourrange[0] = event.target.value;
-  }
-  changeC2(event) {
-    this.colourrange[1] = event.target.value;
   }
   managerProcess(dataV: {x: string, y: string, value: number}[]) {
     console.log(this.chosenData);
@@ -6308,8 +6302,8 @@ export class HeatmapComponent implements OnInit {
     } else if (this.chosenData === this.diags[26]) {
       this.managerProcess(this.managerData26);
     }
-  this.butName = this.squares ? 'Circles' : 'Squares';
-//    this.setUp(this.xLabels, this.yLabels, this.heatData);
+    this.butName = this.squares ? 'Circles' : 'Squares';
+    //    this.setUp(this.xLabels, this.yLabels, this.heatData);
     this.setUp(this.managerX, this.managerY, this.managerPlot);
   }
 
