@@ -6312,19 +6312,16 @@ export class HeatmapComponent implements OnInit {
       width = 960 - margin.left - margin.right,
       height = 700 - margin.top - margin.bottom,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length));
-    let legendElementWidth = gridSize;
+    const legendElementWidth = gridSize;
     if (labelsXY.x[buckets - 1] === 'Total') {
       buckets--;
-    } else {
-      legendElementWidth *= (buckets + 1) / buckets;
     }
-
     const coloursd = d3.scaleLinear<RGBColor>()
       .domain([0, buckets])
       .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
       colors: RGBColor[] = [];
     labelsXY.x.forEach(function (d, ii) {
-      colors[ii] = coloursd(ii * buckets / (buckets - 1));
+      colors[ii] = coloursd(ii);
     });
 
     const svg = d3.select('app-heatmap').append('svg')
@@ -6381,7 +6378,8 @@ export class HeatmapComponent implements OnInit {
           }
         });
         const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
-          .domain([0, buckets, d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
+          .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
+             d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colors);
 
         const cards = svg.selectAll('.values')
@@ -6440,9 +6438,12 @@ export class HeatmapComponent implements OnInit {
           .text((d) => d);
         totsx.exit().remove();
 
-
+        const scaleC = [colorScale.domain() [0]];
+        colorScale.quantiles().forEach(function(d) {
+          scaleC.push(d);
+        });
         const legend = svg.selectAll('.legend')
-          .data([].concat(colorScale.quantiles()), (d) => d);
+          .data(scaleC);
 
         const legend_g = legend.enter().append('g')
           .attr('class', 'legend');
@@ -6454,7 +6455,11 @@ export class HeatmapComponent implements OnInit {
           })
           .attr('width', legendElementWidth)
           .attr('height', gridSize / 2)
-          .style('fill', (d, i) => ' ' + colors[i]);
+          .style('fill', function(d, i) {
+            console.log(d + ' ' + (i) + colors[i]);
+            return '' + colors[i];
+          })
+          ;
 
         legend_g.append('text')
           .attr('class', 'mono')
