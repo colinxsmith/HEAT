@@ -6188,7 +6188,6 @@ export class HeatmapComponent implements OnInit {
     this.ngOnInit();
   }
   managerProcess(dataV: {x: string, y: string, value: number}[]) {
-    console.log(this.chosenData);
     d3.selectAll('svg').remove();
     const here = this, xmap = {}, ymap = {}, revi = [], revj = [];
     this.managerX = [];
@@ -6298,7 +6297,6 @@ export class HeatmapComponent implements OnInit {
     const squares = this.squares,
       transpose = this.transpose,
       labelsXY = { x: [' '], y: [' '] }, heatData: {x: number, y: number, value: number}[] = [];
-      console.log('transpose= ' + transpose);
     if (transpose) {
       labelsXY.x = yLabels;
       labelsXY.y = xLabels;
@@ -6307,34 +6305,31 @@ export class HeatmapComponent implements OnInit {
       labelsXY.y = yLabels;
     }
     let buckets = labelsXY.x.length;
-    console.log(buckets);
+    console.log('Number of buckets ' + buckets);
     const margin = { top: 120, right: 0, bottom: 100, left: 130 },
       width = 960 - margin.left - margin.right,
       height = 700 - margin.top - margin.bottom,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length));
-    let legendElementWidth = gridSize;
+    const legendElementWidth = gridSize;
     if (labelsXY.x[buckets - 1] === 'Total') {
       buckets--;
-    } else {
-      legendElementWidth *= (buckets + 1) / buckets;
     }
-
     const coloursd = d3.scaleLinear<RGBColor>()
       .domain([0, buckets])
       .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
       colors: RGBColor[] = [];
     labelsXY.x.forEach(function (d, ii) {
-      colors[ii] = coloursd(ii * buckets / (buckets - 1));
+      colors[ii] = coloursd(ii);
     });
 
     const svg = d3.select('app-heatmap').append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      //  .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+    //  .attr('width', width + margin.left + margin.right)
+    //  .attr('height', height + margin.top + margin.bottom)
+      .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
 
-      dayLabels = svg.selectAll('.yLabel')
+      YLabels = svg.selectAll('.yLabel')
         .data(labelsXY.y)
         .enter().append('text')
         .text((d) => d)
@@ -6344,7 +6339,7 @@ export class HeatmapComponent implements OnInit {
         .attr('transform', (d, i) => `translate(-5,${(i + 0.6) * gridSize})`)
         .attr('class', 'yLabel mono axis-y'),
 
-      timeLabels = svg.selectAll('.xLabel')
+      XLabels = svg.selectAll('.xLabel')
         .data(labelsXY.x)
         .enter().append('text')
         .text((d) => d)
@@ -6354,21 +6349,21 @@ export class HeatmapComponent implements OnInit {
         .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
         .attr('class', 'xLabel mono axis-x'),
 
-      type = function (d: { x: number, y: number, value: number }) {
-        if (transpose) {
-          return {
-            y: d.x,
-            x: d.y,
-            value: d.value
-          };
-        } else {
-          return {
-            y: d.y,
-            x: d.x,
-            value: d.value
-          };
-        }
-      }, totalsX = [], totalsY = [], THIS = this,
+    type = (d) => {
+      if (transpose) {
+        return {
+          y: +d.x,
+          x: +d.y,
+          value: +d.value
+        };
+      } else {
+        return {
+          y: +d.y,
+          x: +d.x,
+          value: +d.value
+        };
+      }
+    }, totalsX = [], totalsY = [], THIS = this,
       heatmapChart = function (circ: boolean) {
         dataXY.forEach(function (d) {
           d = type(d);
@@ -6381,26 +6376,26 @@ export class HeatmapComponent implements OnInit {
           }
         });
         const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
-          .domain([0, buckets, d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
+          .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
+             d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colors);
 
-        const cards = svg.selectAll('.values')
-          .data(heatData, (d: { x: number, y: number, value: number }) => d.y + ':' + d.x);
-
+        const gridDistribution = svg.selectAll('.values')
+          .data(heatData);
 
         if (circ) {
-          cards.enter().append('circle')
+          gridDistribution.enter().append('circle')
             .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
             .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
             .attr('class', 'values circle bordered')
             .attr('r', gridSize / 2.5)
-            .style('fill', ' ' + colors[0])
-            .merge(cards)
+            .style('fill', ' ' + colors[Math.floor(buckets / 2)])
+            .merge(gridDistribution)
             .transition()
-            .duration(100)
+            .duration(200)
             .style('fill', (d) => ' ' + colorScale(d.value));
         } else {
-          cards.enter().append('rect')
+          gridDistribution.enter().append('rect')
             .attr('x', (d) => (d.x - 1) * gridSize)
             .attr('y', (d) => (d.y - 1) * gridSize)
             .attr('rx', 0)
@@ -6408,15 +6403,15 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'values rect bordered')
             .attr('width', gridSize)
             .attr('height', gridSize)
-            .style('fill', ' ' + colors[0])
-            .merge(cards)
+            .style('fill', ' ' + colors[Math.floor(buckets / 2)])
+            .merge(gridDistribution)
             .transition()
-            .duration(100)
+            .duration(200)
             .style('fill', (d) => ' ' + colorScale(d.value));
         }
-        cards.exit().remove();
+        gridDistribution.exit().remove();
 
-        cards.enter().append('text')
+        gridDistribution.enter().append('text')
           .attr('x', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('y', (d) => (d.y - 1 + 0.45) * gridSize)
           .attr('dy', 3)
@@ -6440,9 +6435,12 @@ export class HeatmapComponent implements OnInit {
           .text((d) => d);
         totsx.exit().remove();
 
-
+        const scaleC = [colorScale.domain() [0]];
+        colorScale.quantiles().forEach(function(d) {
+          scaleC.push(d);
+        });
         const legend = svg.selectAll('.legend')
-          .data([].concat(colorScale.quantiles()), (d) => d);
+          .data(scaleC);
 
         const legend_g = legend.enter().append('g')
           .attr('class', 'legend');
@@ -6454,7 +6452,10 @@ export class HeatmapComponent implements OnInit {
           })
           .attr('width', legendElementWidth)
           .attr('height', gridSize / 2)
-          .style('fill', (d, i) => ' ' + colors[i]);
+          .style('fill', function(d, i) {
+            return '' + colors[i];
+          })
+          ;
 
         legend_g.append('text')
           .attr('class', 'mono')
