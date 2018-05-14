@@ -10,7 +10,7 @@ import { HeatmapComponent } from './heatmap/heatmap.component';
   declarations: [
     AppComponent,
     HeatmapComponent
-  ],
+    ],
   imports: [
     BrowserModule
   ],
