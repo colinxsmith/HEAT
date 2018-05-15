@@ -5,13 +5,14 @@ import { DatamoduleModule } from '../datamodule/datamodule.module';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<input  (input)="colourrange[0] = $event.target.value"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
+  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select><input  (input)="colourrange[0] = $event.target.value"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
 export class HeatmapComponent implements OnInit, DatamoduleModule {
   myData = new DatamoduleModule();
   managerDataTypes = this.myData.managerDataTypes;
+  managerFigure = ['Heat Map', 'Large Map'];
   managerData = this.myData.managerData;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -21,6 +22,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   transpose = true;
   squares = true;
   chosenData = this.managerDataTypes[0];
+  chosenFigure = this.managerFigure[0];
   pad = true;
   padButt = 'Don\'t pad';
   colourrange = ['rgb(255,255,100)', 'rgb(255,100,0)'];
@@ -30,8 +32,10 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     this.chosenData = daig;
     this.ngOnInit();
   }
+  chooseFigure(daig) {
+    this.chosenFigure = daig;
+  }
   managerProcess(dataV: {x: string, y: string, value: number}[]) {
-    d3.selectAll('svg').remove();
     const here = this, xmap = {}, ymap = {}, revi = [], revj = [];
     this.managerX = [];
     this.managerY = [];
@@ -62,15 +66,114 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   }
   ngOnInit() {
     const localThis = this;
+    d3.selectAll('svg').remove();
+    if (this.chosenFigure === this.managerFigure[0]) {
     localThis.managerDataTypes.forEach(function (d, i) {
-      if (localThis.chosenData === d) {
-        localThis.managerProcess(localThis.managerData[i]);
-      }
-    });
-    this.butName = this.squares ? 'Circles' : 'Squares';
-    this.setUp(this.managerX, this.managerY, this.managerPlot);
-  }
+        if (localThis.chosenData === d) {
+          localThis.managerProcess(localThis.managerData[i]);
+        }
+      });
+      this.butName = this.squares ? 'Circles' : 'Squares';
+      this.setUp(this.managerX, this.managerY, this.managerPlot);
+    } else if (this.chosenFigure === this.managerFigure[1]) {
+      this.largeMap();
+    }
+   }
 
+  largeMap() {
+    const tooltip = d3.select('body').append('g').attr('class', 'toolTip'),
+      coloursd = d3.scaleLinear<RGBColor>()
+        .domain([0, this.managerData[0].length])
+        .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
+      colours: RGBColor[] = [];
+    this.managerData[0].forEach(function (d, i) {
+      colours[i] = coloursd(i);
+    });
+    const margin = { top: 105, right: 10, bottom: 10, left: 90 },
+      width = 960 - margin.left - margin.right,
+      height = 1500 - margin.top - margin.bottom,
+      svg = d3.select('app-heatmap').append('svg').attr('width', `${width + margin.left + margin.right}`)
+      .attr('height', `${height + margin.bottom + margin.top}`);
+     svg.append('rect').attr('width', `${width + margin.left + margin.right}`)
+     .attr('height', `${height + margin.bottom + margin.top}`).attr('x', 0).attr('y', '0').attr('class', 'rim');
+     svg.append('rect').attr('width', width).attr('height', height)
+     .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
+     const XLabels = svg.selectAll('.xLabel')
+     .data(this.managerDataTypes)
+     .enter().append('text')
+     .text((d) => d)
+     .attr('x', 0)
+     .attr('y', 0)
+     .style('text-anchor', 'right')
+     .attr('transform', (d, i) => `translate(${margin.left + (i + 0.65) * width / this.managerDataTypes.length}
+     ,${margin.top - 3}) rotate(280)`)
+     .attr('class', 'xLabel mono axis-x');
+
+     let pastLabel = '';
+     const YOffice = svg.selectAll('.yLabel0')
+     .data(this.managerData[0])
+       .enter().append('text')
+       .text(function (d) {
+         let back = '';
+         if (pastLabel !== d.x) {
+           pastLabel = d.x;
+           back = d.x;
+          }
+       return back;
+     })
+     .attr('x', 0)
+     .attr('y', 0)
+     .style('text-anchor', 'end')
+     .attr('transform', (d, i) => `translate(${margin.left - 30},
+      ${margin.top + (i + 1) * height / this.managerData[0].length}) rotate(-30)`)
+     .attr('class', 'yLabel mono axis-y');
+
+     const YOfficeGroups = svg.selectAll('.yLabel1')
+     .data(this.managerData[0])
+     .enter().append('text')
+     .text((d) => d.y)
+     .attr('x', 0)
+     .attr('y', 0)
+     .style('text-anchor', 'end')
+     .attr('transform', (d, i) => `translate(${margin.left - 10},${margin.top + (i + 1) * height / this.managerData[0].length})`)
+     .attr('class', 'yLabel mono axis-y');
+     YOfficeGroups.style('font-size', '' + (+YOfficeGroups.style('font-size').replace('px', '') * 0.66) + 'px');
+
+    const localThis = this;
+    this.managerData.forEach(function (di, ix) {
+      const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
+        .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
+        d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
+        .range(colours);
+      const colourMap = svg.selectAll('.map' + ix)
+        .data(di);
+      colourMap.enter().append('rect')
+        .attr('x', (dd) => margin.left + ix * width / localThis.managerDataTypes.length)
+        .attr('y', (dd, ii) => margin.top + ii * height / di.length )
+        .attr('rx', 0)
+        .attr('ry', 0)
+        .attr('class', 'values rect bordered')
+        .attr('width', width / localThis.managerDataTypes.length)
+        .attr('height', height / di.length)
+        .style('fill', ' ' + colours[0])
+        .on('mouseover', function (dd) {
+          tooltip.style('opacity', 0.9);
+          tooltip
+            .html(`${dd.value}`)
+            .style('left', `${d3.event.pageX}px`)
+            .style('top', `${d3.event.pageY - 28}px`);
+        })
+        .on('mouseout', function (dd) {
+          tooltip.style('opacity', 0);
+        })
+        .merge(colourMap)
+        .transition()
+        .duration(200)
+        .style('fill', (dd) => ' ' + colorScale(dd.value))
+        ;
+    });
+
+}
   setPad() {
     this.padButt = this.pad ? 'Pad with zero' : 'Don\'t pad';
     this.pad = !this.pad;
@@ -102,7 +205,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     console.log('Number of buckets ' + buckets);
     const margin = { top: 120, right: 0, bottom: 100, left: 130 },
       width = 960 - margin.left - margin.right,
-      height = 700 - margin.top - margin.bottom,
+      height = 500 - margin.top - margin.bottom,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length));
     const legendElementWidth = gridSize;
     if (labelsXY.x[buckets - 1] === 'Total') {
@@ -111,9 +214,9 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     const coloursd = d3.scaleLinear<RGBColor>()
       .domain([0, buckets])
       .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
-      colors: RGBColor[] = [];
+      colours: RGBColor[] = [];
     labelsXY.x.forEach(function (d, ii) {
-      colors[ii] = coloursd(ii);
+      colours[ii] = coloursd(ii);
     });
 
     const svg = d3.select('app-heatmap').append('svg')
@@ -172,7 +275,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
              d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
-          .range(colors);
+          .range(colours);
 
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
@@ -183,7 +286,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
             .attr('class', 'values circle bordered')
             .attr('r', gridSize / 2.5)
-            .style('fill', ' ' + colors[Math.floor(buckets / 2)])
+            .style('fill', ' ' + colours[Math.floor(buckets / 2)])
             .merge(gridDistribution)
             .transition()
             .duration(200)
@@ -197,7 +300,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('class', 'values rect bordered')
             .attr('width', gridSize)
             .attr('height', gridSize)
-            .style('fill', ' ' + colors[Math.floor(buckets / 2)])
+            .style('fill', ' ' + colours[Math.floor(buckets / 2)])
             .merge(gridDistribution)
             .transition()
             .duration(200)
@@ -247,7 +350,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
           .attr('width', legendElementWidth)
           .attr('height', gridSize / 2)
           .style('fill', function(d, i) {
-            return '' + colors[i];
+            return '' + colours[i];
           })
           ;
 

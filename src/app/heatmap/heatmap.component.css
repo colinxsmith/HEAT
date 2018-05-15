@@ -1,11 +1,6 @@
-.heatcolours {
-    stroke: rgba(45, 45, 196, 0.73);/*high*/
-    fill: rgba(210, 58, 25, 0.61);/*low*/
-}
-
 rect.bordered {
     stroke: #E6E6E6;
-    stroke-width: 0.1px;
+    stroke-width: 0.01px;
 }
 
 circle.bordered {
@@ -14,21 +9,21 @@ circle.bordered {
 }
 
 text.mono {
-    font-size: 10px;
+    font-size: 7px;
     font-family: FontAwesome, sans-serif;
     fill: green;
 }
 
 text.datavals {
-    font-size: 9px;
-    font-family: FontAwesome, sans-serif;
+    font-size: 8px;
+    font-family: FontAwesome, Calibri;
     text-anchor: middle;
 }
 
 text.totalsY {
     font-size: 10px;
     font-weight: bold;
-    font-family: Calibri, sans-serif;
+    font-family: FontAwesome, sans-serif;
     text-anchor: middle;
     fill: red;
 }
@@ -36,15 +31,21 @@ text.totalsY {
 text.totalsX {
     font-size: 14px;
     font-weight: bold;
-    font-family: Calibri, sans-serif;
+    font-family: FontAwesome, sans-serif;
     text-anchor: middle;
     fill: red;
 }
 
 text.axis-x {
+    font-size: 8px;
+    font-weight: bold;
+    font-family: FontAwesome, Calibri;
     fill: #00a;
 }
 
 text.axis-y {
+    font-size: 8px;
+    font-weight: bold;
+    font-family: FontAwesome, Calibri;
     fill: #00a;
 }

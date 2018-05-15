@@ -1,1 +1,20 @@
 /* You can add global styles to this file, and also import other style files */
+.toolTip {
+    top: -100px;
+    /*Stop seeing initial position*/
+    position: absolute;
+    text-align: center;
+    padding: 2px;
+    font: 10px Calibri, sans-serif;
+    background: black;
+    border: 10px;
+    border-radius: 8px;
+    pointer-events: none;
+    display: inline-block;
+    color: white;
+    z-index: 99999;
+}
+.rim {
+    stroke: none /* rgba(45, 45, 196, 0.73)*/;
+    fill:none
+}
