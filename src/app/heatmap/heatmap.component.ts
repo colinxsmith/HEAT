@@ -5,40 +5,14 @@ import { DatamoduleModule } from '../datamodule/datamodule.module';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<input  (input)="colourrange[0] = $event.target.value"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of diags">{{i}}</option></select>',
+  template: '<input  (input)="colourrange[0] = $event.target.value"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
 export class HeatmapComponent implements OnInit, DatamoduleModule {
   myData = new DatamoduleModule();
-  managerData0 = this.myData.managerData0;
-  managerData1 = this.myData.managerData1;
-  managerData2 = this.myData.managerData2;
-  managerData3 = this.myData.managerData3;
-  managerData4 = this.myData.managerData4;
-  managerData5 = this.myData.managerData5;
-  managerData6 = this.myData.managerData6;
-  managerData7 = this.myData.managerData7;
-  managerData8 = this.myData.managerData8;
-  managerData9 = this.myData.managerData9;
-  managerData10 = this.myData.managerData10;
-  managerData11 = this.myData.managerData11;
-  managerData12 = this.myData.managerData12;
-  managerData13 = this.myData.managerData13;
-  managerData14 = this.myData.managerData14;
-  managerData15 = this.myData.managerData15;
-  managerData16 = this.myData.managerData16;
-  managerData17 = this.myData.managerData17;
-  managerData18 = this.myData.managerData18;
-  managerData19 = this.myData.managerData19;
-  managerData20 = this.myData.managerData20;
-  managerData21 = this.myData.managerData21;
-  managerData22 = this.myData.managerData22;
-  managerData23 = this.myData.managerData23;
-  managerData24 = this.myData.managerData24;
-  managerData25 = this.myData.managerData25;
-  managerData26 = this.myData.managerData26;
-  diags = this.myData.diags;
+  managerDataTypes = this.myData.managerDataTypes;
+  managerData = this.myData.managerData;
   managerX: string[] = [];
   managerY: string[] = [];
   managerPlot: {x: number, y: number, value: number}[] = [];
@@ -46,7 +20,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   butName = 'Squares';
   transpose = true;
   squares = true;
-  chosenData = this.myData.diags[0];
+  chosenData = this.managerDataTypes[0];
   pad = true;
   padButt = 'Don\'t pad';
   colourrange = ['rgb(255,255,100)', 'rgb(255,100,0)'];
@@ -87,61 +61,12 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     }
   }
   ngOnInit() {
-    if (this.chosenData === this.myData.diags[0]) {
-      this.managerProcess(this.myData.managerData0);
-    } else if (this.chosenData === this.myData.diags[1]) {
-      this.managerProcess(this.myData.managerData1);
-    } else if (this.chosenData === this.myData.diags[2]) {
-      this.managerProcess(this.myData.managerData2);
-    } else if (this.chosenData === this.myData.diags[3]) {
-      this.managerProcess(this.myData.managerData3);
-    } else if (this.chosenData === this.myData.diags[4]) {
-      this.managerProcess(this.myData.managerData4);
-    } else if (this.chosenData === this.myData.diags[5]) {
-      this.managerProcess(this.myData.managerData5);
-    } else if (this.chosenData === this.myData.diags[6]) {
-      this.managerProcess(this.myData.managerData6);
-    } else if (this.chosenData === this.myData.diags[7]) {
-      this.managerProcess(this.myData.managerData7);
-    } else if (this.chosenData === this.myData.diags[8]) {
-      this.managerProcess(this.myData.managerData8);
-    } else if (this.chosenData === this.myData.diags[9]) {
-      this.managerProcess(this.myData.managerData9);
-    } else if (this.chosenData === this.myData.diags[10]) {
-      this.managerProcess(this.myData.managerData10);
-    } else if (this.chosenData === this.myData.diags[11]) {
-      this.managerProcess(this.myData.managerData11);
-    } else if (this.chosenData === this.myData.diags[12]) {
-      this.managerProcess(this.myData.managerData12);
-    } else if (this.chosenData === this.myData.diags[13]) {
-      this.managerProcess(this.myData.managerData13);
-    } else if (this.chosenData === this.myData.diags[14]) {
-      this.managerProcess(this.myData.managerData14);
-    } else if (this.chosenData === this.myData.diags[15]) {
-      this.managerProcess(this.myData.managerData15);
-    } else if (this.chosenData === this.myData.diags[16]) {
-      this.managerProcess(this.myData.managerData16);
-    } else if (this.chosenData === this.myData.diags[17]) {
-      this.managerProcess(this.myData.managerData17);
-    } else if (this.chosenData === this.myData.diags[18]) {
-      this.managerProcess(this.myData.managerData18);
-    } else if (this.chosenData === this.myData.diags[19]) {
-      this.managerProcess(this.myData.managerData19);
-    } else if (this.chosenData === this.myData.diags[20]) {
-      this.managerProcess(this.myData.managerData20);
-    } else if (this.chosenData === this.myData.diags[21]) {
-      this.managerProcess(this.myData.managerData21);
-    } else if (this.chosenData === this.myData.diags[22]) {
-      this.managerProcess(this.myData.managerData22);
-    } else if (this.chosenData === this.myData.diags[23]) {
-      this.managerProcess(this.myData.managerData23);
-    } else if (this.chosenData === this.myData.diags[24]) {
-      this.managerProcess(this.myData.managerData24);
-    } else if (this.chosenData === this.myData.diags[25]) {
-      this.managerProcess(this.myData.managerData25);
-    } else if (this.chosenData === this.myData.diags[26]) {
-      this.managerProcess(this.myData.managerData26);
-    }
+    const localThis = this;
+    localThis.managerDataTypes.forEach(function (d, i) {
+      if (localThis.chosenData === d) {
+        localThis.managerProcess(localThis.managerData[i]);
+      }
+    });
     this.butName = this.squares ? 'Circles' : 'Squares';
     this.setUp(this.managerX, this.managerY, this.managerPlot);
   }

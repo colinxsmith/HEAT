@@ -1,10 +1,10 @@
 export class DatamoduleModule {
-  diags = ['Number Clients', 'Number BMIDs', '%BMID failed>1', 'Flags passed', 'Flags out with KE', 'Flags out no KE',
+  managerDataTypes = ['Number Clients', 'Number BMIDs', '%BMID failed>1', 'Flags passed', 'Flags out with KE', 'Flags out no KE',
     '1-5 Days', '6-10 Days',
     '10 Days +', 'Volatility Out', 'non BL Out', 'MHW Out', 'T error Out', 'Sector Out', 'Portfolio Concentration Out', 'Commonality Out',
     'Issuer Concentration Out', 'High Volatility Holding Out', 'Volatility % Out', 'non BL % Out', 'MHW % Out', 'T error % Out',
     'Sector % Out', 'Portfolio Concentration % Out', 'Commonality % Out', 'Issuer Concentration % Out', 'High Volatility Holding'];
-  managerData0 = [
+  managerData = [[
     {x: 'London', y: 'A', value: 155.000000 },
     {x: 'London', y: 'B', value: 45.000000 },
     {x: 'London', y: 'C', value: 143.000000 },
@@ -231,8 +231,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 126.000000 },
     {x: 'Moscow', y: 'M', value: 3.000000 },
     {x: 'Edinburgh', y: 'G', value: 22.000000 },
-    ];
-    managerData1 = [
+    ], [
     {x: 'London', y: 'A', value: 166.000000 },
     {x: 'London', y: 'B', value: 47.000000 },
     {x: 'London', y: 'C', value: 159.000000 },
@@ -459,8 +458,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 142.000000 },
     {x: 'Moscow', y: 'M', value: 3.000000 },
     {x: 'Edinburgh', y: 'G', value: 26.000000 },
-    ];
-    managerData2 = [
+    ], [
     {x: 'London', y: 'A', value: 1.000000 },
     {x: 'London', y: 'B', value: 0.940000 },
     {x: 'London', y: 'C', value: 0.820000 },
@@ -687,8 +685,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 1.000000 },
     {x: 'Moscow', y: 'M', value: 1.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.880000 },
-    ];
-    managerData3 = [
+    ], [
     {x: 'London', y: 'A', value: 0.931000 },
     {x: 'London', y: 'B', value: 0.938000 },
     {x: 'London', y: 'C', value: 0.945000 },
@@ -915,8 +912,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.931000 },
     {x: 'Moscow', y: 'M', value: 0.933000 },
     {x: 'Edinburgh', y: 'G', value: 0.941000 },
-    ];
-    managerData4 = [
+    ], [
     {x: 'London', y: 'A', value: 0.003000 },
     {x: 'London', y: 'B', value: 0.000000 },
     {x: 'London', y: 'C', value: 0.000000 },
@@ -1143,8 +1139,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.002000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.000000 },
-    ];
-    managerData5 = [
+    ], [
     {x: 'London', y: 'A', value: 0.067000 },
     {x: 'London', y: 'B', value: 0.062000 },
     {x: 'London', y: 'C', value: 0.055000 },
@@ -1371,8 +1366,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.067000 },
     {x: 'Moscow', y: 'M', value: 0.067000 },
     {x: 'Edinburgh', y: 'G', value: 0.059000 },
-    ];
-    managerData6 = [
+    ], [
     {x: 'London', y: 'A', value: 0.640000 },
     {x: 'London', y: 'B', value: 0.800000 },
     {x: 'London', y: 'C', value: 0.860000 },
@@ -1599,8 +1593,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.830000 },
     {x: 'Moscow', y: 'M', value: 0.750000 },
     {x: 'Edinburgh', y: 'G', value: 0.790000 },
-    ];
-    managerData7 = [
+    ], [
     {x: 'London', y: 'A', value: 0.360000 },
     {x: 'London', y: 'B', value: 0.200000 },
     {x: 'London', y: 'C', value: 0.140000 },
@@ -1827,8 +1820,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.170000 },
     {x: 'Moscow', y: 'M', value: 0.250000 },
     {x: 'Edinburgh', y: 'G', value: 0.210000 },
-    ];
-    managerData8 = [
+    ], [
     {x: 'London', y: 'A', value: 0.000000 },
     {x: 'London', y: 'B', value: 0.000000 },
     {x: 'London', y: 'C', value: 0.000000 },
@@ -2055,8 +2047,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.000000 },
-    ];
-    managerData9 = [
+    ], [
     {x: 'London', y: 'A', value: 3.000000 },
     {x: 'London', y: 'B', value: 0.000000 },
     {x: 'London', y: 'C', value: 0.000000 },
@@ -2283,8 +2274,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 1.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.000000 },
-    ];
-    managerData10 = [
+    ], [
     {x: 'London', y: 'A', value: 5.000000 },
     {x: 'London', y: 'B', value: 2.000000 },
     {x: 'London', y: 'C', value: 6.000000 },
@@ -2511,8 +2501,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 2.000000 },
-    ];
-    managerData11 = [
+    ], [
     {x: 'London', y: 'A', value: 91.000000 },
     {x: 'London', y: 'B', value: 8.000000 },
     {x: 'London', y: 'C', value: 17.000000 },
@@ -2739,8 +2728,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 25.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 6.000000 },
-    ];
-    managerData12 = [
+    ], [
     {x: 'London', y: 'A', value: 0.000000 },
     {x: 'London', y: 'B', value: 0.000000 },
     {x: 'London', y: 'C', value: 0.000000 },
@@ -2967,8 +2955,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.000000 },
-    ];
-    managerData13 = [
+    ], [
     {x: 'London', y: 'A', value: 57.000000 },
     {x: 'London', y: 'B', value: 16.000000 },
     {x: 'London', y: 'C', value: 16.000000 },
@@ -3195,8 +3182,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 18.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 9.000000 },
-    ];
-    managerData14 = [
+    ], [
     {x: 'London', y: 'A', value: 44.000000 },
     {x: 'London', y: 'B', value: 4.000000 },
     {x: 'London', y: 'C', value: 1.000000 },
@@ -3423,8 +3409,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 14.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 3.000000 },
-    ];
-    managerData15 = [
+    ], [
     {x: 'London', y: 'A', value: 166.000000 },
     {x: 'London', y: 'B', value: 44.000000 },
     {x: 'London', y: 'C', value: 119.000000 },
@@ -3651,8 +3636,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 142.000000 },
     {x: 'Moscow', y: 'M', value: 3.000000 },
     {x: 'Edinburgh', y: 'G', value: 23.000000 },
-    ];
-    managerData16 = [
+    ], [
     {x: 'London', y: 'A', value: 41.000000 },
     {x: 'London', y: 'B', value: 10.000000 },
     {x: 'London', y: 'C', value: 42.000000 },
@@ -3879,8 +3863,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 17.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 5.000000 },
-    ];
-    managerData17 = [
+    ], [
     {x: 'London', y: 'A', value: 1.000000 },
     {x: 'London', y: 'B', value: 0.000000 },
     {x: 'London', y: 'C', value: 0.000000 },
@@ -4107,8 +4090,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.000000 },
-    ];
-    managerData18 = [
+    ], [
     {x: 'London', y: 'A', value: 0.020000 },
     {x: 'London', y: 'B', value: 0.000000 },
     {x: 'London', y: 'C', value: 0.000000 },
@@ -4335,8 +4317,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.010000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.000000 },
-    ];
-    managerData19 = [
+    ], [
     {x: 'London', y: 'A', value: 0.030000 },
     {x: 'London', y: 'B', value: 0.040000 },
     {x: 'London', y: 'C', value: 0.040000 },
@@ -4563,8 +4544,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.080000 },
-    ];
-    managerData20 = [
+    ], [
     {x: 'London', y: 'A', value: 0.550000 },
     {x: 'London', y: 'B', value: 0.170000 },
     {x: 'London', y: 'C', value: 0.110000 },
@@ -4791,8 +4771,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.180000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.230000 },
-    ];
-    managerData21 = [
+    ], [
     {x: 'London', y: 'A', value: 0.000000 },
     {x: 'London', y: 'B', value: 0.000000 },
     {x: 'London', y: 'C', value: 0.000000 },
@@ -5019,8 +4998,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.000000 },
-    ];
-    managerData22 = [
+    ], [
     {x: 'London', y: 'A', value: 0.340000 },
     {x: 'London', y: 'B', value: 0.340000 },
     {x: 'London', y: 'C', value: 0.100000 },
@@ -5247,8 +5225,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.130000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.350000 },
-    ];
-    managerData23 = [
+    ], [
     {x: 'London', y: 'A', value: 0.270000 },
     {x: 'London', y: 'B', value: 0.090000 },
     {x: 'London', y: 'C', value: 0.010000 },
@@ -5475,8 +5452,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.100000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.120000 },
-    ];
-    managerData24 = [
+    ], [
     {x: 'London', y: 'A', value: 1.000000 },
     {x: 'London', y: 'B', value: 0.940000 },
     {x: 'London', y: 'C', value: 0.750000 },
@@ -5703,8 +5679,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 1.000000 },
     {x: 'Moscow', y: 'M', value: 1.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.880000 },
-    ];
-    managerData25 = [
+    ], [
     {x: 'London', y: 'A', value: 0.250000 },
     {x: 'London', y: 'B', value: 0.210000 },
     {x: 'London', y: 'C', value: 0.260000 },
@@ -5931,8 +5906,7 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.120000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.190000 },
-    ];
-    managerData26 = [
+    ], [
     {x: 'London', y: 'A', value: 0.010000 },
     {x: 'London', y: 'B', value: 0.000000 },
     {x: 'London', y: 'C', value: 0.000000 },
@@ -6159,5 +6133,5 @@ export class DatamoduleModule {
     {x: 'Moscow', y: 'J', value: 0.000000 },
     {x: 'Moscow', y: 'M', value: 0.000000 },
     {x: 'Edinburgh', y: 'G', value: 0.000000 },
-    ];
+    ]];
  }
