@@ -27,7 +27,13 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   padButt = 'Don\'t pad';
   colourrange = ['rgb(215,55,250)', 'rgb(45,45,196)'];
 
-  constructor() { }
+  constructor() {
+  /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
+      d.forEach(function (dd) {
+        dd.y = dd.y.replace(/[0-9]/g, '');
+      });
+    });*/
+  }
   chooseData(daig) {
     this.chosenData = daig;
     this.ngOnInit();
@@ -47,16 +53,16 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         revi.push(ix);
         xmap[d.x] = ix++;
       }
-      if (!(ymap[d.y] > -1)) {
-        here.managerY.push(d.y);
+      if (!(ymap[d.y.replace(/[0-9]/g, '')] > -1)) {
+        here.managerY.push(d.y.replace(/[0-9]/g, ''));
         revj.push(iy);
-        ymap[d.y] = iy++;
+        ymap[d.y.replace(/[0-9]/g, '')] = iy++;
       }
     });
     for (i = 0; i < revi.length; ++i) {
       for (j = 0; j < revj.length; ++j) {
         if (ij < dataV.length && dataV[ij].x === here.managerX[i]
-          && dataV[ij].y === here.managerY[j]) {
+        && dataV[ij].y.replace(/[0-9]/g, '') === here.managerY[j].replace(/[0-9]/g, '')) {
           here.managerPlot.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
         } else {
           if (here.pad) { here.managerPlot.push({ x: i + 1, y: j + 1, value: 0 }); }
@@ -119,10 +125,14 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
          if (pastLabel !== d.x) {
            pastLabel = d.x;
            back = d.x;
-           iOffice[back] = iL++;
-          }
-       return back;
-     })
+           if (d.y.match(/[0-9]/)) { // Check in case the data has a number in the office name
+             iOffice[back] = '';
+           } else {
+             iOffice[back] = iL++;
+           }
+         }
+         return back;
+       })
      .attr('x', 0)
      .attr('y', 0)
      .style('text-anchor', 'end')
@@ -247,7 +257,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
         .attr('class', 'xLabel mono axis-x'),
 
-    type = (d) => {
+    type = (d: {x: number, y: number, value: number}) => {
       if (transpose) {
         return {
           y: +d.x,
