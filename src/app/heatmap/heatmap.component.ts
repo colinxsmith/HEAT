@@ -25,7 +25,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   chosenFigure = this.managerFigure[0];
   pad = true;
   padButt = 'Don\'t pad';
-  colourrange = ['rgb(255,255,100)', 'rgb(255,100,0)'];
+  colourrange = ['rgb(215,55,250)', 'rgb(45,45,196)'];
 
   constructor() { }
   chooseData(daig) {
@@ -149,8 +149,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
       const colourMap = svg.selectAll('.map' + ix)
-        .data(di);
-      colourMap.enter().append('rect')
+        .data(di)
+        .enter().append('rect')
         .attr('x', (dd) => margin.left + ix * width / localThis.managerDataTypes.length)
         .attr('y', (dd, ii) => margin.top + ii * height / di.length )
         .attr('rx', 0)
@@ -169,11 +169,9 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .on('mouseout', function (dd) {
           tooltip.style('opacity', 0);
         })
-        .merge(colourMap)
         .transition()
         .duration(200)
-        .style('fill', (dd) => ' ' + colorScale(dd.value))
-        ;
+        .style('fill', (dd) => ' ' + colorScale(dd.value));
     });
 
 }
