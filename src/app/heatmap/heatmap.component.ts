@@ -109,7 +109,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
      ,${margin.top - 3}) rotate(280)`)
      .attr('class', 'xLabel mono axis-x');
 
-     let pastLabel = '';
+     let pastLabel = '', iL = 1;
+     const iOffice: {} = {}; // Find the office numbers
      const YOffice = svg.selectAll('.yLabel0')
      .data(this.managerData[0])
        .enter().append('text')
@@ -118,6 +119,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
          if (pastLabel !== d.x) {
            pastLabel = d.x;
            back = d.x;
+           iOffice[back] = iL++;
           }
        return back;
      })
@@ -127,6 +129,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
      .attr('transform', (d, i) => `translate(${margin.left - 30},
       ${margin.top + (i + 1) * height / this.managerData[0].length}) rotate(-30)`)
      .attr('class', 'yLabel mono axis-y');
+     console.log(iOffice);
 
      const YOfficeGroups = svg.selectAll('.yLabel1')
      .data(this.managerData[0])
@@ -159,7 +162,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .on('mouseover', function (dd) {
           tooltip.style('opacity', 0.9);
           tooltip
-            .html(`${dd.x}<br>${localThis.managerDataTypes[ix]}<br>${dd.y}<br>${dd.value}`)
+            .html(`${dd.x}<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]}<br>${dd.value}`)
             .style('left', `${d3.event.pageX}px`)
             .style('top', `${d3.event.pageY - 28}px`);
         })
