@@ -1,4 +1,4 @@
-import { Component, OnInit , ViewEncapsulation} from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
 import { RGBColor } from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
@@ -16,7 +16,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   managerData = this.myData.managerData;
   managerX: string[] = [];
   managerY: string[] = [];
-  managerPlot: {x: number, y: number, value: number}[] = [];
+  managerPlot: { x: number, y: number, value: number }[] = [];
 
   butName = 'Squares';
   transpose = true;
@@ -28,11 +28,11 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   colourrange = ['white', 'rgb(198,198,198)'];
 
   constructor() {
-  /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
-      d.forEach(function (dd) {
-        dd.y = dd.y.replace(/[0-9]/g, '');
-      });
-    });*/
+    /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
+        d.forEach(function (dd) {
+          dd.y = dd.y.replace(/[0-9]/g, '');
+        });
+      });*/
   }
   chooseData(daig) {
     this.chosenData = daig;
@@ -41,7 +41,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   chooseFigure(daig) {
     this.chosenFigure = daig;
   }
-  managerProcess(dataV: {x: string, y: string, value: number}[]) {
+  managerProcess(dataV: { x: string, y: string, value: number }[]) {
     const here = this, xmap = {}, ymap = {}, revi = [], revj = [];
     this.managerX = [];
     this.managerY = [];
@@ -62,7 +62,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     for (i = 0; i < revi.length; ++i) {
       for (j = 0; j < revj.length; ++j) {
         if (ij < dataV.length && dataV[ij].x === here.managerX[i]
-        && dataV[ij].y.replace(/[0-9]/g, '') === here.managerY[j].replace(/[0-9]/g, '')) {
+          && dataV[ij].y.replace(/[0-9]/g, '') === here.managerY[j].replace(/[0-9]/g, '')) {
           here.managerPlot.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
         } else {
           if (here.pad) { here.managerPlot.push({ x: i + 1, y: j + 1, value: 0 }); }
@@ -74,7 +74,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     const localThis = this;
     d3.selectAll('svg').remove();
     if (this.chosenFigure === this.managerFigure[0]) {
-    localThis.managerDataTypes.forEach(function (d, i) {
+      localThis.managerDataTypes.forEach(function (d, i) {
         if (localThis.chosenData === d) {
           localThis.managerProcess(localThis.managerData[i]);
         }
@@ -84,7 +84,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     } else if (this.chosenFigure === this.managerFigure[1]) {
       this.largeMap();
     }
-   }
+  }
 
   largeMap() {
     const tooltip = d3.select('body').append('g').attr('class', 'toolTip'), numColours = 10,
@@ -96,7 +96,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
       colours[i] = coloursd(i);
     }
     const margin = { top: 105, right: 10, bottom: 10, left: 90 },
-      width = 960 - margin.left - margin.right,
+      width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear<number, number>().domain([0, this.managerDataTypes.length]).range([0, width]),
       scaleY = d3.scaleLinear<number, number>().domain([0, this.managerData[0].length]).range([0, height]),
@@ -188,7 +188,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .duration(200)
         .style('fill', (dd) => ' ' + colorScale(dd.value));
     });
-}
+  }
   setPad() {
     this.padButt = this.pad ? 'Pad with zero' : 'Don\'t pad';
     this.pad = !this.pad;
@@ -205,10 +205,10 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     this.ngOnInit();
   }
 
-  setUp(xLabels: string[], yLabels: string[], dataXY: {x: number, y: number, value: number}[]) {
+  setUp(xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[]) {
     const squares = this.squares,
       transpose = this.transpose,
-      labelsXY = { x: [' '], y: [' '] }, heatData: {x: number, y: number, value: number}[] = [];
+      labelsXY = { x: [' '], y: [' '] }, heatData: { x: number, y: number, value: number }[] = [];
     if (transpose) {
       labelsXY.x = yLabels;
       labelsXY.y = xLabels;
@@ -219,8 +219,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     let buckets = labelsXY.x.length;
     console.log('Number of buckets ' + buckets);
     const margin = { top: 120, right: 0, bottom: 100, left: 130 },
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom,
+      width = 1000 - margin.left - margin.right,
+      height = 1000 - margin.top - margin.bottom,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length));
     const legendElementWidth = gridSize;
     if (labelsXY.x[buckets - 1] === 'Total') {
@@ -235,9 +235,9 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     });
 
     const svg = d3.select('app-heatmap').append('svg')
-    //  .attr('width', width + margin.left + margin.right)
-    //  .attr('height', height + margin.top + margin.bottom)
-      .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      //  .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
 
@@ -261,21 +261,21 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
         .attr('class', 'xLabel mono axis-x'),
 
-    type = (d: {x: number, y: number, value: number}) => {
-      if (transpose) {
-        return {
-          y: +d.x,
-          x: +d.y,
-          value: +d.value
-        };
-      } else {
-        return {
-          y: +d.y,
-          x: +d.x,
-          value: +d.value
-        };
-      }
-    }, totalsX = [], totalsY = [], THIS = this,
+      type = (d: { x: number, y: number, value: number }) => {
+        if (transpose) {
+          return {
+            y: +d.x,
+            x: +d.y,
+            value: +d.value
+          };
+        } else {
+          return {
+            y: +d.y,
+            x: +d.x,
+            value: +d.value
+          };
+        }
+      }, totalsX = [], totalsY = [], THIS = this,
       heatmapChart = function (circ: boolean) {
         dataXY.forEach(function (d) {
           d = type(d);
@@ -289,7 +289,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         });
         const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
-             d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
+          d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);
 
         const gridDistribution = svg.selectAll('.values')
@@ -321,7 +321,6 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .duration(200)
             .style('fill', (d) => ' ' + colorScale(d.value));
         }
-        gridDistribution.exit().remove();
 
         gridDistribution.enter().append('text')
           .attr('x', (d) => (d.x - 1 + 0.45) * gridSize)
@@ -337,7 +336,6 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
           .attr('y', labelsXY.y.length * gridSize - 6)
           .attr('class', 'text totalsY')
           .text((d) => d);
-        totsy.exit().remove();
         const totsx = svg.selectAll('.totalsX')
           .data(totalsX).enter().append('g').append('text');
 
@@ -345,7 +343,6 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
           .attr('x', labelsXY.x.length * gridSize - 25)
           .attr('class', 'text totalsX')
           .text((d) => d);
-        totsx.exit().remove();
 
         const doLegend = false;
         if (doLegend) {
@@ -376,9 +373,6 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .text((d) => '≥ ' + Math.round(d))
             .attr('x', (d, i) => legendElementWidth * i)
             .attr('y', height + gridSize * 1.5);
-
-          legend.exit().remove();
-
         }
       };
 
