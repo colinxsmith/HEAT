@@ -25,7 +25,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   chosenFigure = this.managerFigure[0];
   pad = true;
   padButt = 'Don\'t pad';
-  colourrange = ['rgb(215,55,250)', 'rgb(45,45,196)'];
+  colourrange = ['white', 'rgb(198,198,198)'];
 
   constructor() {
   /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
@@ -87,70 +87,75 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
    }
 
   largeMap() {
-    const tooltip = d3.select('body').append('g').attr('class', 'toolTip'),
+    const tooltip = d3.select('body').append('g').attr('class', 'toolTip'), numColours = 10,
       coloursd = d3.scaleLinear<RGBColor>()
-        .domain([0, this.managerData[0].length])
+        .domain([0, numColours])
         .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
       colours: RGBColor[] = [];
-    this.managerData[0].forEach(function (d, i) {
+    for (let i = 0; i < numColours; ++i) {
       colours[i] = coloursd(i);
-    });
+    }
     const margin = { top: 105, right: 10, bottom: 10, left: 90 },
       width = 960 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
-      svg = d3.select('app-heatmap').append('svg').attr('width', `${width + margin.left + margin.right}`)
-      .attr('height', `${height + margin.bottom + margin.top}`);
-     svg.append('rect').attr('width', `${width + margin.left + margin.right}`)
-     .attr('height', `${height + margin.bottom + margin.top}`).attr('x', 0).attr('y', '0').attr('class', 'rim');
-     svg.append('rect').attr('width', width).attr('height', height)
-     .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
-     const XLabels = svg.selectAll('.xLabel')
-     .data(this.managerDataTypes)
-     .enter().append('text')
-     .text((d) => d)
-     .attr('x', 0)
-     .attr('y', 0)
-     .style('text-anchor', 'right')
-     .attr('transform', (d, i) => `translate(${margin.left + (i + 0.65) * width / this.managerDataTypes.length}
-     ,${margin.top - 3}) rotate(280)`)
-     .attr('class', 'xLabel mono axis-x');
+      scaleX = d3.scaleLinear<number, number>().domain([0, this.managerDataTypes.length]).range([0, width]),
+      scaleY = d3.scaleLinear<number, number>().domain([0, this.managerData[0].length]).range([0, height]),
+      svg = d3.select('app-heatmap').append('svg')
+        .attr('width', `${width + margin.left + margin.right}`)
+        .attr('height', `${height + margin.bottom + margin.top}`);
+    svg.append('rect').attr('width', `${width + margin.left + margin.right}`)
+      .attr('height', `${height + margin.bottom + margin.top}`).attr('x', 0).attr('y', '0').attr('class', 'rim');
+    svg.append('rect').attr('width', width).attr('height', height)
+      .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
 
-     let pastLabel = '', iL = 1;
-     const iOffice: {} = {}; // Find the office numbers
-     const YOffice = svg.selectAll('.yLabel0')
-     .data(this.managerData[0])
-       .enter().append('text')
-       .text(function (d) {
-         let back = '';
-         if (pastLabel !== d.x) {
-           pastLabel = d.x;
-           back = d.x;
-           if (d.y.match(/[0-9]/)) { // Check in case the data has a number in the office name
-             iOffice[back] = '';
-           } else {
-             iOffice[back] = iL++;
-           }
-         }
-         return back;
-       })
-     .attr('x', 0)
-     .attr('y', 0)
-     .style('text-anchor', 'end')
-     .attr('transform', (d, i) => `translate(${margin.left - 30},
-      ${margin.top + (i + 1) * height / this.managerData[0].length}) rotate(-30)`)
-     .attr('class', 'yLabel mono axis-y');
-     console.log(iOffice);
+    const XLabels = svg.selectAll('.xLabel')
+      .data(this.managerDataTypes)
+      .enter().append('text')
+      .text((d) => d)
+      .attr('x', 0)
+      .attr('y', 0)
+      .style('text-anchor', 'right')
+      .attr('transform', (d, i) => `translate(${margin.left + scaleX(i + 0.65)},${margin.top - 3}) rotate(280)`)
+      .attr('class', 'xLabel mono axis-x');
 
-     const YOfficeGroups = svg.selectAll('.yLabel1')
-     .data(this.managerData[0])
-     .enter().append('text')
-     .text((d) => d.y)
-     .attr('x', 0)
-     .attr('y', 0)
-     .style('text-anchor', 'end')
-     .attr('transform', (d, i) => `translate(${margin.left - 10},${margin.top + (i + 1) * height / this.managerData[0].length})`)
-     .attr('class', 'yLabel mono axis-y');
-     YOfficeGroups.style('font-size', '' + (+YOfficeGroups.style('font-size').replace('px', '') * 0.66) + 'px');
+    let pastLabel = '', iL = 1;
+    const iOffice: {} = {}; // Find the office numbers
+    const YOffice = svg.selectAll('.yLabel0')
+      .data(this.managerData[0])
+      .enter().append('text')
+      .text(function (d) {
+        let back = '';
+        if (pastLabel !== d.x) {
+          pastLabel = d.x;
+          back = d.x;
+          if (d.y.match(/[0-9]/)) { // Check in case the data has a number in the office name
+            iOffice[back] = '';
+          } else {
+            iOffice[back] = iL++;
+          }
+        }
+        return back;
+      })
+      .attr('x', -30 * Math.cos(Math.PI / 180 * 30))
+      .attr('y', -30 * Math.sin(Math.PI / 180 * 30))
+      .style('text-anchor', 'end')
+      .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-30)`)
+      .attr('class', 'yLabel mono axis-y');
+    console.log(iOffice);
+
+    const YOfficeGroups = svg.selectAll('.yLabel1')
+      .data(this.managerData[0])
+      .enter().append('text')
+      .text((d) => d.y)
+      .attr('x', -10)
+      .attr('y', 0)
+      .style('text-anchor', 'end')
+      .attr('transform', (d, i) => `translate(${margin.left},${margin.top + scaleY(i + 1)})`)
+      .attr('class', 'yLabel mono axis-y');
+
+    YOfficeGroups.style('font-size', '' + (+YOfficeGroups.style('font-size').replace('px', '') * 0.66) + 'px');
+
+    // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
     const localThis = this;
     this.managerData.forEach(function (di, ix) {
@@ -161,8 +166,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
       const colourMap = svg.selectAll('.map' + ix)
         .data(di)
         .enter().append('rect')
-        .attr('x', (dd) => margin.left + ix * width / localThis.managerDataTypes.length)
-        .attr('y', (dd, ii) => margin.top + ii * height / di.length )
+        .attr('x', (dd) => margin.left + scaleX(ix))
+        .attr('y', (dd, ii) => margin.top + scaleY(ii))
         .attr('rx', 0)
         .attr('ry', 0)
         .attr('class', 'values rect bordered')
@@ -172,7 +177,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .on('mouseover', function (dd) {
           tooltip.style('opacity', 0.9);
           tooltip
-            .html(`${dd.x}<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]}<br>${dd.value}`)
+            .html(`${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             .style('left', `${d3.event.pageX}px`)
             .style('top', `${d3.event.pageY - 28}px`);
         })
@@ -183,7 +188,6 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .duration(200)
         .style('fill', (dd) => ' ' + colorScale(dd.value));
     });
-
 }
   setPad() {
     this.padButt = this.pad ? 'Pad with zero' : 'Don\'t pad';
