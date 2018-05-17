@@ -347,36 +347,39 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
           .text((d) => d);
         totsx.exit().remove();
 
-        const scaleC = [colorScale.domain() [0]];
-        colorScale.quantiles().forEach(function(d) {
-          scaleC.push(d);
-        });
-        const legend = svg.selectAll('.legend')
-          .data(scaleC);
+        const doLegend = false;
+        if (doLegend) {
+          const scaleC = [colorScale.domain()[0]];
+          colorScale.quantiles().forEach(function (d) {
+            scaleC.push(d);
+          });
+          const legend = svg.selectAll('.legend')
+            .data(scaleC);
 
-        const legend_g = legend.enter().append('g')
-          .attr('class', 'legend');
+          const legend_g = legend.enter().append('g')
+            .attr('class', 'legend');
 
-        legend_g.append('rect')
-          .attr('x', (d, i) => legendElementWidth * i)
-          .attr('y', function () {
-            return height + ((buckets === labelsXY.x.length) ? gridSize / 2 : gridSize);
-          })
-          .attr('width', legendElementWidth)
-          .attr('height', gridSize / 2)
-          .style('fill', function(d, i) {
-            return '' + colours[i];
-          })
-          ;
+          legend_g.append('rect')
+            .attr('x', (d, i) => legendElementWidth * i)
+            .attr('y', function () {
+              return height + ((buckets === labelsXY.x.length) ? gridSize / 2 : gridSize);
+            })
+            .attr('width', legendElementWidth)
+            .attr('height', gridSize / 2)
+            .style('fill', function (d, i) {
+              return '' + colours[i];
+            })
+            ;
 
-        legend_g.append('text')
-          .attr('class', 'mono')
-          .text((d) => '≥ ' + Math.round(d))
-          .attr('x', (d, i) => legendElementWidth * i)
-          .attr('y', height + gridSize * 1.5);
+          legend_g.append('text')
+            .attr('class', 'mono')
+            .text((d) => '≥ ' + Math.round(d))
+            .attr('x', (d, i) => legendElementWidth * i)
+            .attr('y', height + gridSize * 1.5);
 
-        legend.exit().remove();
+          legend.exit().remove();
 
+        }
       };
 
     heatmapChart(squares ? false : true);
