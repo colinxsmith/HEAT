@@ -17,7 +17,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   managerX: string[] = [];
   managerY: string[] = [];
   managerPlot: { x: number, y: number, value: number }[] = [];
-  numColours = 20;
+  numColours = 8;
 
   butName = 'Squares';
   transpose = true;
@@ -26,7 +26,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   chosenFigure = this.managerFigure[0];
   pad = true;
   padButt = 'Don\'t pad';
-  colourrange = ['yellow', 'cyan'];
+  colourrange = ['white', 'black'];
 
   constructor() {
     /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
@@ -138,10 +138,10 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         }
         return back;
       })
-      .attr('x', -30 * Math.cos(Math.PI / 180 * 30))
-      .attr('y', -30 * Math.sin(Math.PI / 180 * 30))
+      .attr('x', -20 * Math.cos(Math.PI / 180 * 40))
+      .attr('y', -20 * Math.sin(Math.PI / 180 * 40))
       .style('text-anchor', 'end')
-      .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-30)`)
+      .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-40)`)
       .attr('class', 'yLabel mono axis-y');
     console.log(iOffice);
 
@@ -161,7 +161,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
 
     const localThis = this;
     this.managerData.forEach(function (di, ix) {
-      const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
+      const colorScale = d3.scaleQuantile<RGBColor>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
@@ -289,7 +289,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             heatData.push(d);
           }
         });
-        const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
+        const colorScale = d3.scaleQuantile<RGBColor>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);
