@@ -5,7 +5,7 @@ import { DatamoduleModule } from '../datamodule/datamodule.module';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select><input  (input)="colourrange[0] = $event.target.value"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
+  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
@@ -17,6 +17,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   managerX: string[] = [];
   managerY: string[] = [];
   managerPlot: { x: number, y: number, value: number }[] = [];
+  numColours = 8;
 
   butName = 'Squares';
   transpose = true;
@@ -25,7 +26,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   chosenFigure = this.managerFigure[0];
   pad = true;
   padButt = 'Don\'t pad';
-  colourrange = ['white', 'rgb(198,198,198)'];
+  colourrange = ['white', 'black'];
 
   constructor() {
     /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
@@ -87,15 +88,15 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   }
 
   largeMap() {
-    const tooltip = d3.select('body').append('g').attr('class', 'toolTip'), numColours = 10,
+    const tooltip = d3.select('body').append('g').attr('class', 'toolTip'),
       coloursd = d3.scaleLinear<RGBColor>()
-        .domain([0, numColours])
+        .domain([0, this.numColours - 1])
         .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
       colours: RGBColor[] = [];
-    for (let i = 0; i < numColours; ++i) {
+    for (let i = 0; i < this.numColours; ++i) {
       colours[i] = coloursd(i);
     }
-    const margin = { top: 105, right: 10, bottom: 10, left: 90 },
+    const margin = { top: 110, right: 10, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear<number, number>().domain([0, this.managerDataTypes.length]).range([0, width]),
@@ -103,6 +104,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
       svg = d3.select('app-heatmap').append('svg')
         .attr('width', `${width + margin.left + margin.right}`)
         .attr('height', `${height + margin.bottom + margin.top}`);
+
     svg.append('rect').attr('width', `${width + margin.left + margin.right}`)
       .attr('height', `${height + margin.bottom + margin.top}`).attr('x', 0).attr('y', '0').attr('class', 'rim');
     svg.append('rect').attr('width', width).attr('height', height)
@@ -136,10 +138,10 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         }
         return back;
       })
-      .attr('x', -30 * Math.cos(Math.PI / 180 * 30))
-      .attr('y', -30 * Math.sin(Math.PI / 180 * 30))
+      .attr('x', -20 * Math.cos(Math.PI / 180 * 40))
+      .attr('y', -20 * Math.sin(Math.PI / 180 * 40))
       .style('text-anchor', 'end')
-      .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-30)`)
+      .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-40)`)
       .attr('class', 'yLabel mono axis-y');
     console.log(iOffice);
 
@@ -159,7 +161,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
 
     const localThis = this;
     this.managerData.forEach(function (di, ix) {
-      const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
+      const colorScale = d3.scaleQuantile<RGBColor>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
@@ -218,7 +220,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     }
     let buckets = labelsXY.x.length;
     console.log('Number of buckets ' + buckets);
-    const margin = { top: 120, right: 0, bottom: 100, left: 130 },
+    const margin = { top: 30, right: 0, bottom: 10, left: 130 },
       width = 1000 - margin.left - margin.right,
       height = 1000 - margin.top - margin.bottom,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length));
@@ -227,12 +229,12 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
       buckets--;
     }
     const coloursd = d3.scaleLinear<RGBColor>()
-      .domain([0, buckets])
+      .domain([0, buckets - 1])
       .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
       colours: RGBColor[] = [];
-    labelsXY.x.forEach(function (d, ii) {
+    for (let ii = 0; ii < buckets; ii++) {
       colours[ii] = coloursd(ii);
-    });
+    }
 
     const svg = d3.select('app-heatmap').append('svg')
       .attr('width', width + margin.left + margin.right)
@@ -287,7 +289,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             heatData.push(d);
           }
         });
-        const colorScale: d3.ScaleQuantile<RGBColor> = d3.scaleQuantile<RGBColor>()
+        const colorScale = d3.scaleQuantile<RGBColor>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);

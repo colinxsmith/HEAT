@@ -15,9 +15,10 @@ text.mono {
 }
 
 text.datavals {
-    font-size: 4px;
+    font-size: 5px;
     font-family: Calibri, sans-serif;
     text-anchor: middle;
+    opacity: 0.9;
 }
 
 text.totalsY {
