@@ -26,7 +26,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   chosenFigure = this.managerFigure[0];
   pad = true;
   padButt = 'Don\'t pad';
-  colourrange = ['white', 'black'];
+  colourrange = ['orange', 'black', 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)'];
 
   constructor() {
     /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
@@ -89,14 +89,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
 
   largeMap() {
     const tooltip = d3.select('body').append('g').attr('class', 'toolTip'),
-      coloursd = d3.scaleLinear<RGBColor>()
-        .domain([0, this.numColours - 1])
-        .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
-      colours: RGBColor[] = [];
-    for (let i = 0; i < this.numColours; ++i) {
-      colours[i] = coloursd(i);
-    }
-    const margin = { top: 110, right: 10, bottom: 30, left: 90 },
+      margin = { top: 110, right: 10, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear<number, number>().domain([0, this.managerDataTypes.length]).range([0, width]),
@@ -161,6 +154,13 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
 
     const localThis = this;
     this.managerData.forEach(function (di, ix) {
+      const coloursd = d3.scaleLinear<RGBColor, RGBColor>()
+        .domain([0, localThis.numColours - 1])
+        .range([d3.rgb(localThis.colourrange[(ix > 0 ? ix + 1 : ix) % localThis.colourrange.length]), d3.rgb(localThis.colourrange[1])]),
+      colours: RGBColor[] = [];
+    for (let i = 0; i < localThis.numColours; ++i) {
+      colours[i] = coloursd(i);
+    }
       const colorScale = d3.scaleQuantile<RGBColor>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
