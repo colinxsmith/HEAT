@@ -26,7 +26,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   chosenFigure = this.managerFigure[0];
   pad = true;
   padButt = 'Don\'t pad';
-  colourrange = ['orange', 'black', 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)'];
+  colourrange = ['rgb(235,235,235)', 'red', 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
 
   constructor() {
     /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
@@ -35,11 +35,11 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         });
       });*/
   }
-  chooseData(daig) {
+  chooseData(daig: string) {
     this.chosenData = daig;
     this.ngOnInit();
   }
-  chooseFigure(daig) {
+  chooseFigure(daig: string) {
     this.chosenFigure = daig;
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) {
@@ -367,8 +367,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('height', gridSize / 2)
             .style('fill', function (d, i) {
               return '' + colours[i];
-            })
-            ;
+            });
 
           legend_g.append('text')
             .attr('class', 'mono')
