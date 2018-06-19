@@ -183,9 +183,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .style('left', `${d3.event.pageX}px`)
             .style('top', `${d3.event.pageY - 28}px`);
         })
-        .on('mouseout', function (dd) {
-          tooltip.style('opacity', 0);
-        })
+        .on('mouseout', (dd) => tooltip.style('opacity', 0))
         .transition()
         .duration(200)
         .style('fill', (dd) => ' ' + colorScale(dd.value));
@@ -237,9 +235,9 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     }
 
     const svg = d3.select('app-heatmap').append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      //  .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+      /* .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)*/
+      .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
 
@@ -263,21 +261,10 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
         .attr('class', 'xLabel mono axis-x'),
 
-      type = (d: { x: number, y: number, value: number }) => {
-        if (transpose) {
-          return {
-            y: +d.x,
-            x: +d.y,
-            value: +d.value
-          };
-        } else {
-          return {
-            y: +d.y,
-            x: +d.x,
-            value: +d.value
-          };
-        }
-      }, totalsX = [], totalsY = [], THIS = this,
+      type = (d: { x: number, y: number, value: number }) => transpose ?
+        { y: +d.x, x: +d.y, value: +d.value } :
+        { y: +d.y, x: +d.x, value: +d.value }
+      , totalsX = [], totalsY = [], THIS = this,
       heatmapChart = function (circ: boolean) {
         dataXY.forEach(function (d) {
           d = type(d);
