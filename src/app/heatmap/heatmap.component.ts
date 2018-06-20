@@ -234,10 +234,11 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
       colours[ii] = coloursd(ii);
     }
 
-    const svg = d3.select('app-heatmap').append('svg')
-      /* .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)*/
-      .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+    const tooltip = d3.select('body').append('g').attr('class', 'toolTip'),
+      svg = d3.select('app-heatmap').append('svg')
+        /* .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)*/
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
 
@@ -291,6 +292,14 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('class', 'values circle bordered')
             .attr('r', gridSize / 2.5)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
+            .on('mouseover', function (d) {
+              tooltip.style('opacity', 0.9);
+              tooltip
+                .html(`${d.value}`)
+                .style('left', `${d3.event.pageX}px`)
+                .style('top', `${d3.event.pageY - 28}px`);
+            })
+            .on('mouseout', (d) => tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
             .duration(200)
@@ -305,10 +314,19 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('width', gridSize)
             .attr('height', gridSize)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
+            .on('mouseover', function (d) {
+              tooltip.style('opacity', 0.9);
+              tooltip
+                .html(`${d.value}`)
+                .style('left', `${d3.event.pageX}px`)
+                .style('top', `${d3.event.pageY - 28}px`);
+            })
+            .on('mouseout', (d) => tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
             .duration(200)
-            .style('fill', (d) => ' ' + colorScale(d.value));
+            .style('fill', (d) => ' ' + colorScale(d.value))
+            ;
         }
 
         gridDistribution.enter().append('text')
@@ -316,7 +334,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
           .attr('y', (d) => (d.y - 1 + 0.45) * gridSize)
           .attr('dy', 3)
           .attr('class', 'datavals')
-          .text((d) => ' ' + d.value);
+          .text((d) => ' ' + d.value)
+          ;
 
         const totsy = svg.selectAll('.totalsY')
           .data(totalsY).enter().append('g').append('text');
