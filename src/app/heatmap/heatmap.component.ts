@@ -291,7 +291,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .on('mouseover', function (d) {
               tooltip.style('opacity', 0.9);
               tooltip
-                .html(`${d.value}`)
+                .html(`${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
