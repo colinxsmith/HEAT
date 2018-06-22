@@ -313,7 +313,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .on('mouseover', function (d) {
               tooltip.style('opacity', 0.9);
               tooltip
-                .html(`${d.value}`)
+                .html(`${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
@@ -356,17 +356,25 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('class', 'legend');
           legend_g.append('rect')
             .attr('x', (d, i) => legendElementWidth * i)
-            .attr('y', height + legendSize / 2 + ((buckets === labelsXY.x.length) ? gridSize / 2 : gridSize))
+            .attr('y', (labelsXY.y.length + 0.25) * gridSize)
             .attr('width', legendElementWidth)
-            .attr('height', gridSize / 2)
+            .attr('height', legendSize / 2)
             .style('fill', function (d, i) {
               return '' + colours[i];
-            });
+            })
+            .on('mouseover', function (d) {
+              tooltip.style('opacity', 0.9);
+              tooltip
+                .html(`${d}`)
+                .style('left', `${d3.event.pageX}px`)
+                .style('top', `${d3.event.pageY - 28}px`);
+            })
+            .on('mouseout', (d) => tooltip.style('opacity', 0));
           legend_g.append('text')
-            .attr('class', 'mono')
-            .text((d) => '≥ ' + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
-            .attr('x', (d, i) => legendElementWidth * (i + 0.5))
-            .attr('y',  height + legendSize / 2 + gridSize * 1.5);
+            .attr('class', 'legend')
+            .text((d) => '\uf105 ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
+            .attr('x', (d, i) => legendElementWidth * (i + 0.25))
+            .attr('y',  (labelsXY.y.length + 0.25) * gridSize + legendSize / 4);
         }
       };
     heatmapChart(squares ? false : true);
