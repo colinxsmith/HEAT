@@ -219,10 +219,11 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     let buckets = labelsXY.x.length;
     console.log('Number of buckets ' + buckets);
     const margin = { top: 30, right: 0, bottom: 10, left: 130 },
+      legendSize = 100,
       width = 1000 - margin.left - margin.right,
-      height = 1000 - margin.top - margin.bottom,
-      gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length));
-    const legendElementWidth = gridSize;
+      height = 1000 - margin.top - margin.bottom - legendSize,
+      gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
+      legendElementWidth = gridSize;
     if (labelsXY.x[buckets - 1] === 'Total') {
       buckets--;
     }
@@ -237,11 +238,10 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     const tooltip = d3.select('body').append('g').attr('class', 'toolTip'),
       svg = d3.select('app-heatmap').append('svg')
         /* .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)*/
-        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr('height', height + margin.top + margin.bottom + legendSize)*/
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
-
       YLabels = svg.selectAll('.yLabel')
         .data(labelsXY.y)
         .enter().append('text')
@@ -251,7 +251,6 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .style('text-anchor', 'end')
         .attr('transform', (d, i) => `translate(-5,${(i + 0.6) * gridSize})`)
         .attr('class', 'yLabel mono axis-y'),
-
       XLabels = svg.selectAll('.xLabel')
         .data(labelsXY.x)
         .enter().append('text')
@@ -261,11 +260,10 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .style('text-anchor', 'right')
         .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
         .attr('class', 'xLabel mono axis-x'),
-
       type = (d: { x: number, y: number, value: number }) => transpose ?
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value }
-      , totalsX = [], totalsY = [], THIS = this,
+      , totalsX = [], totalsY = [],
       heatmapChart = function (circ: boolean) {
         dataXY.forEach(function (d) {
           d = type(d);
@@ -281,16 +279,14 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);
-
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
-
         if (circ) {
           gridDistribution.enter().append('circle')
             .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
             .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
             .attr('class', 'values circle bordered')
-            .attr('r', gridSize / 2.5)
+            .attr('r', gridSize / 2)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
             .on('mouseover', function (d) {
               tooltip.style('opacity', 0.9);
@@ -328,7 +324,6 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .style('fill', (d) => ' ' + colorScale(d.value))
             ;
         }
-
         gridDistribution.enter().append('text')
           .attr('x', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('y', (d) => (d.y - 1 + 0.45) * gridSize)
@@ -336,23 +331,19 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
           .attr('class', 'datavals')
           .text((d) => ' ' + d.value)
           ;
-
         const totsy = svg.selectAll('.totalsY')
           .data(totalsY).enter().append('g').append('text');
-
         totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
           .attr('y', labelsXY.y.length * gridSize - 6)
           .attr('class', 'text totalsY')
           .text((d) => d);
         const totsx = svg.selectAll('.totalsX')
           .data(totalsX).enter().append('g').append('text');
-
         totsx.attr('y', (d, i) => (i + 0.45) * gridSize + 3)
           .attr('x', labelsXY.x.length * gridSize - 25)
           .attr('class', 'text totalsX')
           .text((d) => d);
-
-        const doLegend = false;
+        const doLegend = true;
         if (doLegend) {
           const scaleC = [colorScale.domain()[0]];
           colorScale.quantiles().forEach(function (d) {
@@ -363,26 +354,21 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
 
           const legend_g = legend.enter().append('g')
             .attr('class', 'legend');
-
           legend_g.append('rect')
             .attr('x', (d, i) => legendElementWidth * i)
-            .attr('y', function () {
-              return height + ((buckets === labelsXY.x.length) ? gridSize / 2 : gridSize);
-            })
+            .attr('y', height + legendSize / 2 + ((buckets === labelsXY.x.length) ? gridSize / 2 : gridSize))
             .attr('width', legendElementWidth)
             .attr('height', gridSize / 2)
             .style('fill', function (d, i) {
               return '' + colours[i];
             });
-
           legend_g.append('text')
             .attr('class', 'mono')
-            .text((d) => '≥ ' + Math.round(d))
-            .attr('x', (d, i) => legendElementWidth * i)
-            .attr('y', height + gridSize * 1.5);
+            .text((d) => '≥ ' + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
+            .attr('x', (d, i) => legendElementWidth * (i + 0.5))
+            .attr('y',  height + legendSize / 2 + gridSize * 1.5);
         }
       };
-
     heatmapChart(squares ? false : true);
   }
 }
