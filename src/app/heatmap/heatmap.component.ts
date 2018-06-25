@@ -373,7 +373,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .on('mouseout', (d) => tooltip.style('opacity', 0));
           legend_g.append('text')
             .attr('class', 'legend')
-            .text((d) => '\uf105 ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
+            .text((d) => '\uf07e ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
             .attr('x', (d, i) => legendElementWidth * (i + 0.25))
             .attr('y',  (labelsXY.y.length + 0.25) * gridSize + legendSize / 4);
         }
