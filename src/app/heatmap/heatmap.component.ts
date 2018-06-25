@@ -154,7 +154,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
 
     const localThis = this;
     this.managerData.forEach(function (di, ix) {
-      let ixx = ix % localThis.colourrange.length;
+      const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<RGBColor, RGBColor>()
         .domain([0, localThis.numColours - 1])
         .range([d3.rgb(localThis.colourrange[(ixx > 0 ? ixx + 1 : ixx) % localThis.colourrange.length]), d3.rgb(localThis.colourrange[1])]),
