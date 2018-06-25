@@ -17,7 +17,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   managerX: string[] = [];
   managerY: string[] = [];
   managerPlot: { x: number, y: number, value: number }[] = [];
-  numColours = 8;
+  numColours = 25;
 
   butName = 'Squares';
   transpose = true;
@@ -25,8 +25,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   chosenData = this.managerDataTypes[0];
   chosenFigure = this.managerFigure[0];
   pad = true;
-  padButt = 'Don\'t pad';
-  colourrange = ['rgb(235,235,235)', 'red', 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
+  padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
+  colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)', 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
 
   constructor() {
     /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
@@ -170,7 +170,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .data(di)
         .enter().append('rect')
         .attr('x', (dd) => margin.left + scaleX(ix))
-        .attr('y', (dd, ii) => margin.top + scaleY(ii))
+        .attr('y', (dd, i) => margin.top + scaleY(i))
         .attr('rx', 0)
         .attr('ry', 0)
         .attr('class', 'values rect bordered')
@@ -192,13 +192,12 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     });
   }
   setPad() {
-    this.padButt = this.pad ? 'Pad with zero' : 'Don\'t pad';
     this.pad = !this.pad;
+    this.padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
     this.ngOnInit();
   }
   setTrans() {
     this.transpose = !this.transpose;
-    this.butName = this.squares ? 'Circles' : 'Squares';
     this.ngOnInit();
   }
   setSquares() {
