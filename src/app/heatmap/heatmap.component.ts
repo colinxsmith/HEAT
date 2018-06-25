@@ -154,9 +154,10 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
 
     const localThis = this;
     this.managerData.forEach(function (di, ix) {
+      let ixx = ix % localThis.colourrange.length;
       const coloursd = d3.scaleLinear<RGBColor, RGBColor>()
         .domain([0, localThis.numColours - 1])
-        .range([d3.rgb(localThis.colourrange[(ix > 0 ? ix + 1 : ix) % localThis.colourrange.length]), d3.rgb(localThis.colourrange[1])]),
+        .range([d3.rgb(localThis.colourrange[(ixx > 0 ? ixx + 1 : ixx) % localThis.colourrange.length]), d3.rgb(localThis.colourrange[1])]),
       colours: RGBColor[] = [];
     for (let i = 0; i < localThis.numColours; ++i) {
       colours[i] = coloursd(i);
@@ -183,7 +184,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .style('left', `${d3.event.pageX}px`)
             .style('top', `${d3.event.pageY - 28}px`);
         })
-        .on('mouseout', (dd) => tooltip.style('opacity', 0))
+        .on('mouseout', (dd) => tooltip.style('opacity', 0));
+        colourMap.merge(colourMap)
         .transition()
         .duration(200)
         .style('fill', (dd) => ' ' + colorScale(dd.value));
