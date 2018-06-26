@@ -27,7 +27,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   chosenFigure = this.managerFigure[0];
   pad = true;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)', 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
+  colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
+  // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
 
   constructor() {
     /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
