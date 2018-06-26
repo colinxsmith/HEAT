@@ -22,6 +22,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   butName = 'Squares';
   transpose = true;
   squares = true;
+  viewbox = true;
   chosenData = this.managerDataTypes[0];
   chosenFigure = this.managerFigure[0];
   pad = true;
@@ -217,14 +218,15 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
-    let buckets = labelsXY.x.length;
+    let buckets = labelsXY.x.length,
+    legendSize = 50;
     console.log('Number of buckets ' + buckets);
-    const margin = { top: 30, right: 0, bottom: 10, left: 130 },
-      legendSize = 100,
+    const margin = { top: transpose ? 30 : 60, right: 0, bottom: 10, left: 130 },
       width = 1000 - margin.left - margin.right,
       height = 1000 - margin.top - margin.bottom - legendSize,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
+      legendSize = Math.min(legendSize, legendElementWidth);
     if (labelsXY.x[buckets - 1] === 'Total') {
       buckets--;
     }
@@ -237,10 +239,15 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     }
 
     const tooltip = d3.select('body').append('g').attr('class', 'toolTip'),
-      svg = d3.select('app-heatmap').append('svg')
-        /* .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom + legendSize)*/
-        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`)
+      svgheat = d3.select('app-heatmap').append('svg');
+
+    if (this.viewbox) {
+      svgheat.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`);
+    } else {
+      svgheat.attr('width', width + margin.left + margin.right);
+      svgheat.attr('height', height + margin.top + margin.bottom + legendSize);
+    }
+    const svg = svgheat
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
       YLabels = svg.selectAll('.yLabel')
@@ -359,7 +366,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('x', (d, i) => legendElementWidth * i)
             .attr('y', (labelsXY.y.length + 0.25) * gridSize)
             .attr('width', legendElementWidth)
-            .attr('height', legendSize / 2)
+            .attr('height', legendSize)
             .style('fill', function (d, i) {
               return '' + colours[i];
             })
@@ -375,7 +382,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('class', 'legend')
             .text((d) => '\uf07e ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
             .attr('x', (d, i) => legendElementWidth * (i + 0.25))
-            .attr('y',  (labelsXY.y.length + 0.25) * gridSize + legendSize / 4);
+            .attr('y',  (labelsXY.y.length + 0.25) * gridSize + legendSize / 2 + 3);
         }
       };
     heatmapChart(squares ? false : true);
