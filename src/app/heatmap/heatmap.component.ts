@@ -16,6 +16,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   managerDataTypes = this.myData.managerDataTypes;
   managerFigure = ['Heat Map', 'Large Map'];
   managerData = this.myData.managerData;
+  tooltip = d3.select('body').append('g').attr('class', 'toolTip');
   managerX: string[] = [];
   managerY: string[] = [];
   managerPlot: { x: number, y: number, value: number }[] = [];
@@ -93,8 +94,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
   }
 
   largeMap() {
-    const tooltip = d3.select('body').append('g').attr('class', 'toolTip'),
-      margin = { top: 110, right: 10, bottom: 30, left: 90 },
+    const margin = { top: 110, right: 10, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear<number, number>().domain([0, this.managerDataTypes.length]).range([0, width]),
@@ -183,13 +183,13 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .attr('height', height / di.length)
         .style('fill', ' ' + colours[0])
         .on('mouseover', function (dd) {
-          tooltip.style('opacity', 0.9);
-          tooltip
+          localThis.tooltip.style('opacity', 0.9);
+          localThis.tooltip
             .html(`${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             .style('left', `${d3.event.pageX}px`)
             .style('top', `${d3.event.pageY - 28}px`);
         })
-        .on('mouseout', (dd) => tooltip.style('opacity', 0));
+        .on('mouseout', (dd) => localThis.tooltip.style('opacity', 0));
         colourMap.merge(colourMap)
         .transition()
         .duration(200)
@@ -213,6 +213,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
 
   setUp(xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[]) {
     const squares = this.squares,
+    localThis = this,
       transpose = this.transpose,
       labelsXY = { x: [' '], y: [' '] }, heatData: { x: number, y: number, value: number }[] = [];
     if (transpose) {
@@ -242,8 +243,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
       colours[ii] = coloursd(ii);
     }
 
-    const tooltip = d3.select('body').append('g').attr('class', 'toolTip'),
-      svgheat = d3.select('app-heatmap').append('svg');
+    const  svgheat = d3.select('app-heatmap').append('svg');
 
     if (this.viewbox) {
       svgheat.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`);
@@ -301,13 +301,13 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('r', gridSize / 2)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
             .on('mouseover', function (d) {
-              tooltip.style('opacity', 0.9);
-              tooltip
+              localThis.tooltip.style('opacity', 0.9);
+              localThis.tooltip
                 .html(`${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
-            .on('mouseout', (d) => tooltip.style('opacity', 0))
+            .on('mouseout', (d) => localThis.tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
             .duration(200)
@@ -323,13 +323,13 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .attr('height', gridSize)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
             .on('mouseover', function (d) {
-              tooltip.style('opacity', 0.9);
-              tooltip
+              localThis.tooltip.style('opacity', 0.9);
+              localThis.tooltip
                 .html(`${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
-            .on('mouseout', (d) => tooltip.style('opacity', 0))
+            .on('mouseout', (d) => localThis.tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
             .duration(200)
@@ -375,13 +375,13 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
               return '' + colours[i];
             })
             .on('mouseover', function (d) {
-              tooltip.style('opacity', 0.9);
-              tooltip
+              localThis.tooltip.style('opacity', 0.9);
+              localThis.tooltip
                 .html(`${d}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
-            .on('mouseout', (d) => tooltip.style('opacity', 0));
+            .on('mouseout', (d) => localThis.tooltip.style('opacity', 0));
           legend_g.append('text')
             .attr('class', 'legend')
             .text((d) => '\uf07e ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
