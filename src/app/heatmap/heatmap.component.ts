@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
-import { RGBColor } from 'd3';
+// import { RGBColor } from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
+import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
@@ -16,7 +17,7 @@ export class HeatmapComponent implements OnInit {
   managerDataTypes = this.myData.managerDataTypes;
   managerFigure = ['Heat Map', 'Large Map'];
   managerData = this.myData.managerData;
-  tooltip = d3.select('body').append('g').attr('class', 'toolTip');
+  tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
   managerPlot: { x: number, y: number, value: number }[] = [];
@@ -160,14 +161,14 @@ export class HeatmapComponent implements OnInit {
     const localThis = this;
     this.managerData.forEach(function (di, ix) {
       const ixx = ix % (localThis.colourrange.length - 1);
-      const coloursd = d3.scaleLinear<RGBColor, RGBColor>()
+      const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
         .domain([0, localThis.numColours - 1])
         .range([d3.rgb(localThis.colourrange[(ixx > 0 ? ixx + 1 : ixx) % localThis.colourrange.length]), d3.rgb(localThis.colourrange[1])]),
-      colours: RGBColor[] = [];
+      colours: d3.RGBColor[] = [];
     for (let i = 0; i < localThis.numColours; ++i) {
       colours[i] = coloursd(i);
     }
-      const colorScale = d3.scaleQuantile<RGBColor>()
+      const colourScale = d3.scaleQuantile<d3.RGBColor>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
@@ -193,7 +194,7 @@ export class HeatmapComponent implements OnInit {
         colourMap.merge(colourMap)
         .transition()
         .duration(200)
-        .style('fill', (dd) => ' ' + colorScale(dd.value));
+        .style('fill', (dd) => ' ' + colourScale(dd.value));
     });
   }
   setPad() {
@@ -235,10 +236,10 @@ export class HeatmapComponent implements OnInit {
     if (labelsXY.x[buckets - 1] === 'Total') {
       buckets--;
     }
-    const coloursd = d3.scaleLinear<RGBColor>()
+    const coloursd = d3.scaleLinear<d3.RGBColor>()
       .domain([0, buckets - 1])
       .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
-      colours: RGBColor[] = [];
+      colours: d3.RGBColor[] = [];
     for (let ii = 0; ii < buckets; ii++) {
       colours[ii] = coloursd(ii);
     }
@@ -287,7 +288,7 @@ export class HeatmapComponent implements OnInit {
             heatData.push(d);
           }
         });
-        const colorScale = d3.scaleQuantile<RGBColor>()
+        const colourScale = d3.scaleQuantile<d3.RGBColor>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);
@@ -311,7 +312,7 @@ export class HeatmapComponent implements OnInit {
             .merge(gridDistribution)
             .transition()
             .duration(200)
-            .style('fill', (d) => ' ' + colorScale(d.value));
+            .style('fill', (d) => ' ' + colourScale(d.value));
         } else {
           gridDistribution.enter().append('rect')
             .attr('x', (d) => (d.x - 1) * gridSize)
@@ -333,7 +334,7 @@ export class HeatmapComponent implements OnInit {
             .merge(gridDistribution)
             .transition()
             .duration(200)
-            .style('fill', (d) => ' ' + colorScale(d.value))
+            .style('fill', (d) => ' ' + colourScale(d.value))
             ;
         }
         gridDistribution.enter().append('text')
@@ -357,8 +358,8 @@ export class HeatmapComponent implements OnInit {
           .text((d) => d);
         const doLegend = true;
         if (doLegend) {
-          const scaleC = [colorScale.domain()[0]];
-          colorScale.quantiles().forEach(function (d) {
+          const scaleC = [colourScale.domain()[0]];
+          colourScale.quantiles().forEach(function (d) {
             scaleC.push(d);
           });
           const legend = svg.selectAll('.legend')
