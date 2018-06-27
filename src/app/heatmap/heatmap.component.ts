@@ -11,7 +11,7 @@ import { DatamoduleModule } from '../datamodule/datamodule.module';
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class HeatmapComponent implements OnInit, DatamoduleModule {
+export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
   managerDataTypes = this.myData.managerDataTypes;
   managerFigure = ['Heat Map', 'Large Map'];
