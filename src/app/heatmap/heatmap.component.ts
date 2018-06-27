@@ -186,7 +186,8 @@ export class HeatmapComponent implements OnInit {
         .on('mouseover', function (dd) {
           localThis.tooltip.style('opacity', 0.9);
           localThis.tooltip
-            .html(`${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
+            // tslint:disable-next-line:max-line-length
+            .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             .style('left', `${d3.event.pageX}px`)
             .style('top', `${d3.event.pageY - 28}px`);
         })

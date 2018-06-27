@@ -56,3 +56,7 @@ text.axis-y {
     font-family: Calibri, sans-serif;
     fill: #00a;
 }
+.test {
+    color: rgba(195, 255, 0, 0.568);
+    font-size: 30px;
+}
