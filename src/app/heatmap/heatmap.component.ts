@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
-import { RGBColor } from 'd3';
+// import { RGBColor } from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
+import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
@@ -11,12 +12,12 @@ import { DatamoduleModule } from '../datamodule/datamodule.module';
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class HeatmapComponent implements OnInit, DatamoduleModule {
+export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
   managerDataTypes = this.myData.managerDataTypes;
   managerFigure = ['Heat Map', 'Large Map'];
   managerData = this.myData.managerData;
-  tooltip = d3.select('body').append('g').attr('class', 'toolTip');
+  tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
   managerPlot: { x: number, y: number, value: number }[] = [];
@@ -160,14 +161,14 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     const localThis = this;
     this.managerData.forEach(function (di, ix) {
       const ixx = ix % (localThis.colourrange.length - 1);
-      const coloursd = d3.scaleLinear<RGBColor, RGBColor>()
+      const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
         .domain([0, localThis.numColours - 1])
         .range([d3.rgb(localThis.colourrange[(ixx > 0 ? ixx + 1 : ixx) % localThis.colourrange.length]), d3.rgb(localThis.colourrange[1])]),
-      colours: RGBColor[] = [];
+      colours: d3.RGBColor[] = [];
     for (let i = 0; i < localThis.numColours; ++i) {
       colours[i] = coloursd(i);
     }
-      const colorScale = d3.scaleQuantile<RGBColor>()
+      const colourScale = d3.scaleQuantile<d3.RGBColor>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
@@ -185,7 +186,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         .on('mouseover', function (dd) {
           localThis.tooltip.style('opacity', 0.9);
           localThis.tooltip
-            .html(`${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
+            // tslint:disable-next-line:max-line-length
+            .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             .style('left', `${d3.event.pageX}px`)
             .style('top', `${d3.event.pageY - 28}px`);
         })
@@ -193,7 +195,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
         colourMap.merge(colourMap)
         .transition()
         .duration(200)
-        .style('fill', (dd) => ' ' + colorScale(dd.value));
+        .style('fill', (dd) => ' ' + colourScale(dd.value));
     });
   }
   setPad() {
@@ -235,10 +237,10 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
     if (labelsXY.x[buckets - 1] === 'Total') {
       buckets--;
     }
-    const coloursd = d3.scaleLinear<RGBColor>()
+    const coloursd = d3.scaleLinear<d3.RGBColor>()
       .domain([0, buckets - 1])
       .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
-      colours: RGBColor[] = [];
+      colours: d3.RGBColor[] = [];
     for (let ii = 0; ii < buckets; ii++) {
       colours[ii] = coloursd(ii);
     }
@@ -287,7 +289,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             heatData.push(d);
           }
         });
-        const colorScale = d3.scaleQuantile<RGBColor>()
+        const colourScale = d3.scaleQuantile<d3.RGBColor>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);
@@ -303,7 +305,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .on('mouseover', function (d) {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
-                .html(`${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+                // tslint:disable-next-line:max-line-length
+                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
@@ -311,7 +314,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .merge(gridDistribution)
             .transition()
             .duration(200)
-            .style('fill', (d) => ' ' + colorScale(d.value));
+            .style('fill', (d) => ' ' + colourScale(d.value));
         } else {
           gridDistribution.enter().append('rect')
             .attr('x', (d) => (d.x - 1) * gridSize)
@@ -325,7 +328,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .on('mouseover', function (d) {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
-                .html(`${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+                // tslint:disable-next-line:max-line-length
+                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
@@ -333,7 +337,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .merge(gridDistribution)
             .transition()
             .duration(200)
-            .style('fill', (d) => ' ' + colorScale(d.value))
+            .style('fill', (d) => ' ' + colourScale(d.value))
             ;
         }
         gridDistribution.enter().append('text')
@@ -357,8 +361,8 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
           .text((d) => d);
         const doLegend = true;
         if (doLegend) {
-          const scaleC = [colorScale.domain()[0]];
-          colorScale.quantiles().forEach(function (d) {
+          const scaleC = [colourScale.domain()[0]];
+          colourScale.quantiles().forEach(function (d) {
             scaleC.push(d);
           });
           const legend = svg.selectAll('.legend')
@@ -377,7 +381,7 @@ export class HeatmapComponent implements OnInit, DatamoduleModule {
             .on('mouseover', function (d) {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
-                .html(`${d}`)
+                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${d}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
