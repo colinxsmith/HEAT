@@ -305,7 +305,8 @@ export class HeatmapComponent implements OnInit {
             .on('mouseover', function (d) {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
-                .html(`${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+                // tslint:disable-next-line:max-line-length
+                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
@@ -327,7 +328,8 @@ export class HeatmapComponent implements OnInit {
             .on('mouseover', function (d) {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
-                .html(`${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+                // tslint:disable-next-line:max-line-length
+                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
@@ -379,7 +381,7 @@ export class HeatmapComponent implements OnInit {
             .on('mouseover', function (d) {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
-                .html(`${d}`)
+                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${d}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
