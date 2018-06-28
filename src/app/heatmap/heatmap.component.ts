@@ -26,7 +26,7 @@ export class HeatmapComponent implements OnInit {
   butName = 'Squares';
   transpose = true;
   squares = true;
-  viewbox = false;
+  viewbox = true;
   chosenData = this.managerDataTypes[0];
   chosenFigure = this.managerFigure[0];
   pad = true;
@@ -159,15 +159,27 @@ export class HeatmapComponent implements OnInit {
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
     const localThis = this;
+    const highlite = svg.append('rect'),
+      clicker = function (di: { x: string, y: string, value: number }[], i: number) {
+    //    console.log(`${margin.left + scaleX(0)} ${margin.top + scaleY(i)}`);
+        highlite.style('opacity', '0');
+        highlite
+          .attr('x', `${margin.left + scaleX(0)}`)
+          .attr('y', `${margin.top + scaleY(i)}`)
+          .attr('class', 'HL')
+          .attr('width', width)
+          .attr('height', height / di.length)
+          .style('opacity', '1');
+      };
     this.managerData.forEach(function (di, ix) {
       const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
         .domain([0, localThis.numColours - 1])
         .range([d3.rgb(localThis.colourrange[(ixx > 0 ? ixx + 1 : ixx) % localThis.colourrange.length]), d3.rgb(localThis.colourrange[1])]),
-      colours: d3.RGBColor[] = [];
-    for (let i = 0; i < localThis.numColours; ++i) {
-      colours[i] = coloursd(i);
-    }
+        colours: d3.RGBColor[] = [];
+      for (let i = 0; i < localThis.numColours; ++i) {
+        colours[i] = coloursd(i);
+      }
       const colourScale = d3.scaleQuantile<d3.RGBColor>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
@@ -181,8 +193,8 @@ export class HeatmapComponent implements OnInit {
         .attr('ry', 0)
         .attr('width', width / localThis.managerDataTypes.length)
         .attr('height', height / di.length)
-        .style('fill', ' ' + colours[0])
-        .on('mouseover', function (dd) {
+        .style('fill', (dd) => ' ' + colourScale(dd.value))
+        .on('mouseover', function (dd, i) {
           localThis.tooltip.style('opacity', 0.9);
           localThis.tooltip
             // tslint:disable-next-line:max-line-length
@@ -190,12 +202,14 @@ export class HeatmapComponent implements OnInit {
             .style('left', `${d3.event.pageX}px`)
             .style('top', `${d3.event.pageY - 28}px`);
         })
-        .on('mouseout', (dd) => localThis.tooltip.style('opacity', 0));
-        colourMap.merge(colourMap)
-        .transition()
-        .duration(200)
-        .style('fill', (dd) => ' ' + colourScale(dd.value));
+        .on('click', (dd, i) => clicker(di, i))
+        .on('mouseout', () => localThis.tooltip.style('opacity', 0));
+      //  colourMap.merge(colourMap)
+      //  .transition()
+      //  .duration(200)
+      //  .style('fill', (dd) => ' ' + colourScale(dd.value));
     });
+  //  clicker(this.managerData[0], 1);
   }
   setPad() {
     this.pad = !this.pad;
@@ -332,7 +346,7 @@ export class HeatmapComponent implements OnInit {
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
-            .on('mouseout', (d) => localThis.tooltip.style('opacity', 0))
+            .on('mouseout', () => localThis.tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
             .duration(200)

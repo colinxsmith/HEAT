@@ -54,3 +54,8 @@ text.axis-y {
     color: rgba(195, 255, 0, 0.568);
     font-size: 30px;
 }
+.HL {
+    stroke-width: 10;
+    stroke: brown;
+    fill: green;
+}
