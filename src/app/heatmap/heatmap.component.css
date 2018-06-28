@@ -8,12 +8,6 @@ circle.bordered {
     stroke-width: 0px;
 }
 
-text.mono {
-    font-size: 7px;
-    font-family: Calibri, sans-serif;
-    fill: green;
-}
-
 text.legend {
     font-size: 7px;
     font-family: fontawesome, sans-serif;
@@ -59,4 +53,9 @@ text.axis-y {
 .test {
     color: rgba(195, 255, 0, 0.568);
     font-size: 30px;
+}
+.HL {
+    stroke-width: 10;
+    stroke: brown;
+    fill: green;
 }

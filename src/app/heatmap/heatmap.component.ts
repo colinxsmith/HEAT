@@ -117,7 +117,7 @@ export class HeatmapComponent implements OnInit {
       .attr('y', 0)
       .style('text-anchor', 'right')
       .attr('transform', (d, i) => `translate(${margin.left + scaleX(i + 0.65)},${margin.top - 3}) rotate(280)`)
-      .attr('class', 'xLabel mono axis-x');
+      .attr('class', 'axis-x');
 
     let pastLabel = '', iL = 1;
     const iOffice: {} = {}; // Find the office numbers
@@ -141,7 +141,7 @@ export class HeatmapComponent implements OnInit {
       .attr('y', -20 * Math.sin(Math.PI / 180 * 40))
       .style('text-anchor', 'end')
       .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-40)`)
-      .attr('class', 'yLabel mono axis-y');
+      .attr('class', 'axis-y');
     console.log(iOffice);
 
     const YOfficeGroups = svg.selectAll('.yLabel1')
@@ -152,22 +152,34 @@ export class HeatmapComponent implements OnInit {
       .attr('y', 0)
       .style('text-anchor', 'end')
       .attr('transform', (d, i) => `translate(${margin.left},${margin.top + scaleY(i + 1)})`)
-      .attr('class', 'yLabel mono axis-y');
+      .attr('class', 'axis-y');
 
     YOfficeGroups.style('font-size', '' + (+YOfficeGroups.style('font-size').replace('px', '') * 0.66) + 'px');
 
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
     const localThis = this;
+    const highlite = svg.append('rect'),
+      clicker = function (di: { x: string, y: string, value: number }[], i: number) {
+    //    console.log(`${margin.left + scaleX(0)} ${margin.top + scaleY(i)}`);
+        highlite.style('opacity', '0');
+        highlite
+          .attr('x', `${margin.left + scaleX(0)}`)
+          .attr('y', `${margin.top + scaleY(i)}`)
+          .attr('class', 'HL')
+          .attr('width', width)
+          .attr('height', height / di.length)
+          .style('opacity', '1');
+      };
     this.managerData.forEach(function (di, ix) {
       const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
         .domain([0, localThis.numColours - 1])
         .range([d3.rgb(localThis.colourrange[(ixx > 0 ? ixx + 1 : ixx) % localThis.colourrange.length]), d3.rgb(localThis.colourrange[1])]),
-      colours: d3.RGBColor[] = [];
-    for (let i = 0; i < localThis.numColours; ++i) {
-      colours[i] = coloursd(i);
-    }
+        colours: d3.RGBColor[] = [];
+      for (let i = 0; i < localThis.numColours; ++i) {
+        colours[i] = coloursd(i);
+      }
       const colourScale = d3.scaleQuantile<d3.RGBColor>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
@@ -179,11 +191,10 @@ export class HeatmapComponent implements OnInit {
         .attr('y', (dd, i) => margin.top + scaleY(i))
         .attr('rx', 0)
         .attr('ry', 0)
-        .attr('class', 'values rect bordered')
         .attr('width', width / localThis.managerDataTypes.length)
         .attr('height', height / di.length)
-        .style('fill', ' ' + colours[0])
-        .on('mouseover', function (dd) {
+        .style('fill', (dd) => ' ' + colourScale(dd.value))
+        .on('mouseover', function (dd, i) {
           localThis.tooltip.style('opacity', 0.9);
           localThis.tooltip
             // tslint:disable-next-line:max-line-length
@@ -191,12 +202,14 @@ export class HeatmapComponent implements OnInit {
             .style('left', `${d3.event.pageX}px`)
             .style('top', `${d3.event.pageY - 28}px`);
         })
-        .on('mouseout', (dd) => localThis.tooltip.style('opacity', 0));
-        colourMap.merge(colourMap)
-        .transition()
-        .duration(200)
-        .style('fill', (dd) => ' ' + colourScale(dd.value));
+        .on('click', (dd, i) => clicker(di, i))
+        .on('mouseout', () => localThis.tooltip.style('opacity', 0));
+      //  colourMap.merge(colourMap)
+      //  .transition()
+      //  .duration(200)
+      //  .style('fill', (dd) => ' ' + colourScale(dd.value));
     });
+  //  clicker(this.managerData[0], 1);
   }
   setPad() {
     this.pad = !this.pad;
@@ -264,7 +277,7 @@ export class HeatmapComponent implements OnInit {
         .attr('y', 0)
         .style('text-anchor', 'end')
         .attr('transform', (d, i) => `translate(-5,${(i + 0.6) * gridSize})`)
-        .attr('class', 'yLabel mono axis-y'),
+        .attr('class', 'axis-y'),
       XLabels = svg.selectAll('.xLabel')
         .data(labelsXY.x)
         .enter().append('text')
@@ -273,7 +286,7 @@ export class HeatmapComponent implements OnInit {
         .attr('y', 0)
         .style('text-anchor', 'right')
         .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
-        .attr('class', 'xLabel mono axis-x'),
+        .attr('class', 'axis-x'),
       type = (d: { x: number, y: number, value: number }) => transpose ?
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value }
@@ -299,7 +312,7 @@ export class HeatmapComponent implements OnInit {
           gridDistribution.enter().append('circle')
             .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
             .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
-            .attr('class', 'values circle bordered')
+            .attr('class', 'bordered')
             .attr('r', gridSize / 2)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
             .on('mouseover', function (d) {
@@ -321,7 +334,7 @@ export class HeatmapComponent implements OnInit {
             .attr('y', (d) => (d.y - 1) * gridSize)
             .attr('rx', 0)
             .attr('ry', 0)
-            .attr('class', 'values rect bordered')
+            .attr('class', 'bordered')
             .attr('width', gridSize)
             .attr('height', gridSize)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
@@ -333,7 +346,7 @@ export class HeatmapComponent implements OnInit {
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
-            .on('mouseout', (d) => localThis.tooltip.style('opacity', 0))
+            .on('mouseout', () => localThis.tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
             .duration(200)
@@ -351,13 +364,13 @@ export class HeatmapComponent implements OnInit {
           .data(totalsY).enter().append('g').append('text');
         totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
           .attr('y', labelsXY.y.length * gridSize - 6)
-          .attr('class', 'text totalsY')
+          .attr('class', 'totalsY')
           .text((d) => d);
         const totsx = svg.selectAll('.totalsX')
           .data(totalsX).enter().append('g').append('text');
         totsx.attr('y', (d, i) => (i + 0.45) * gridSize + 3)
           .attr('x', labelsXY.x.length * gridSize - 25)
-          .attr('class', 'text totalsX')
+          .attr('class', 'totalsX')
           .text((d) => d);
         const doLegend = true;
         if (doLegend) {
