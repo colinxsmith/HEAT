@@ -8,12 +8,6 @@ circle.bordered {
     stroke-width: 0px;
 }
 
-text.mono {
-    font-size: 7px;
-    font-family: Calibri, sans-serif;
-    fill: green;
-}
-
 text.legend {
     font-size: 7px;
     font-family: fontawesome, sans-serif;

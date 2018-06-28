@@ -26,7 +26,7 @@ export class HeatmapComponent implements OnInit {
   butName = 'Squares';
   transpose = true;
   squares = true;
-  viewbox = true;
+  viewbox = false;
   chosenData = this.managerDataTypes[0];
   chosenFigure = this.managerFigure[0];
   pad = true;
@@ -117,7 +117,7 @@ export class HeatmapComponent implements OnInit {
       .attr('y', 0)
       .style('text-anchor', 'right')
       .attr('transform', (d, i) => `translate(${margin.left + scaleX(i + 0.65)},${margin.top - 3}) rotate(280)`)
-      .attr('class', 'xLabel mono axis-x');
+      .attr('class', 'axis-x');
 
     let pastLabel = '', iL = 1;
     const iOffice: {} = {}; // Find the office numbers
@@ -141,7 +141,7 @@ export class HeatmapComponent implements OnInit {
       .attr('y', -20 * Math.sin(Math.PI / 180 * 40))
       .style('text-anchor', 'end')
       .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-40)`)
-      .attr('class', 'yLabel mono axis-y');
+      .attr('class', 'axis-y');
     console.log(iOffice);
 
     const YOfficeGroups = svg.selectAll('.yLabel1')
@@ -152,7 +152,7 @@ export class HeatmapComponent implements OnInit {
       .attr('y', 0)
       .style('text-anchor', 'end')
       .attr('transform', (d, i) => `translate(${margin.left},${margin.top + scaleY(i + 1)})`)
-      .attr('class', 'yLabel mono axis-y');
+      .attr('class', 'axis-y');
 
     YOfficeGroups.style('font-size', '' + (+YOfficeGroups.style('font-size').replace('px', '') * 0.66) + 'px');
 
@@ -179,7 +179,6 @@ export class HeatmapComponent implements OnInit {
         .attr('y', (dd, i) => margin.top + scaleY(i))
         .attr('rx', 0)
         .attr('ry', 0)
-        .attr('class', 'values rect bordered')
         .attr('width', width / localThis.managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', ' ' + colours[0])
@@ -264,7 +263,7 @@ export class HeatmapComponent implements OnInit {
         .attr('y', 0)
         .style('text-anchor', 'end')
         .attr('transform', (d, i) => `translate(-5,${(i + 0.6) * gridSize})`)
-        .attr('class', 'yLabel mono axis-y'),
+        .attr('class', 'axis-y'),
       XLabels = svg.selectAll('.xLabel')
         .data(labelsXY.x)
         .enter().append('text')
@@ -273,7 +272,7 @@ export class HeatmapComponent implements OnInit {
         .attr('y', 0)
         .style('text-anchor', 'right')
         .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
-        .attr('class', 'xLabel mono axis-x'),
+        .attr('class', 'axis-x'),
       type = (d: { x: number, y: number, value: number }) => transpose ?
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value }
@@ -299,7 +298,7 @@ export class HeatmapComponent implements OnInit {
           gridDistribution.enter().append('circle')
             .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
             .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
-            .attr('class', 'values circle bordered')
+            .attr('class', 'bordered')
             .attr('r', gridSize / 2)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
             .on('mouseover', function (d) {
@@ -321,7 +320,7 @@ export class HeatmapComponent implements OnInit {
             .attr('y', (d) => (d.y - 1) * gridSize)
             .attr('rx', 0)
             .attr('ry', 0)
-            .attr('class', 'values rect bordered')
+            .attr('class', 'bordered')
             .attr('width', gridSize)
             .attr('height', gridSize)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
@@ -351,13 +350,13 @@ export class HeatmapComponent implements OnInit {
           .data(totalsY).enter().append('g').append('text');
         totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
           .attr('y', labelsXY.y.length * gridSize - 6)
-          .attr('class', 'text totalsY')
+          .attr('class', 'totalsY')
           .text((d) => d);
         const totsx = svg.selectAll('.totalsX')
           .data(totalsX).enter().append('g').append('text');
         totsx.attr('y', (d, i) => (i + 0.45) * gridSize + 3)
           .attr('x', labelsXY.x.length * gridSize - 25)
-          .attr('class', 'text totalsX')
+          .attr('class', 'totalsX')
           .text((d) => d);
         const doLegend = true;
         if (doLegend) {
