@@ -15,7 +15,7 @@ import { AppComponent } from '../app.component';
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
   managerDataTypes = this.myData.managerDataTypes;
-  managerFigure = ['Heat Map', 'Large Map'];
+  managerFigure = ['Heat Map', 'Large Map'].reverse();
   managerData = this.myData.managerData;
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
@@ -35,7 +35,7 @@ export class HeatmapComponent implements OnInit {
   // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
 
   constructor() {
-    /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
+ /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
         d.forEach(function (dd) {
           dd.y = dd.y.replace(/[0-9]/g, '');
         });
@@ -81,7 +81,7 @@ export class HeatmapComponent implements OnInit {
   ngOnInit() {
     const localThis = this;
     d3.selectAll('svg').remove();
-    if (this.chosenFigure === this.managerFigure[0]) {
+    if (this.chosenFigure === 'Heat Map') {
       localThis.managerDataTypes.forEach(function (d, i) {
         if (localThis.chosenData === d) {
           localThis.managerProcess(localThis.managerData[i]);
@@ -89,7 +89,7 @@ export class HeatmapComponent implements OnInit {
       });
       this.butName = this.squares ? 'Circles' : 'Squares';
       this.setUp(this.managerX, this.managerY, this.managerPlot);
-    } else if (this.chosenFigure === this.managerFigure[1]) {
+    } else if (this.chosenFigure === 'Large Map') {
       this.largeMap();
     }
   }
@@ -105,7 +105,7 @@ export class HeatmapComponent implements OnInit {
         .attr('height', `${height + margin.bottom + margin.top}`);
 
     svg.append('rect').attr('width', `${width + margin.left + margin.right}`)
-      .attr('height', `${height + margin.bottom + margin.top}`).attr('x', 0).attr('y', '0').attr('class', 'rim');
+      .attr('height', `${height + margin.bottom + margin.top}`).attr('x', '0').attr('y', '0').attr('class', 'rim');
     svg.append('rect').attr('width', width).attr('height', height)
       .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
 
@@ -159,10 +159,8 @@ export class HeatmapComponent implements OnInit {
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
     const localThis = this;
-    const highlite = svg.append('rect'),
+    const highlite = svg.append('g').append('rect'),
       clicker = function (di: { x: string, y: string, value: number }[], i: number) {
-    //    console.log(`${margin.left + scaleX(0)} ${margin.top + scaleY(i)}`);
-        highlite.style('opacity', '0');
         highlite
           .attr('x', `${margin.left + scaleX(0)}`)
           .attr('y', `${margin.top + scaleY(i)}`)
@@ -194,22 +192,19 @@ export class HeatmapComponent implements OnInit {
         .attr('width', width / localThis.managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', (dd) => ' ' + colourScale(dd.value))
-        .on('mouseover', function (dd, i) {
-          localThis.tooltip.style('opacity', 0.9);
+        .on('mouseover', (dd, i) =>
           localThis.tooltip
             // tslint:disable-next-line:max-line-length
             .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
-            .style('left', `${d3.event.pageX}px`)
-            .style('top', `${d3.event.pageY - 28}px`);
-        })
-        .on('click', (dd, i) => clicker(di, i))
+            //      .style('left', `${d3.event.pageX}px`)
+            .style('left', () => margin.left)
+            .style('top', `${d3.event.pageY - 28}px`)
+            .style('opacity', 1)
+        )
+        .on('mouseenter', (dd, i) => clicker(di, i))
+        .on('mouseleave', (dd, i) => highlite.style('opacity', '0'))
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
-      //  colourMap.merge(colourMap)
-      //  .transition()
-      //  .duration(200)
-      //  .style('fill', (dd) => ' ' + colourScale(dd.value));
     });
-  //  clicker(this.managerData[0], 1);
   }
   setPad() {
     this.pad = !this.pad;
