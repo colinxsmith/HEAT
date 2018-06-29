@@ -55,7 +55,8 @@ text.axis-y {
     font-size: 30px;
 }
 .HL {
-    stroke-width: 10;
+    stroke-width: 3px;
     stroke: brown;
     fill: green;
+    z-index: 99999999;
 }
