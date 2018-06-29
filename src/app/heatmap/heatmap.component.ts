@@ -159,13 +159,8 @@ export class HeatmapComponent implements OnInit {
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
     const localThis = this;
-    const highlite = /*d3.select('app-heatmap').append('svg')
-    .attr('width', `${width + margin.left + margin.right}`)
-    .attr('height', `${height + margin.bottom + margin.top}`)*/
-    svg.append('rect'),
+    const highlite = svg.append('g').append('rect'),
       clicker = function (di: { x: string, y: string, value: number }[], i: number) {
-    //    console.log(`${margin.left + scaleX(0)} ${margin.top + scaleY(i)}`);
-        highlite.style('opacity', '0');
         highlite
           .attr('x', `${margin.left + scaleX(0)}`)
           .attr('y', `${margin.top + scaleY(i)}`)
@@ -197,17 +192,18 @@ export class HeatmapComponent implements OnInit {
         .attr('width', width / localThis.managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', (dd) => ' ' + colourScale(dd.value))
-        .on('mouseover', function (dd, i) {
-          localThis.tooltip.style('opacity', 1);
+        .on('mouseover', (dd, i) =>
           localThis.tooltip
             // tslint:disable-next-line:max-line-length
             .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             //      .style('left', `${d3.event.pageX}px`)
             .style('left', () => margin.left)
-            .style('top', `${d3.event.pageY - 28}px`);
-        })
-        .on('mousemove', (dd, i) => clicker(di, i))
-        .on('mouseout', () => localThis.tooltip.style('opacity', 0) && highlite.style('opacity', '0'));
+            .style('top', `${d3.event.pageY - 28}px`)
+            .style('opacity', 1)
+        )
+        .on('mouseenter', (dd, i) => clicker(di, i))
+        .on('mouseleave', (dd, i) => highlite.style('opacity', '0'))
+        .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
   }
   setPad() {
