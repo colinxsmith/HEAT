@@ -159,16 +159,6 @@ export class HeatmapComponent implements OnInit {
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
     const localThis = this;
-    const highlite = svg.append('g').append('rect'),
-      clicker = function (di: { x: string, y: string, value: number }[], i: number) {
-        highlite
-          .attr('x', `${margin.left + scaleX(0)}`)
-          .attr('y', `${margin.top + scaleY(i)}`)
-          .attr('class', 'HL')
-          .attr('width', width)
-          .attr('height', height / di.length)
-          .style('opacity', '1');
-      };
     this.managerData.forEach(function (di, ix) {
       const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
@@ -202,9 +192,23 @@ export class HeatmapComponent implements OnInit {
             .style('opacity', 1)
         )
         .on('mouseenter', (dd, i) => clicker(di, i))
-        .on('mouseleave', (dd, i) => highlite.style('opacity', '0'))
+//        .on('mouseleave', (dd, i) => highlite.style('opacity', '0'))
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
+    const highlite = svg.append('g').append('rect');
+    const clicker = function (di: { x: string, y: string, value: number }[], i: number) {
+        const hh = i === -1 ? height : height / di.length;
+        i = i === -1 ? 0 : i;
+        highlite
+          .attr('x', `${margin.left + scaleX(0)}`)
+          .attr('y', `${margin.top + scaleY(i)}`)
+          .attr('class', 'HL')
+          .attr('width', width)
+          .attr('height', hh)
+          .style('opacity', '1');
+      };
+    clicker(this.managerData[0], -1);
+    highlite.style('opacity', '1');
   }
   setPad() {
     this.pad = !this.pad;
