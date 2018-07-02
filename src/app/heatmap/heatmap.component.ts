@@ -191,24 +191,29 @@ export class HeatmapComponent implements OnInit {
             .style('top', `${d3.event.pageY - 28}px`)
             .style('opacity', 1)
         )
-        .on('mouseenter', (dd, i) => clicker(di, i))
-//        .on('mouseleave', (dd, i) => highlite.style('opacity', '0'))
+        .on('click', (dd, i) => clicker(di, i))
+//        .on('mouseleave', () => highlite.style('opacity', 0))
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
-    const highlite = svg.append('g').append('rect');
-    const clicker = function (di: { x: string, y: string, value: number }[], i: number) {
+    const highlite = svg.append('g').append('rect'),
+      clicker = function (di: { x: string, y: string, value: number }[], i: number) {
         const hh = i === -1 ? height : height / di.length;
         i = i === -1 ? 0 : i;
         highlite
           .attr('x', `${margin.left + scaleX(0)}`)
-          .attr('y', `${margin.top + scaleY(i)}`)
+//          .attr('y', `${margin.top + scaleY(i)}`)
           .attr('class', 'HL')
           .attr('width', width)
           .attr('height', hh)
-          .style('opacity', '1');
+          .style('fill', 'none')
+          .style('opacity', '0')
+          .transition().duration(100)
+          .attr('y', `${margin.top + scaleY(i)}`)
+          .style('opacity', '1')
+          ;
+        return true;
       };
     clicker(this.managerData[0], -1);
-    highlite.style('opacity', '1');
   }
   setPad() {
     this.pad = !this.pad;
