@@ -23,6 +23,7 @@
     "@angular/router": "^6.0.7",
     "classlist.js": "1.1.20150312",
     "core-js": "^2.5.7",
+    "hoek": "^4.2.1",
     "rxjs": "^6.2.1",
     "rxjs-compat": "^6.0.0-rc.0",
     "zone.js": "^0.8.26"
