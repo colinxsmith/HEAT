@@ -186,7 +186,7 @@ export class HeatmapComponent implements OnInit {
         .on('mouseover', (dd, i) =>
           localThis.tooltip
             // tslint:disable-next-line:max-line-length
-            .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
+            .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             //      .style('left', `${d3.event.pageX}px`)
             .style('left', () => margin.left)
             .style('top', `${d3.event.pageY - 28}px`)
@@ -333,7 +333,7 @@ export class HeatmapComponent implements OnInit {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
                 // tslint:disable-next-line:max-line-length
-                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
@@ -356,7 +356,7 @@ export class HeatmapComponent implements OnInit {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
                 // tslint:disable-next-line:max-line-length
-                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
@@ -408,7 +408,7 @@ export class HeatmapComponent implements OnInit {
             .on('mouseover', function (d) {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
-                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${d}`)
+                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
