@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 // import { RGBColor } from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
+import { local } from 'd3';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
@@ -212,7 +213,15 @@ export class HeatmapComponent implements OnInit {
           .style('opacity', '1')
           ;
         return true;
-      };
+      }, rectH = svg.append('rect')
+      .attr('class', 'HL')
+      .attr('x', `${margin.left}`)
+      .attr('y', `${margin.top}`)
+      .attr('width', width)
+      .attr('height', height)
+      .style('fill', 'none')
+      .style('stroke-width', 4)
+      .on('mouseout', () => clicker(localThis.managerData[0], -1));
     clicker(this.managerData[0], -1);
   }
   setPad() {
