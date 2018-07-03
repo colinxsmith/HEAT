@@ -215,8 +215,8 @@ export class HeatmapComponent implements OnInit {
         return true;
       }, rectH = svg.append('rect')
       .attr('class', 'HL')
-      .attr('x', `${margin.left}`)
-      .attr('y', `${margin.top}`)
+      .attr('x', margin.left)
+      .attr('y', margin.top)
       .attr('width', width)
       .attr('height', height)
       .style('fill', 'none')
