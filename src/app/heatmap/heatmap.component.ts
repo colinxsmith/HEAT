@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 // import { RGBColor } from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
+import { local } from 'd3';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
@@ -185,7 +186,7 @@ export class HeatmapComponent implements OnInit {
         .on('mouseover', (dd, i) =>
           localThis.tooltip
             // tslint:disable-next-line:max-line-length
-            .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
+            .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             //      .style('left', `${d3.event.pageX}px`)
             .style('left', () => margin.left)
             .style('top', `${d3.event.pageY - 28}px`)
@@ -212,7 +213,16 @@ export class HeatmapComponent implements OnInit {
           .style('opacity', '1')
           ;
         return true;
-      };
+      }, rectH = svg.append('rect')
+      .attr('class', 'HL')
+      .attr('x', margin.left)
+      .attr('y', margin.top)
+      .attr('width', width)
+      .attr('height', height)
+      .style('fill', 'none')
+      .style('stroke-width', 40)
+      .style('opacity', 0)
+      .on('mouseout', () => clicker(localThis.managerData[0], -1));
     clicker(this.managerData[0], -1);
   }
   setPad() {
@@ -319,14 +329,13 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'bordered')
             .attr('r', gridSize / 2)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
-            .on('mouseover', function (d) {
-              localThis.tooltip.style('opacity', 0.9);
-              localThis.tooltip
+            .on('mouseover', (d) => localThis.tooltip
                 // tslint:disable-next-line:max-line-length
-                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
-                .style('top', `${d3.event.pageY - 28}px`);
-            })
+                .style('opacity', 0.9)
+                .style('top', `${d3.event.pageY - 28}px`)
+            )
             .on('mouseout', (d) => localThis.tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
@@ -336,20 +345,17 @@ export class HeatmapComponent implements OnInit {
           gridDistribution.enter().append('rect')
             .attr('x', (d) => (d.x - 1) * gridSize)
             .attr('y', (d) => (d.y - 1) * gridSize)
-            .attr('rx', 0)
-            .attr('ry', 0)
             .attr('class', 'bordered')
             .attr('width', gridSize)
             .attr('height', gridSize)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
-            .on('mouseover', function (d) {
-              localThis.tooltip.style('opacity', 0.9);
-              localThis.tooltip
+            .on('mouseover', (d) => localThis.tooltip
                 // tslint:disable-next-line:max-line-length
-                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+                .style('opacity', 0.9)
                 .style('left', `${d3.event.pageX}px`)
-                .style('top', `${d3.event.pageY - 28}px`);
-            })
+                .style('top', `${d3.event.pageY - 28}px`)
+            )
             .on('mouseout', () => localThis.tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
@@ -398,11 +404,11 @@ export class HeatmapComponent implements OnInit {
             .on('mouseover', function (d) {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
-                .html(`<app-icon><fa><i class="fa fa-envira test"></i></fa></app-icon>${d}`)
+                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
-            .on('mouseout', (d) => localThis.tooltip.style('opacity', 0));
+            .on('mouseout', () => localThis.tooltip.style('opacity', 0));
           legend_g.append('text')
             .attr('class', 'legend')
             .text((d) => '\uf07e ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
