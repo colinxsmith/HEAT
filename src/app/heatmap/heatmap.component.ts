@@ -220,9 +220,11 @@ export class HeatmapComponent implements OnInit {
       .attr('width', width)
       .attr('height', height)
       .style('fill', 'none')
-      .style('stroke-width', 40)
+      .style('stroke-width', 5)
       .style('opacity', 0)
-      .on('mouseout', () => clicker(localThis.managerData[0], -1));
+      .on('mouseout', () => clicker(localThis.managerData[0], -1))
+      .on('click', () => clicker(localThis.managerData[0], -1))
+      ;
     clicker(this.managerData[0], -1);
   }
   setPad() {
