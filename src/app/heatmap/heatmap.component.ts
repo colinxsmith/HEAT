@@ -159,7 +159,7 @@ export class HeatmapComponent implements OnInit {
 
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
-    const localThis = this;
+    const localThis = this, colourMap = [];
     this.managerData.forEach(function (di, ix) {
       const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
@@ -173,7 +173,7 @@ export class HeatmapComponent implements OnInit {
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
-      const colourMap = svg.selectAll('.map' + ix)
+      colourMap[ix] = svg.selectAll('rect' + ix)
         .data(di)
         .enter().append('rect')
         .attr('x', (dd) => margin.left + scaleX(ix))
@@ -198,11 +198,11 @@ export class HeatmapComponent implements OnInit {
     });
     const highlite = svg.append('g').append('rect'),
       clicker = function (di: { x: string, y: string, value: number }[], i: number) {
-        const hh = i === -1 ? height : height / di.length;
+        const hh = i === -1 ? height : height / di.length, doBig = false /*i !== -1*/;
         i = i === -1 ? 0 : i;
         highlite
           .attr('x', `${margin.left + scaleX(0)}`)
-//          .attr('y', `${margin.top + scaleY(i)}`)
+          //          .attr('y', `${margin.top + scaleY(i)}`)
           .attr('class', 'HL')
           .attr('width', width)
           .attr('height', hh)
@@ -212,6 +212,17 @@ export class HeatmapComponent implements OnInit {
           .attr('y', `${margin.top + scaleY(i)}`)
           .style('opacity', '1')
           ;
+        console.log(colourMap[0].style('fill'));
+        if (doBig) {
+          svg.selectAll('.mag').data(colourMap).enter().append('rect')
+            .attr('width', width / colourMap.length)
+            .attr('height', hh * 10)
+            .style('fill', (d) => d.style('fill'))
+            .attr('x', (d, ix) => margin.left + scaleX(ix))
+            .attr('y', `${margin.top + scaleY(i)}`);
+        } else {
+          svg.selectAll('.mag').remove();
+        }
         return true;
       }, rectH = svg.append('rect')
       .attr('class', 'HL')
@@ -220,9 +231,11 @@ export class HeatmapComponent implements OnInit {
       .attr('width', width)
       .attr('height', height)
       .style('fill', 'none')
-      .style('stroke-width', 40)
+      .style('stroke-width', 3)
       .style('opacity', 0)
-      .on('mouseout', () => clicker(localThis.managerData[0], -1));
+      .on('mouseout', () => clicker(localThis.managerData[0], -1))
+      .on('click', () => clicker(localThis.managerData[0], -1))
+      ;
     clicker(this.managerData[0], -1);
   }
   setPad() {
