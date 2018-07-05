@@ -109,6 +109,7 @@ export class HeatmapComponent implements OnInit {
       .attr('height', `${height + margin.bottom + margin.top}`).attr('x', '0').attr('y', '0').attr('class', 'rim');
     svg.append('rect').attr('width', width).attr('height', height)
       .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
+    const magnify = svg.append('g').attr('class', 'magnify');
 
     const XLabels = svg.selectAll('.xLabel')
       .data(this.managerDataTypes)
@@ -173,9 +174,10 @@ export class HeatmapComponent implements OnInit {
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
-      colourMap[ix] = svg.selectAll('rect' + ix)
+      colourMap[ix] = svg.selectAll('maprect' + ix)
         .data(di)
         .enter().append('rect')
+        .attr('class', 'maprect' + ix)
         .attr('x', (dd) => margin.left + scaleX(ix))
         .attr('y', (dd, i) => margin.top + scaleY(i))
         .attr('rx', 0)
@@ -198,7 +200,7 @@ export class HeatmapComponent implements OnInit {
     });
     const highlite = svg.append('g').append('rect'),
       clicker = function (di: { x: string, y: string, value: number }[], i: number) {
-        const hh = i === -1 ? height : height / di.length, doBig = false /*i !== -1*/;
+        const hh = i === -1 ? height : height / di.length, doBig = i !== -1;
         i = i === -1 ? 0 : i;
         highlite
           .attr('x', `${margin.left + scaleX(0)}`)
@@ -212,16 +214,17 @@ export class HeatmapComponent implements OnInit {
           .attr('y', `${margin.top + scaleY(i)}`)
           .style('opacity', '1')
           ;
-        console.log(colourMap[0].style('fill'));
         if (doBig) {
-          svg.selectAll('.mag').data(colourMap).enter().append('rect')
+          magnify.selectAll('magnify').append('g').data(colourMap).enter().append('rect')
             .attr('width', width / colourMap.length)
             .attr('height', hh * 10)
-            .style('fill', (d) => d.style('fill'))
-            .attr('x', (d, ix) => margin.left + scaleX(ix))
-            .attr('y', `${margin.top + scaleY(i)}`);
+            .style('fill', function(d) {
+              return d._groups[0][i].style.fill;
+            })
+            .attr('x', (d) => d.attr('x'))
+            .attr('y', margin.bottom);
         } else {
-          svg.selectAll('.mag').remove();
+          svg.selectAll('g.magnify').select('g').exit().remove();
         }
         return true;
       }, rectH = svg.append('rect')
