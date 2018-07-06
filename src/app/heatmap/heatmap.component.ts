@@ -109,7 +109,7 @@ export class HeatmapComponent implements OnInit {
       .attr('height', `${height + margin.bottom + margin.top}`).attr('x', '0').attr('y', '0').attr('class', 'rim');
     svg.append('rect').attr('width', width).attr('height', height)
       .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
-    const magnify = svg.append('g').attr('class', 'magnify');
+    const magnify = svg.append('g');
 
     const XLabels = svg.selectAll('.xLabel')
       .data(this.managerDataTypes)
@@ -177,7 +177,6 @@ export class HeatmapComponent implements OnInit {
       colourMap[ix] = svg.selectAll('maprect' + ix)
         .data(di)
         .enter().append('rect')
-        .attr('class', 'maprect' + ix)
         .attr('x', (dd) => margin.left + scaleX(ix))
         .attr('y', (dd, i) => margin.top + scaleY(i))
         .attr('rx', 0)
@@ -198,33 +197,35 @@ export class HeatmapComponent implements OnInit {
 //        .on('mouseleave', () => highlite.style('opacity', 0))
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
+    const datamag = magnify.selectAll('magnify').data(colourMap).enter().append('rect');
     const highlite = svg.append('g').append('rect'),
       clicker = function (di: { x: string, y: string, value: number }[], i: number) {
-        const hh = i === -1 ? height : height / di.length, doBig = i !== -1;
-        i = i === -1 ? 0 : i;
+        const hh = height / di.length, doBig = i !== -1;
         highlite
           .attr('x', `${margin.left + scaleX(0)}`)
-          //          .attr('y', `${margin.top + scaleY(i)}`)
           .attr('class', 'HL')
           .attr('width', width)
-          .attr('height', hh)
+          .attr('height', doBig ? hh : height)
           .style('fill', 'none')
           .style('opacity', '0')
           .transition().duration(100)
-          .attr('y', `${margin.top + scaleY(i)}`)
+          .attr('y', `${margin.top + scaleY(doBig ? i : 0)}`)
           .style('opacity', '1')
           ;
         if (doBig) {
-          magnify.selectAll('magnify').append('g').data(colourMap).enter().append('rect')
+          datamag
             .attr('width', width / colourMap.length)
             .attr('height', hh * 10)
-            .style('fill', function(d) {
-              return d._groups[0][i].style.fill;
-            })
+            .style('fill', (d) => d._groups[0][i].style.fill)
             .attr('x', (d) => d.attr('x'))
             .attr('y', margin.bottom);
         } else {
-          svg.selectAll('g.magnify').select('g').exit().remove();
+          datamag
+            .attr('width', width / colourMap.length)
+            .attr('height', hh * 10)
+            .style('fill', 'none')
+            .attr('x', (d) => d.attr('x'))
+            .attr('y', margin.bottom);
         }
         return true;
       }, rectH = svg.append('rect')
