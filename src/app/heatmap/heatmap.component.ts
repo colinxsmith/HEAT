@@ -221,11 +221,11 @@ export class HeatmapComponent implements OnInit {
             .attr('y', margin.bottom);
         } else {
           datamag
-            .attr('width', width / colourMap.length)
-            .attr('height', hh * 10)
+            .attr('width', 0)
+            .attr('height', 0)
             .style('fill', 'none')
-            .attr('x', (d) => d.attr('x'))
-            .attr('y', margin.bottom);
+            .attr('x', 0)
+            .attr('y', 0);
         }
         return true;
       }, rectH = svg.append('rect')
