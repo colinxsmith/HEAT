@@ -160,7 +160,8 @@ export class HeatmapComponent implements OnInit {
 
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
-    const localThis = this, colourMap = [];
+    const localThis = this,
+    colourMap: any[] = [];
     this.managerData.forEach(function (di, ix) {
       const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
@@ -174,7 +175,7 @@ export class HeatmapComponent implements OnInit {
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
-      colourMap[ix] = svg.selectAll('maprect' + ix)
+      colourMap[ix] = svg.selectAll('.rect')
         .data(di)
         .enter().append('rect')
         .attr('x', (dd) => margin.left + scaleX(ix))
@@ -197,8 +198,9 @@ export class HeatmapComponent implements OnInit {
 //        .on('mouseleave', () => highlite.style('opacity', 0))
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
-    const datamag = magnify.selectAll('magnify').data(colourMap).enter().append('rect'), magnifyBorder = magnify.append('rect');
     const highlite = svg.append('g').append('rect'),
+      datamag = magnify.selectAll('magnify').data(colourMap).enter().append('rect'),
+      magnifyBorder = magnify.append('rect'),
       clicker = function (di: { x: string, y: string, value: number }[], i: number) {
         const hh = height / di.length, doBig = i !== -1;
         highlite
@@ -216,39 +218,42 @@ export class HeatmapComponent implements OnInit {
           datamag
             .attr('width', width / colourMap.length)
             .attr('height', 90)
-            .style('fill', (d) => d._groups[0][i].style.fill)
+            .style('fill', function (d) {
+              let back: string;
+              d.nodes().forEach(function (node, id) {
+                if (id === i) {
+                  back = d3.select(node).style('fill');
+                }
+              });
+              return back;
+            })
             .attr('x', (d) => d.attr('x'))
-            .attr('y', 0);
+            .attr('y', 4);
           magnifyBorder
             .attr('x', margin.left)
-            .attr('y', 0)
+            .attr('y', 4)
             .attr('width', width)
             .attr('height', 90)
+            .style('shape-rendering', 'crispEdges')
             .style('fill', 'none')
             .style('stroke-width', 4)
             .style('stroke', 'brown');
         } else {
-          datamag
-            .attr('width', 0)
-            .attr('height', 0)
-            .style('fill', 'none')
-            .attr('x', 0)
-            .attr('y', 0);
+          datamag.style('fill', 'none');
           magnifyBorder.style('stroke', 'none');
         }
         return true;
       }, rectH = svg.append('rect')
-      .attr('class', 'HL')
       .attr('x', margin.left)
       .attr('y', margin.top)
       .attr('width', width)
       .attr('height', height)
+      .style('stroke-width', 4)
+      .style('stroke', 'cyan')
       .style('fill', 'none')
-      .style('stroke-width', 3)
       .style('opacity', 0)
       .on('mouseout', () => clicker(localThis.managerData[0], -1))
-      .on('click', () => clicker(localThis.managerData[0], -1))
-      ;
+      .on('click', () => clicker(localThis.managerData[0], -1));
     clicker(this.managerData[0], -1);
   }
   setPad() {

@@ -42,18 +42,18 @@ text.axis-x {
     font-size: 8px;
     font-weight: bold;
     font-family: Calibri, sans-serif;
-    fill: #00a;
+    fill: #00b;
 }
 
 text.axis-y {
     font-size: 8px;
     font-weight: bold;
     font-family: Calibri, sans-serif;
-    fill: #00a;
+    fill: #00b;
 }
 .leafy {
     color: rgba(195, 255, 0, 0.568);
-    font-size: 30px;
+    font-size: 35px;
 }
 .HL {
     stroke-width: 3px;
