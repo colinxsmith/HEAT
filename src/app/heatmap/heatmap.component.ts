@@ -161,7 +161,7 @@ export class HeatmapComponent implements OnInit {
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
     const localThis = this,
-    colourMap: any[] = [];
+    colourMap: d3.Selection<d3.BaseType, {x: string, y: string, value: number}, d3.BaseType, {}>[] = [];
     this.managerData.forEach(function (di, ix) {
       const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
