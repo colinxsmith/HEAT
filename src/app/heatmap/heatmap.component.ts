@@ -197,7 +197,7 @@ export class HeatmapComponent implements OnInit {
 //        .on('mouseleave', () => highlite.style('opacity', 0))
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
-    const datamag = magnify.selectAll('magnify').data(colourMap).enter().append('rect');
+    const datamag = magnify.selectAll('magnify').data(colourMap).enter().append('rect'), magnifyBorder = magnify.append('rect');
     const highlite = svg.append('g').append('rect'),
       clicker = function (di: { x: string, y: string, value: number }[], i: number) {
         const hh = height / di.length, doBig = i !== -1;
@@ -215,10 +215,18 @@ export class HeatmapComponent implements OnInit {
         if (doBig) {
           datamag
             .attr('width', width / colourMap.length)
-            .attr('height', hh * 10)
+            .attr('height', 90)
             .style('fill', (d) => d._groups[0][i].style.fill)
             .attr('x', (d) => d.attr('x'))
-            .attr('y', margin.bottom);
+            .attr('y', 0);
+          magnifyBorder
+            .attr('x', margin.left)
+            .attr('y', 0)
+            .attr('width', width)
+            .attr('height', 90)
+            .style('fill', 'none')
+            .style('stroke-width', 4)
+            .style('stroke', 'brown');
         } else {
           datamag
             .attr('width', 0)
@@ -226,6 +234,7 @@ export class HeatmapComponent implements OnInit {
             .style('fill', 'none')
             .attr('x', 0)
             .attr('y', 0);
+          magnifyBorder.style('stroke', 'none');
         }
         return true;
       }, rectH = svg.append('rect')
