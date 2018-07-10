@@ -62,3 +62,7 @@ text.axis-y {
     shape-rendering: crispEdges;
     z-index: 99999999;
 }
+.mag {
+    shape-rendering: crispEdges;
+    fill: rgb(5, 247, 235);
+}
