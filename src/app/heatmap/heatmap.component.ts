@@ -210,14 +210,13 @@ export class HeatmapComponent implements OnInit {
           .style('opacity', '0')
           .transition().duration(100)
           .attr('y', `${margin.top + scaleY(doBig ? i : 0)}`)
-          .style('opacity', '1')
-          ;
+          .style('opacity', '1');
         if (doBig) {
           datamag
-            .attr('width', width / colourMap.length)
+            .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'))
             .attr('height', 90)
-            .style('fill', (d) => d3.select((d.nodes())[i]).style('fill'))
-            .attr('x', (d) => d3.select((d.nodes())[i]).attr('x'))
+            .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
+            .attr('x',     (d) => d3.select(d.nodes()[i]).attr('x'))
             .attr('y', 4);
           magnifyBorder
             .attr('x', margin.left)
