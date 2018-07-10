@@ -161,7 +161,7 @@ export class HeatmapComponent implements OnInit {
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
     const localThis = this,
-    colourMap: d3.Selection<d3.BaseType, {x: string, y: string, value: number}, d3.BaseType, {}>[] = [];
+    colourMap: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>[] = [];
     this.managerData.forEach(function (di, ix) {
       const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
@@ -180,8 +180,6 @@ export class HeatmapComponent implements OnInit {
         .enter().append('rect')
         .attr('x', (dd) => margin.left + scaleX(ix))
         .attr('y', (dd, i) => margin.top + scaleY(i))
-        .attr('rx', 0)
-        .attr('ry', 0)
         .attr('width', width / localThis.managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', (dd) => ' ' + colourScale(dd.value))
@@ -212,23 +210,20 @@ export class HeatmapComponent implements OnInit {
           .style('opacity', '0')
           .transition().duration(100)
           .attr('y', `${margin.top + scaleY(doBig ? i : 0)}`)
-          .style('opacity', '1')
-          ;
+          .style('opacity', '1');
         if (doBig) {
           datamag
-            .attr('width', width / colourMap.length)
+            .attr('class', 'mag')
+            .attr('width', 0)
+            .attr('height', 0)
+            .attr('x', (d) => d3.select(d.nodes()[i + 1]).attr('x'))
+            .attr('y', 4)
+            .style('fill', 'rgb(5, 247, 236)')
+            .transition().duration(500)
+            .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
+            .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
             .attr('height', 90)
-            .style('fill', function (d) {
-              let back: string;
-              d.nodes().forEach(function (node, id) {
-                if (id === i) {
-                  back = d3.select(node).style('fill');
-                }
-              });
-              return back;
-            })
-            .attr('x', (d) => d.attr('x'))
-            .attr('y', 4);
+            .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
           magnifyBorder
             .attr('x', margin.left)
             .attr('y', 4)

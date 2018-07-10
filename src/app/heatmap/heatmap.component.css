@@ -12,7 +12,7 @@ circle.bordered {
 text.legend {
     font-size: 7px;
     font-family: fontawesome, sans-serif;
-    fill: green;
+    fill: rgb(8, 211, 8);
 }
 
 text.datavals {
@@ -57,8 +57,12 @@ text.axis-y {
 }
 .HL {
     stroke-width: 3px;
-    stroke: brown;
-    fill: green;
+    stroke: rgb(177, 36, 36);
+    fill: rgb(6, 153, 6);
     shape-rendering: crispEdges;
     z-index: 99999999;
+}
+.mag {
+    shape-rendering: crispEdges;
+    fill: rgb(5, 247, 235);
 }
