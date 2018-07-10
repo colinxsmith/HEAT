@@ -180,8 +180,6 @@ export class HeatmapComponent implements OnInit {
         .enter().append('rect')
         .attr('x', (dd) => margin.left + scaleX(ix))
         .attr('y', (dd, i) => margin.top + scaleY(i))
-        .attr('rx', 0)
-        .attr('ry', 0)
         .attr('width', width / localThis.managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', (dd) => ' ' + colourScale(dd.value))
@@ -218,16 +216,8 @@ export class HeatmapComponent implements OnInit {
           datamag
             .attr('width', width / colourMap.length)
             .attr('height', 90)
-            .style('fill', function (d) {
-              let back: string;
-              d.nodes().forEach(function (node, id) {
-                if (id === i) {
-                  back = d3.select(node).style('fill');
-                }
-              });
-              return back;
-            })
-            .attr('x', (d) => d.attr('x'))
+            .style('fill', (d) => d3.select((d.nodes())[i]).style('fill'))
+            .attr('x', (d) => d3.select((d.nodes())[i]).attr('x'))
             .attr('y', 4);
           magnifyBorder
             .attr('x', margin.left)
