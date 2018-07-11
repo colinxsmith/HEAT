@@ -183,12 +183,12 @@ export class HeatmapComponent implements OnInit {
         .attr('width', width / localThis.managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', (dd) => ' ' + colourScale(dd.value))
-        .on('mouseover', (dd, i) =>
+        .on('mouseover', (dd) =>
           localThis.tooltip
             // tslint:disable-next-line:max-line-length
             .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             //      .style('left', `${d3.event.pageX}px`)
-            .style('left', () => margin.left)
+            .style('left', `${margin.left}px`)
             .style('top', `${d3.event.pageY - 28}px`)
             .style('opacity', 1)
         )
@@ -219,6 +219,15 @@ export class HeatmapComponent implements OnInit {
               .attr('x', (d) => d3.select(d.nodes()[(i + 1) % d.nodes().length]).attr('x'))
               .attr('y', 4)
               .style('fill', 'rgb(5, 247, 236)')
+              .on('mouseover', (d, id) =>
+                localThis.tooltip
+                  .style('left', `${d3.event.pageX}px`)
+                  .style('top', `${d3.event.pageY}px`)
+                  .style('opacity', 1)
+                // tslint:disable-next-line:max-line-length
+                .html(`<app-icon><fa><i class="fa fa-gears leafy"></i></fa></app-icon>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id] [i].x}<br>${localThis.managerData[id] [i].y}<br>${localThis.managerData[id] [i].value}`)
+              )
+              .on('mouseout', () => localThis.tooltip.style('opacity', 0))
               .transition().duration(500)
               .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
               .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
