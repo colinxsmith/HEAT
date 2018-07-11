@@ -218,7 +218,7 @@ export class HeatmapComponent implements OnInit {
             .attr('height', 0)
             .attr('x', (d) => d3.select(d.nodes()[i + 1]).attr('x'))
             .attr('y', 4)
-            .style('fill', 'rgb(5, 247, 235)')
+            .style('fill', 'rgb(5, 247, 236)')
             .transition().duration(500)
             .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
             .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
