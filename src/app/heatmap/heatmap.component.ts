@@ -197,8 +197,7 @@ export class HeatmapComponent implements OnInit {
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
     const highlite = svg.append('g').append('rect'),
-      datamag = magnify.selectAll('magnify').data(colourMap).enter().append('rect'),
-      magnifyBorder = magnify.append('rect'),
+      datamag = magnify.selectAll('.mag').data(colourMap).enter().append('rect'), doDatamag = true, magnifyBorder = magnify.append('rect'),
       clicker = function (di: { x: string, y: string, value: number }[], i: number) {
         const hh = height / di.length, doBig = i !== -1;
         highlite
@@ -211,31 +210,33 @@ export class HeatmapComponent implements OnInit {
           .transition().duration(100)
           .attr('y', `${margin.top + scaleY(doBig ? i : 0)}`)
           .style('opacity', '1');
-        if (doBig) {
-          datamag
-            .attr('class', 'mag')
-            .attr('width', 0)
-            .attr('height', 0)
-            .attr('x', (d) => d3.select(d.nodes()[i + 1]).attr('x'))
-            .attr('y', 4)
-            .style('fill', 'rgb(5, 247, 236)')
-            .transition().duration(500)
-            .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
-            .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
-            .attr('height', 90)
-            .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
-          magnifyBorder
-            .attr('x', margin.left)
-            .attr('y', 4)
-            .attr('width', width)
-            .attr('height', 90)
-            .style('shape-rendering', 'crispEdges')
-            .style('fill', 'none')
-            .style('stroke-width', 4)
-            .style('stroke', 'brown');
-        } else {
-          datamag.style('fill', 'none');
-          magnifyBorder.style('stroke', 'none');
+        if (doDatamag) {
+          if (doBig) {
+            datamag
+              .attr('class', 'mag')
+              .attr('width', 0)
+              .attr('height', 0)
+              .attr('x', (d) => d3.select(d.nodes()[(i + 1) % d.nodes().length]).attr('x'))
+              .attr('y', 4)
+              .style('fill', 'rgb(5, 247, 236)')
+              .transition().duration(500)
+              .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
+              .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
+              .attr('height', 90)
+              .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
+            magnifyBorder
+              .attr('x', margin.left)
+              .attr('y', 4)
+              .attr('width', width)
+              .attr('height', 90)
+              .style('shape-rendering', 'crispEdges')
+              .style('fill', 'none')
+              .style('stroke-width', 4)
+              .style('stroke', 'brown');
+          } else {
+            datamag.style('fill', 'none');
+            magnifyBorder.style('stroke', 'none');
+          }
         }
         return true;
       }, rectH = svg.append('rect')
