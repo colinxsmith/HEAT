@@ -183,12 +183,12 @@ export class HeatmapComponent implements OnInit {
         .attr('width', width / localThis.managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', (dd) => ' ' + colourScale(dd.value))
-        .on('mouseover', (dd, i) =>
+        .on('mouseover', (dd) =>
           localThis.tooltip
             // tslint:disable-next-line:max-line-length
             .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             //      .style('left', `${d3.event.pageX}px`)
-            .style('left', () => margin.left)
+            .style('left', `${margin.left}px`)
             .style('top', `${d3.event.pageY - 28}px`)
             .style('opacity', 1)
         )
@@ -197,8 +197,7 @@ export class HeatmapComponent implements OnInit {
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
     const highlite = svg.append('g').append('rect'),
-      datamag = magnify.selectAll('magnify').data(colourMap).enter().append('rect'),
-      magnifyBorder = magnify.append('rect'),
+      datamag = magnify.selectAll('.mag').data(colourMap).enter().append('rect'), doDatamag = true, magnifyBorder = magnify.append('rect'),
       clicker = function (di: { x: string, y: string, value: number }[], i: number) {
         const hh = height / di.length, doBig = i !== -1;
         highlite
@@ -211,31 +210,42 @@ export class HeatmapComponent implements OnInit {
           .transition().duration(100)
           .attr('y', `${margin.top + scaleY(doBig ? i : 0)}`)
           .style('opacity', '1');
-        if (doBig) {
-          datamag
-            .attr('class', 'mag')
-            .attr('width', 0)
-            .attr('height', 0)
-            .attr('x', (d) => d3.select(d.nodes()[i + 1]).attr('x'))
-            .attr('y', 4)
-            .style('fill', 'rgb(5, 247, 236)')
-            .transition().duration(500)
-            .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
-            .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
-            .attr('height', 90)
-            .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
-          magnifyBorder
-            .attr('x', margin.left)
-            .attr('y', 4)
-            .attr('width', width)
-            .attr('height', 90)
-            .style('shape-rendering', 'crispEdges')
-            .style('fill', 'none')
-            .style('stroke-width', 4)
-            .style('stroke', 'brown');
-        } else {
-          datamag.style('fill', 'none');
-          magnifyBorder.style('stroke', 'none');
+        if (doDatamag) {
+          if (doBig) {
+            datamag
+              .attr('class', 'mag')
+              .attr('width', 0)
+              .attr('height', 0)
+              .attr('x', (d) => d3.select(d.nodes()[(i + 1) % d.nodes().length]).attr('x'))
+              .attr('y', 4)
+              .style('fill', 'rgb(5, 247, 236)')
+              .on('mouseover', (d, id) =>
+                localThis.tooltip
+                  .style('left', `${d3.event.pageX}px`)
+                  .style('top', `${d3.event.pageY}px`)
+                  .style('opacity', 1)
+                // tslint:disable-next-line:max-line-length
+                .html(`<app-icon><fa><i class="fa fa-gears leafy"></i></fa></app-icon>${localThis.managerData[id] [i].x}<br>${localThis.managerData[id] [i].y}<br>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id] [i].value}`)
+              )
+              .on('mouseout', () => localThis.tooltip.style('opacity', 0))
+              .transition().duration(500)
+              .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
+              .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
+              .attr('height', 90)
+              .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
+            magnifyBorder
+              .attr('x', margin.left)
+              .attr('y', 4)
+              .attr('width', width)
+              .attr('height', 90)
+              .style('shape-rendering', 'crispEdges')
+              .style('fill', 'none')
+              .style('stroke-width', 4)
+              .style('stroke', 'brown');
+          } else {
+            datamag.style('fill', 'none');
+            magnifyBorder.style('stroke', 'none');
+          }
         }
         return true;
       }, rectH = svg.append('rect')
