@@ -225,7 +225,7 @@ export class HeatmapComponent implements OnInit {
                   .style('top', `${d3.event.pageY}px`)
                   .style('opacity', 1)
                 // tslint:disable-next-line:max-line-length
-                .html(`<app-icon><fa><i class="fa fa-gears leafy"></i></fa></app-icon>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id] [i].x}<br>${localThis.managerData[id] [i].y}<br>${localThis.managerData[id] [i].value}`)
+                .html(`<app-icon><fa><i class="fa fa-gears leafy"></i></fa></app-icon>${localThis.managerData[id] [i].x}<br>${localThis.managerData[id] [i].y}<br>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id] [i].value}`)
               )
               .on('mouseout', () => localThis.tooltip.style('opacity', 0))
               .transition().duration(500)
