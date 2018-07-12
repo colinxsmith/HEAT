@@ -56,7 +56,7 @@ export class HeatmapComponent implements OnInit {
     this.managerY = [];
     this.managerPlot = [];
     let ix = 0, iy = 0, i = 0, j = 0, ij = 0;
-    dataV.forEach(function (d) {
+    dataV.forEach((d) => {
       if (!(xmap[d.x] > -1)) {
         here.managerX.push(d.x);
         revi.push(ix);
@@ -83,7 +83,7 @@ export class HeatmapComponent implements OnInit {
     const localThis = this;
     d3.selectAll('svg').remove();
     if (this.chosenFigure === 'Heat Map') {
-      localThis.managerDataTypes.forEach(function (d, i) {
+      localThis.managerDataTypes.forEach((d, i) => {
         if (localThis.chosenData === d) {
           localThis.managerProcess(localThis.managerData[i]);
         }
@@ -126,7 +126,7 @@ export class HeatmapComponent implements OnInit {
     const YOffice = svg.selectAll('.yLabel0')
       .data(this.managerData[0])
       .enter().append('text')
-      .text(function (d) {
+      .text((d) => {
         let back = '';
         if (pastLabel !== d.x) {
           pastLabel = d.x;
@@ -162,7 +162,7 @@ export class HeatmapComponent implements OnInit {
 
     const localThis = this,
     colourMap: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>[] = [];
-    this.managerData.forEach(function (di, ix) {
+    this.managerData.forEach((di, ix) => {
       const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
         .domain([0, localThis.numColours - 1])
@@ -340,8 +340,8 @@ export class HeatmapComponent implements OnInit {
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value }
       , totalsX = [], totalsY = [],
-      heatmapChart = function (circ: boolean) {
-        dataXY.forEach(function (d) {
+      heatmapChart = (circ: boolean) => {
+        dataXY.forEach((d) => {
           d = type(d);
           if (labelsXY.y[d.y - 1] === 'Total') {
             totalsY.push(d.value);
@@ -420,9 +420,7 @@ export class HeatmapComponent implements OnInit {
         const doLegend = true;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
-          colourScale.quantiles().forEach(function (d) {
-            scaleC.push(d);
-          });
+          colourScale.quantiles().forEach((d) => scaleC.push(d));
           const legend = svg.selectAll('.legend')
             .data(scaleC);
 
@@ -433,10 +431,8 @@ export class HeatmapComponent implements OnInit {
             .attr('y', (labelsXY.y.length + 0.25) * gridSize)
             .attr('width', legendElementWidth)
             .attr('height', legendSize)
-            .style('fill', function (d, i) {
-              return '' + colours[i];
-            })
-            .on('mouseover', function (d) {
+            .style('fill', (d, i) => '' + colours[i])
+            .on('mouseover', (d) => {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
                 .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d}`)
