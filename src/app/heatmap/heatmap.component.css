@@ -35,7 +35,7 @@ text.totalsX {
     font-weight: bold;
     font-family: Calibri, sans-serif;
     text-anchor: middle;
-    fill: red;
+    fill: rgb(130, 236, 9);
 }
 
 text.axis-x {

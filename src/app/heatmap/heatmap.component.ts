@@ -197,10 +197,13 @@ export class HeatmapComponent implements OnInit {
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
     const highlite = svg.append('g').append('rect'),
-      datamag = magnify.selectAll('.mag').data(colourMap).enter().append('rect'), doDatamag = true, magnifyBorder = magnify.append('rect'),
+      datamagbase = magnify.selectAll('.mag').data(colourMap).enter().append('g'),
+      doDatamag = true, magnifyBorder = magnify.append('rect'),
+      datamag = datamagbase.append('rect'),
+      datamagLab = datamagbase.append('text'),
       clicker = (di: { x: string, y: string, value: number }[], i: number) => {
         const hh = height / di.length, doBig = i !== -1;
-        highlite
+        highlite.append('rect')
           .attr('x', `${margin.left + scaleX(0)}`)
           .attr('class', 'HL')
           .attr('width', width)
@@ -211,6 +214,7 @@ export class HeatmapComponent implements OnInit {
           .attr('y', `${margin.top + scaleY(doBig ? i : 0)}`)
           .style('opacity', '1');
         if (doDatamag) {
+          const heightHere = 90;
           if (doBig) {
             datamag
               .attr('class', 'mag')
@@ -224,15 +228,22 @@ export class HeatmapComponent implements OnInit {
                   .style('left', `${d3.event.pageX}px`)
                   .style('top', `${d3.event.pageY}px`)
                   .style('opacity', 1)
-                // tslint:disable-next-line:max-line-length
-                .html(`<app-icon><fa><i class="fa fa-gears leafy"></i></fa></app-icon>${localThis.managerData[id] [i].x}<br>${localThis.managerData[id] [i].y}<br>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id] [i].value}`)
+                  // tslint:disable-next-line:max-line-length
+                  .html(`<a class="fa fa-gears leafy"></a>${localThis.managerData[id][i].x}<br>${localThis.managerData[id][i].y}<br>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id][i].value}`)
               )
-              .on('mouseout', () => localThis.tooltip.style('opacity', 0))
-              .transition().duration(500)
+              .on('mouseout', () => localThis.tooltip.style('opacity', 0));
+            datamag.transition().duration(500)
               .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
               .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
-              .attr('height', 90)
+              .attr('height', heightHere)
               .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
+            datamagLab
+              .attr('x', (d) => +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
+                +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2)
+              .attr('y', 4)
+              .attr('transform', (d) => `translate(0, ${heightHere / 2})`)
+              .attr('class', 'totalsX')
+              .text((d, id) => ' ' + localThis.managerData[id][i].value);
             magnifyBorder
               .attr('x', margin.left)
               .attr('y', 4)
