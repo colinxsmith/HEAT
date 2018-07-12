@@ -56,7 +56,7 @@ export class HeatmapComponent implements OnInit {
     this.managerY = [];
     this.managerPlot = [];
     let ix = 0, iy = 0, i = 0, j = 0, ij = 0;
-    dataV.forEach(function (d) {
+    dataV.forEach((d) => {
       if (!(xmap[d.x] > -1)) {
         here.managerX.push(d.x);
         revi.push(ix);
@@ -83,7 +83,7 @@ export class HeatmapComponent implements OnInit {
     const localThis = this;
     d3.selectAll('svg').remove();
     if (this.chosenFigure === 'Heat Map') {
-      localThis.managerDataTypes.forEach(function (d, i) {
+      localThis.managerDataTypes.forEach((d, i) => {
         if (localThis.chosenData === d) {
           localThis.managerProcess(localThis.managerData[i]);
         }
@@ -126,7 +126,7 @@ export class HeatmapComponent implements OnInit {
     const YOffice = svg.selectAll('.yLabel0')
       .data(this.managerData[0])
       .enter().append('text')
-      .text(function (d) {
+      .text((d) => {
         let back = '';
         if (pastLabel !== d.x) {
           pastLabel = d.x;
@@ -162,7 +162,7 @@ export class HeatmapComponent implements OnInit {
 
     const localThis = this,
     colourMap: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>[] = [];
-    this.managerData.forEach(function (di, ix) {
+    this.managerData.forEach((di, ix) => {
       const ixx = ix % (localThis.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
         .domain([0, localThis.numColours - 1])
@@ -197,10 +197,13 @@ export class HeatmapComponent implements OnInit {
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
     const highlite = svg.append('g').append('rect'),
-      datamag = magnify.selectAll('.mag').data(colourMap).enter().append('rect'), doDatamag = true, magnifyBorder = magnify.append('rect'),
-      clicker = function (di: { x: string, y: string, value: number }[], i: number) {
+      datamagbase = magnify.selectAll('.mag').data(colourMap).enter().append('g'),
+      doDatamag = true, magnifyBorder = magnify.append('rect'),
+      datamag = datamagbase.append('rect'),
+      datamagLab = datamagbase.append('text'),
+      clicker = (di: { x: string, y: string, value: number }[], i: number) => {
         const hh = height / di.length, doBig = i !== -1;
-        highlite
+        highlite.append('rect')
           .attr('x', `${margin.left + scaleX(0)}`)
           .attr('class', 'HL')
           .attr('width', width)
@@ -211,6 +214,7 @@ export class HeatmapComponent implements OnInit {
           .attr('y', `${margin.top + scaleY(doBig ? i : 0)}`)
           .style('opacity', '1');
         if (doDatamag) {
+          const heightHere = 90;
           if (doBig) {
             datamag
               .attr('class', 'mag')
@@ -224,15 +228,22 @@ export class HeatmapComponent implements OnInit {
                   .style('left', `${d3.event.pageX}px`)
                   .style('top', `${d3.event.pageY}px`)
                   .style('opacity', 1)
-                // tslint:disable-next-line:max-line-length
-                .html(`<app-icon><fa><i class="fa fa-gears leafy"></i></fa></app-icon>${localThis.managerData[id] [i].x}<br>${localThis.managerData[id] [i].y}<br>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id] [i].value}`)
+                  // tslint:disable-next-line:max-line-length
+                  .html(`<a class="fa fa-gears leafy"></a>${localThis.managerData[id][i].x}<br>${localThis.managerData[id][i].y}<br>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id][i].value}`)
               )
-              .on('mouseout', () => localThis.tooltip.style('opacity', 0))
-              .transition().duration(500)
+              .on('mouseout', () => localThis.tooltip.style('opacity', 0));
+            datamag.transition().duration(500)
               .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
               .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
-              .attr('height', 90)
+              .attr('height', heightHere)
               .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
+            datamagLab
+              .attr('x', (d) => +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
+                +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2)
+              .attr('y', 4)
+              .attr('transform', (d) => `translate(0, ${heightHere / 2})`)
+              .attr('class', 'totalsX')
+              .text((d, id) => ' ' + localThis.managerData[id][i].value);
             magnifyBorder
               .attr('x', margin.left)
               .attr('y', 4)
@@ -247,7 +258,6 @@ export class HeatmapComponent implements OnInit {
             magnifyBorder.style('stroke', 'none');
           }
         }
-        return true;
       }, rectH = svg.append('rect')
       .attr('x', margin.left)
       .attr('y', margin.top)
@@ -341,8 +351,8 @@ export class HeatmapComponent implements OnInit {
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value }
       , totalsX = [], totalsY = [],
-      heatmapChart = function (circ: boolean) {
-        dataXY.forEach(function (d) {
+      heatmapChart = (circ: boolean) => {
+        dataXY.forEach((d) => {
           d = type(d);
           if (labelsXY.y[d.y - 1] === 'Total') {
             totalsY.push(d.value);
@@ -421,9 +431,7 @@ export class HeatmapComponent implements OnInit {
         const doLegend = true;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
-          colourScale.quantiles().forEach(function (d) {
-            scaleC.push(d);
-          });
+          colourScale.quantiles().forEach((d) => scaleC.push(d));
           const legend = svg.selectAll('.legend')
             .data(scaleC);
 
@@ -434,10 +442,8 @@ export class HeatmapComponent implements OnInit {
             .attr('y', (labelsXY.y.length + 0.25) * gridSize)
             .attr('width', legendElementWidth)
             .attr('height', legendSize)
-            .style('fill', function (d, i) {
-              return '' + colours[i];
-            })
-            .on('mouseover', function (d) {
+            .style('fill', (d, i) => '' + colours[i])
+            .on('mouseover', (d) => {
               localThis.tooltip.style('opacity', 0.9);
               localThis.tooltip
                 .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d}`)
