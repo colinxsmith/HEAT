@@ -203,7 +203,7 @@ export class HeatmapComponent implements OnInit {
       datamagLab = datamagbase.append('text'),
       clicker = (di: { x: string, y: string, value: number }[], i: number) => {
         const hh = height / di.length, doBig = i !== -1;
-        highlite.append('rect')
+        highlite
           .attr('x', `${margin.left + scaleX(0)}`)
           .attr('class', 'HL')
           .attr('width', width)
@@ -255,6 +255,7 @@ export class HeatmapComponent implements OnInit {
               .style('stroke', 'brown');
           } else {
             datamag.style('fill', 'none');
+            datamagLab.text('');
             magnifyBorder.style('stroke', 'none');
           }
         }
