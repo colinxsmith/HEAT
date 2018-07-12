@@ -198,7 +198,7 @@ export class HeatmapComponent implements OnInit {
     });
     const highlite = svg.append('g').append('rect'),
       datamag = magnify.selectAll('.mag').data(colourMap).enter().append('rect'), doDatamag = true, magnifyBorder = magnify.append('rect'),
-      clicker = function (di: { x: string, y: string, value: number }[], i: number) {
+      clicker = (di: { x: string, y: string, value: number }[], i: number) => {
         const hh = height / di.length, doBig = i !== -1;
         highlite
           .attr('x', `${margin.left + scaleX(0)}`)
@@ -247,7 +247,6 @@ export class HeatmapComponent implements OnInit {
             magnifyBorder.style('stroke', 'none');
           }
         }
-        return true;
       }, rectH = svg.append('rect')
       .attr('x', margin.left)
       .attr('y', margin.top)
