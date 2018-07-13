@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 // import { RGBColor } from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
-import { local } from 'd3';
+
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
@@ -187,13 +187,11 @@ export class HeatmapComponent implements OnInit {
           localThis.tooltip
             // tslint:disable-next-line:max-line-length
             .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
-            //      .style('left', `${d3.event.pageX}px`)
             .style('left', `${margin.left}px`)
             .style('top', `${d3.event.pageY - 28}px`)
             .style('opacity', 1)
         )
         .on('click', (dd, i) => clicker(di, i))
-//        .on('mouseleave', () => highlite.style('opacity', 0))
         .on('mouseout', () => localThis.tooltip.style('opacity', 0));
     });
     const highlite = svg.append('g').append('rect'),

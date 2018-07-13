@@ -56,7 +56,7 @@ text.axis-y {
     font-size: 35px;
 }
 .HL {
-    stroke-width: 3px;
+    stroke-width: 5px;
     stroke: rgb(177, 36, 36);
     fill: rgb(6, 153, 6);
     shape-rendering: crispEdges;
