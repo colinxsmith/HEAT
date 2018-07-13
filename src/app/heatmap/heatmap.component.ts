@@ -346,13 +346,13 @@ export class HeatmapComponent implements OnInit {
         .style('text-anchor', 'right')
         .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
         .attr('class', 'axis-x'),
-      type = (d: { x: number, y: number, value: number }) => transpose ?
+      tableTranspose = (d: { x: number, y: number, value: number }) => transpose ?
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value }
       , totalsX = [], totalsY = [],
       heatmapChart = (circ: boolean) => {
         dataXY.forEach((d) => {
-          d = type(d);
+          d = tableTranspose(d);
           if (labelsXY.y[d.y - 1] === 'Total') {
             totalsY.push(d.value);
           } else if (labelsXY.x[d.x - 1] === 'Total') {
