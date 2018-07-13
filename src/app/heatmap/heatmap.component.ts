@@ -241,7 +241,16 @@ export class HeatmapComponent implements OnInit {
               .attr('y', 4)
               .attr('transform', (d) => `translate(0, ${heightHere / 2})`)
               .attr('class', 'totalsX')
-              .text((d, id) => ' ' + localThis.managerData[id][i].value);
+              .text((d, id) => ' ' + localThis.managerData[id][i].value)
+              .on('mouseover', (d, id) =>
+                localThis.tooltip
+                  .style('left', `${d3.event.pageX}px`)
+                  .style('top', `${d3.event.pageY}px`)
+                  .style('opacity', 1)
+                  // tslint:disable-next-line:max-line-length
+                  .html(`<a class="fa fa-gears leafy"></a>${localThis.managerData[id][i].x}<br>${localThis.managerData[id][i].y}<br>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id][i].value}`)
+              )
+              .on('mouseout', () => localThis.tooltip.style('opacity', 0));
             magnifyBorder
               .attr('x', margin.left)
               .attr('y', 4)
