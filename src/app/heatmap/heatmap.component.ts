@@ -236,12 +236,15 @@ export class HeatmapComponent implements OnInit {
               .attr('height', heightHere)
               .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
             datamagLab
-              .attr('x', (d) => +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
-                +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2)
-              .attr('y', 4)
-              .attr('transform', (d) => `translate(0, ${heightHere / 2})`)
+              .attr('x', (d) => width * 0.5)
+              .attr('y', (d) => height * 0.5)
               .attr('class', 'totalsX')
               .text((d, id) => ' ' + localThis.managerData[id][i].value)
+              .transition().delay(500)
+              .attr('x', (d) => +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
+              +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2)
+              .attr('y', 4)
+              .attr('transform', `translate(0, ${heightHere / 2})`)
               .on('mouseover', (d, id) =>
                 localThis.tooltip
                   .style('left', `${d3.event.pageX}px`)
