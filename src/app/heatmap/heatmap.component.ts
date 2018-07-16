@@ -80,12 +80,11 @@ export class HeatmapComponent implements OnInit {
     }
   }
   ngOnInit() {
-    const localThis = this;
     d3.selectAll('svg').remove();
     if (this.chosenFigure === 'Heat Map') {
-      localThis.managerDataTypes.forEach((d, i) => {
-        if (localThis.chosenData === d) {
-          localThis.managerProcess(localThis.managerData[i]);
+      this.managerDataTypes.forEach((d, i) => {
+        if (this.chosenData === d) {
+          this.managerProcess(this.managerData[i]);
         }
       });
       this.butName = this.squares ? 'Circles' : 'Squares';
@@ -99,8 +98,8 @@ export class HeatmapComponent implements OnInit {
     const margin = { top: 110, right: 10, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
-      scaleX = d3.scaleLinear<number, number>().domain([0, this.managerDataTypes.length]).range([0, width]),
-      scaleY = d3.scaleLinear<number, number>().domain([0, this.managerData[0].length]).range([0, height]),
+      scaleX = d3.scaleLinear().domain([0, this.managerDataTypes.length]).range([0, width]),
+      scaleY = d3.scaleLinear().domain([0, this.managerData[0].length]).range([0, height]),
       svg = d3.select('app-heatmap').append('svg')
         .attr('width', `${width + margin.left + margin.right}`)
         .attr('height', `${height + margin.bottom + margin.top}`);
@@ -160,42 +159,41 @@ export class HeatmapComponent implements OnInit {
 
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
-    const localThis = this,
-    colourMap: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>[] = [];
+    const colouredRectangles: d3.Selection<d3.BaseType, { x: string, y: string, value: number }, d3.BaseType, {}>[] = [];
     this.managerData.forEach((di, ix) => {
-      const ixx = ix % (localThis.colourrange.length - 1);
+      const ixx = ix % (this.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
-        .domain([0, localThis.numColours - 1])
-        .range([d3.rgb(localThis.colourrange[(ixx > 0 ? ixx + 1 : ixx) % localThis.colourrange.length]), d3.rgb(localThis.colourrange[1])]),
+        .domain([0, this.numColours - 1])
+        .range([d3.rgb(this.colourrange[(ixx > 0 ? ixx + 1 : ixx) % this.colourrange.length]), d3.rgb(this.colourrange[1])]),
         colours: d3.RGBColor[] = [];
-      for (let i = 0; i < localThis.numColours; ++i) {
+      for (let i = 0; i < this.numColours; ++i) {
         colours[i] = coloursd(i);
       }
       const colourScale = d3.scaleQuantile<d3.RGBColor>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
-      colourMap[ix] = svg.selectAll('.rect')
+      colouredRectangles[ix] = svg.selectAll('.rect')
         .data(di)
         .enter().append('rect')
         .attr('x', (dd) => margin.left + scaleX(ix))
         .attr('y', (dd, i) => margin.top + scaleY(i))
-        .attr('width', width / localThis.managerDataTypes.length)
+        .attr('width', width / this.managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', (dd) => ' ' + colourScale(dd.value))
         .on('mouseover', (dd) =>
-          localThis.tooltip
+          this.tooltip
             // tslint:disable-next-line:max-line-length
-            .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${localThis.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
+            .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${this.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             .style('left', `${margin.left}px`)
             .style('top', `${d3.event.pageY - 28}px`)
             .style('opacity', 1)
         )
         .on('click', (dd, i) => clicker(di, i))
-        .on('mouseout', () => localThis.tooltip.style('opacity', 0));
+        .on('mouseout', () => this.tooltip.style('opacity', 0));
     });
     const highlite = svg.append('g').append('rect'),
-      datamagbase = magnify.selectAll('.mag').data(colourMap).enter().append('g'),
+      datamagbase = magnify.selectAll('.mag').data(colouredRectangles).enter().append('g'),
       doDatamag = true, magnifyBorder = magnify.append('rect'),
       datamag = datamagbase.append('rect'),
       datamagLab = datamagbase.append('text'),
@@ -222,38 +220,38 @@ export class HeatmapComponent implements OnInit {
               .attr('y', 4)
               .style('fill', 'rgb(5, 247, 236)')
               .on('mouseover', (d, id) =>
-                localThis.tooltip
+                this.tooltip
                   .style('left', `${d3.event.pageX}px`)
                   .style('top', `${d3.event.pageY}px`)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${localThis.managerData[id][i].x}<br>${localThis.managerData[id][i].y}<br>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id][i].value}`)
+                  .html(`<a class="fa fa-gears leafy"></a>${this.managerData[id][i].x}<br>${this.managerData[id][i].y}<br>${this.managerDataTypes[id]}<br>${this.managerData[id][i].value}`)
               )
-              .on('mouseout', () => localThis.tooltip.style('opacity', 0));
+              .on('mouseout', () => this.tooltip.style('opacity', 0));
             datamag.transition().duration(500)
               .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
               .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
               .attr('height', heightHere)
               .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
             datamagLab
-              .attr('x', (d) => width * 0.5)
-              .attr('y', (d) => height * 0.5)
+              .attr('x', width * 0.5)
+              .attr('y', height * 0.5)
               .attr('class', 'totalsX')
-              .text((d, id) => ' ' + localThis.managerData[id][i].value)
+              .text((d, id) => ' ' + this.managerData[id][i].value)
               .transition().delay(500)
               .attr('x', (d) => +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
               +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2)
               .attr('y', 4)
               .attr('transform', `translate(0, ${heightHere / 2})`)
               .on('mouseover', (d, id) =>
-                localThis.tooltip
+                this.tooltip
                   .style('left', `${d3.event.pageX}px`)
                   .style('top', `${d3.event.pageY}px`)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${localThis.managerData[id][i].x}<br>${localThis.managerData[id][i].y}<br>${localThis.managerDataTypes[id]}<br>${localThis.managerData[id][i].value}`)
+                  .html(`<a class="fa fa-gears leafy"></a>${this.managerData[id][i].x}<br>${this.managerData[id][i].y}<br>${this.managerDataTypes[id]}<br>${this.managerData[id][i].value}`)
               )
-              .on('mouseout', () => localThis.tooltip.style('opacity', 0));
+              .on('mouseout', () => this.tooltip.style('opacity', 0));
             magnifyBorder
               .attr('x', margin.left)
               .attr('y', 4)
@@ -278,8 +276,8 @@ export class HeatmapComponent implements OnInit {
       .style('stroke', 'cyan')
       .style('fill', 'none')
       .style('opacity', 0)
-      .on('mouseout', () => clicker(localThis.managerData[0], -1))
-      .on('click', () => clicker(localThis.managerData[0], -1));
+      .on('mouseout', () => clicker(this.managerData[0], -1))
+      .on('click', () => clicker(this.managerData[0], -1));
     clicker(this.managerData[0], -1);
   }
   setPad() {
@@ -299,7 +297,6 @@ export class HeatmapComponent implements OnInit {
 
   setUp(xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[]) {
     const squares = this.squares,
-    localThis = this,
       transpose = this.transpose,
       labelsXY = { x: [' '], y: [' '] }, heatData: { x: number, y: number, value: number }[] = [];
     if (transpose) {
@@ -386,14 +383,14 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'bordered')
             .attr('r', gridSize / 2)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
-            .on('mouseover', (d) => localThis.tooltip
+            .on('mouseover', (d) => this.tooltip
                 // tslint:disable-next-line:max-line-length
                 .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('opacity', 0.9)
                 .style('top', `${d3.event.pageY - 28}px`)
             )
-            .on('mouseout', (d) => localThis.tooltip.style('opacity', 0))
+            .on('mouseout', (d) => this.tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
             .duration(200)
@@ -406,14 +403,14 @@ export class HeatmapComponent implements OnInit {
             .attr('width', gridSize)
             .attr('height', gridSize)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)])
-            .on('mouseover', (d) => localThis.tooltip
+            .on('mouseover', (d) => this.tooltip
                 // tslint:disable-next-line:max-line-length
                 .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
                 .style('opacity', 0.9)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`)
             )
-            .on('mouseout', () => localThis.tooltip.style('opacity', 0))
+            .on('mouseout', () => this.tooltip.style('opacity', 0))
             .merge(gridDistribution)
             .transition()
             .duration(200)
@@ -455,13 +452,13 @@ export class HeatmapComponent implements OnInit {
             .attr('height', legendSize)
             .style('fill', (d, i) => '' + colours[i])
             .on('mouseover', (d) => {
-              localThis.tooltip.style('opacity', 0.9);
-              localThis.tooltip
+              this.tooltip.style('opacity', 0.9);
+              this.tooltip
                 .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d}`)
                 .style('left', `${d3.event.pageX}px`)
                 .style('top', `${d3.event.pageY - 28}px`);
             })
-            .on('mouseout', () => localThis.tooltip.style('opacity', 0));
+            .on('mouseout', () => this.tooltip.style('opacity', 0));
           legend_g.append('text')
             .attr('class', 'legend')
             .text((d) => '\uf07e ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
