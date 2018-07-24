@@ -55,7 +55,7 @@ export class HeatmapComponent implements OnInit {
     this.managerX = [];
     this.managerY = [];
     this.managerPlot = [];
-    let ix = 0, iy = 0, i = 0, j = 0, ij = 0;
+    let ix = 0, iy = 0, ij = 0;
     dataV.forEach((d) => {
       if (!(xmap[d.x] > -1)) {
         here.managerX.push(d.x);
@@ -68,8 +68,8 @@ export class HeatmapComponent implements OnInit {
         ymap[d.y.replace(/[0-9]/g, '')] = iy++;
       }
     });
-    for (i = 0; i < revi.length; ++i) {
-      for (j = 0; j < revj.length; ++j) {
+    for (let i = 0; i < revi.length; ++i) {
+      for (let j = 0; j < revj.length; ++j) {
         if (ij < dataV.length && dataV[ij].x === here.managerX[i]
           && dataV[ij].y.replace(/[0-9]/g, '') === here.managerY[j].replace(/[0-9]/g, '')) {
           here.managerPlot.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
@@ -322,8 +322,8 @@ export class HeatmapComponent implements OnInit {
       .domain([0, buckets - 1])
       .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
       colours: d3.RGBColor[] = [];
-    for (let ii = 0; ii < buckets; ii++) {
-      colours[ii] = coloursd(ii);
+    for (let i = 0; i < buckets; i++) {
+      colours[i] = coloursd(i);
     }
 
     const  svgheat = d3.select('app-heatmap').append('svg');
