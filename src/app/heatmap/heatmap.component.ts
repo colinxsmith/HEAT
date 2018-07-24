@@ -292,7 +292,6 @@ export class HeatmapComponent implements OnInit {
     this.buttonName = this.squares ? 'Circles' : 'Squares';
     this.ngOnInit();
   }
-
   setUp(xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[]) {
     const squares = this.squares,
       transpose = this.transpose,
@@ -304,8 +303,7 @@ export class HeatmapComponent implements OnInit {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
-    let buckets = labelsXY.x.length,
-    legendSize = 50;
+    let buckets = labelsXY.x.length, legendSize = 50;
     console.log('Number of buckets ' + buckets);
     const margin = { top: transpose ? 30 : 60, right: 0, bottom: 10, left: 130 },
       width = 1000 - margin.left - margin.right,
@@ -318,14 +316,11 @@ export class HeatmapComponent implements OnInit {
     }
     const coloursd = d3.scaleLinear<d3.RGBColor>()
       .domain([0, buckets - 1])
-      .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]),
-      colours: d3.RGBColor[] = [];
+      .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]), colours: d3.RGBColor[] = [],
+      svgheat = d3.select('app-heatmap').append('svg');
     for (let i = 0; i < buckets; i++) {
       colours[i] = coloursd(i);
     }
-
-    const  svgheat = d3.select('app-heatmap').append('svg');
-
     if (this.viewbox) {
       svgheat.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`);
     } else {
@@ -374,47 +369,37 @@ export class HeatmapComponent implements OnInit {
           .range(colours);
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
+        let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; }, d3.BaseType, {}>;
         if (circ) {
-          gridDistribution.enter().append('circle')
+          painKiller = gridDistribution.enter().append('circle')
             .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
             .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
             .attr('class', 'bordered')
             .attr('r', gridSize / 2)
-            .style('fill', ' ' + colours[Math.floor(buckets / 2)])
-            .on('mouseover', (d) => this.tooltip
-                // tslint:disable-next-line:max-line-length
-                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
-                .style('left', `${d3.event.pageX}px`)
-                .style('opacity', 0.9)
-                .style('top', `${d3.event.pageY - 28}px`)
-            )
-            .on('mouseout', (d) => this.tooltip.style('opacity', 0))
-            .merge(gridDistribution)
-            .transition()
-            .duration(200)
-            .style('fill', (d) => ' ' + colourScale(d.value));
+            .style('fill', ' ' + colours[Math.floor(buckets / 2)]);
         } else {
-          gridDistribution.enter().append('rect')
+          painKiller = gridDistribution.enter().append('rect')
             .attr('x', (d) => (d.x - 1) * gridSize)
             .attr('y', (d) => (d.y - 1) * gridSize)
             .attr('class', 'bordered')
             .attr('width', gridSize)
             .attr('height', gridSize)
-            .style('fill', ' ' + colours[Math.floor(buckets / 2)])
-            .on('mouseover', (d) => this.tooltip
-                // tslint:disable-next-line:max-line-length
-                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
-                .style('opacity', 0.9)
-                .style('left', `${d3.event.pageX}px`)
-                .style('top', `${d3.event.pageY - 28}px`)
-            )
-            .on('mouseout', () => this.tooltip.style('opacity', 0))
-            .merge(gridDistribution)
-            .transition()
-            .duration(200)
-            .style('fill', (d) => ' ' + colourScale(d.value))
-            ;
+            .style('fill', ' ' + colours[Math.floor(buckets / 2)]);
         }
+        painKiller
+          .on('mouseover', (d) => this.tooltip
+            // tslint:disable-next-line:max-line-length
+            .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+            .style('opacity', 0.9)
+            .style('left', `${d3.event.pageX}px`)
+            .style('top', `${d3.event.pageY - 28}px`)
+          )
+          .on('mouseout', () => this.tooltip.style('opacity', 0))
+          .merge(gridDistribution)
+          .transition()
+          .duration(200)
+          .style('fill', (d) => ' ' + colourScale(d.value))
+          ;
         gridDistribution.enter().append('text')
           .attr('x', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('y', (d) => (d.y - 1 + 0.45) * gridSize)
