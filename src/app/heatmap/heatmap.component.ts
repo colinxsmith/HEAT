@@ -7,9 +7,9 @@ import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
 // tslint:disable-next-line:max-line-length
-//  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{butName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
+//  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
@@ -24,7 +24,7 @@ export class HeatmapComponent implements OnInit {
   managerPlot: { x: number, y: number, value: number }[] = [];
   numColours = 25;
 
-  butName = 'Squares';
+  buttonName = 'Squares';
   transpose = true;
   squares = true;
   viewbox = true;
@@ -51,25 +51,23 @@ export class HeatmapComponent implements OnInit {
     this.ngOnInit();
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) {
-    const here = this, xmap = {}, ymap = {}, revi = [], revj = [];
+    const here = this, xmap = {}, ymap = {};
     this.managerX = [];
     this.managerY = [];
     this.managerPlot = [];
-    let ix = 0, iy = 0, ij = 0;
+    let nx = 0, ny = 0, ij = 0;
     dataV.forEach((d) => {
       if (!(xmap[d.x] > -1)) {
         here.managerX.push(d.x);
-        revi.push(ix);
-        xmap[d.x] = ix++;
+        xmap[d.x] = nx++;
       }
       if (!(ymap[d.y.replace(/[0-9]/g, '')] > -1)) {
         here.managerY.push(d.y.replace(/[0-9]/g, ''));
-        revj.push(iy);
-        ymap[d.y.replace(/[0-9]/g, '')] = iy++;
+        ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
     });
-    for (let i = 0; i < revi.length; ++i) {
-      for (let j = 0; j < revj.length; ++j) {
+    for (let i = 0; i < nx; ++i) {
+      for (let j = 0; j < ny; ++j) {
         if (ij < dataV.length && dataV[ij].x === here.managerX[i]
           && dataV[ij].y.replace(/[0-9]/g, '') === here.managerY[j].replace(/[0-9]/g, '')) {
           here.managerPlot.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
@@ -87,7 +85,7 @@ export class HeatmapComponent implements OnInit {
           this.managerProcess(this.managerData[i]);
         }
       });
-      this.butName = this.squares ? 'Circles' : 'Squares';
+      this.buttonName = this.squares ? 'Circles' : 'Squares';
       this.setUp(this.managerX, this.managerY, this.managerPlot);
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap();
@@ -120,7 +118,7 @@ export class HeatmapComponent implements OnInit {
       .attr('transform', (d, i) => `translate(${margin.left + scaleX(i + 0.65)},${margin.top - 3}) rotate(280)`)
       .attr('class', 'axis-x');
 
-    let pastLabel = '', iL = 1;
+    let pastLabel = '', nL = 1;
     const iOffice: {} = {}; // Find the office numbers
     const YOffice = svg.selectAll('.yLabel0')
       .data(this.managerData[0])
@@ -133,7 +131,7 @@ export class HeatmapComponent implements OnInit {
           if (d.y.match(/[0-9]/)) { // Check in case the data has a number in the office name
             iOffice[back] = '';
           } else {
-            iOffice[back] = iL++;
+            iOffice[back] = nL++;
           }
         }
         return back;
@@ -291,7 +289,7 @@ export class HeatmapComponent implements OnInit {
   }
   setSquares() {
     this.squares = !this.squares;
-    this.butName = this.squares ? 'Circles' : 'Squares';
+    this.buttonName = this.squares ? 'Circles' : 'Squares';
     this.ngOnInit();
   }
 
