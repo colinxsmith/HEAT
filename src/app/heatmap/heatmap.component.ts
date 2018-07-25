@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 // import { RGBColor } from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
-
+import { easeBounce } from 'd3';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
@@ -23,7 +23,6 @@ export class HeatmapComponent implements OnInit {
   managerY: string[] = [];
   managerPlot: { x: number, y: number, value: number }[] = [];
   numColours = 25;
-
   buttonName = 'Squares';
   transpose = true;
   squares = true;
@@ -34,13 +33,12 @@ export class HeatmapComponent implements OnInit {
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
   // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
-
   constructor() {
- /*  this.managerData.forEach(function (d) { // Remove the numbers from the office group labels (testing)
-        d.forEach(function (dd) {
+   this.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
+        d.forEach((dd) => {
           dd.y = dd.y.replace(/[0-9]/g, '');
         });
-      });*/
+      });
   }
   chooseData(daig: string) {
     this.chosenData = daig;
@@ -365,15 +363,15 @@ export class HeatmapComponent implements OnInit {
         let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; }, d3.BaseType, {}>;
         if (circ) {
           painKiller = gridDistribution.enter().append('circle')
-            .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
-            .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
+            .attr('cx', width * 0.5)
+            .attr('cy', height * 0.5)
             .attr('class', 'bordered')
             .attr('r', gridSize / 2)
             .style('fill', ' ' + colours[Math.floor(buckets / 2)]);
         } else {
           painKiller = gridDistribution.enter().append('rect')
-            .attr('x', (d) => (d.x - 1) * gridSize)
-            .attr('y', (d) => (d.y - 1) * gridSize)
+            .attr('x', () => Math.random() * 10000)
+            .attr('y', () => Math.random() * 10000)
             .attr('class', 'bordered')
             .attr('width', gridSize)
             .attr('height', gridSize)
@@ -388,9 +386,12 @@ export class HeatmapComponent implements OnInit {
             .style('top', `${d3.event.pageY - 28}px`)
           )
           .on('mouseout', () => this.tooltip.style('opacity', 0))
-          .merge(gridDistribution)
           .transition()
-          .duration(200)
+          .duration(1000)
+          .attr('x', (d) => (d.x - 1) * gridSize)
+          .attr('y', (d) => (d.y - 1) * gridSize)
+          .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
+          .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
           .style('fill', (d) => ' ' + colourScale(d.value));
         gridDistribution.enter().append('text')
           .attr('x', (d) => (d.x - 1 + 0.45) * gridSize)
