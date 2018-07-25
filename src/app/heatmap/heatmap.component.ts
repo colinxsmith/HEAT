@@ -91,7 +91,6 @@ export class HeatmapComponent implements OnInit {
       this.largeMap();
     }
   }
-
   largeMap() {
     const margin = { top: 110, right: 10, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
@@ -101,13 +100,11 @@ export class HeatmapComponent implements OnInit {
       svg = d3.select('app-heatmap').append('svg')
         .attr('width', `${width + margin.left + margin.right}`)
         .attr('height', `${height + margin.bottom + margin.top}`);
-
     svg.append('rect').attr('width', `${width + margin.left + margin.right}`)
       .attr('height', `${height + margin.bottom + margin.top}`).attr('x', '0').attr('y', '0').attr('class', 'rim');
     svg.append('rect').attr('width', width).attr('height', height)
       .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
     const magnify = svg.append('g');
-
     const XLabels = svg.selectAll('.xLabel')
       .data(this.managerDataTypes)
       .enter().append('text')
@@ -117,7 +114,6 @@ export class HeatmapComponent implements OnInit {
       .style('text-anchor', 'right')
       .attr('transform', (d, i) => `translate(${margin.left + scaleX(i + 0.65)},${margin.top - 3}) rotate(280)`)
       .attr('class', 'axis-x');
-
     let pastLabel = '', nL = 1;
     const iOffice: {} = {}; // Find the office numbers
     const YOffice = svg.selectAll('.yLabel0')
@@ -128,7 +124,7 @@ export class HeatmapComponent implements OnInit {
         if (pastLabel !== d.x) {
           pastLabel = d.x;
           back = d.x;
-          if (d.y.match(/[0-9]/)) { // Check in case the data has a number in the office name
+          if (d.y.match(/[0-9]/)) { // Check to see whether the data has already got a number in the office name
             iOffice[back] = '';
           } else {
             iOffice[back] = nL++;
@@ -142,7 +138,6 @@ export class HeatmapComponent implements OnInit {
       .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-40)`)
       .attr('class', 'axis-y');
     console.log(iOffice);
-
     const YOfficeGroups = svg.selectAll('.yLabel1')
       .data(this.managerData[0])
       .enter().append('text')
@@ -152,7 +147,6 @@ export class HeatmapComponent implements OnInit {
       .style('text-anchor', 'end')
       .attr('transform', (d, i) => `translate(${margin.left},${margin.top + scaleY(i + 1)})`)
       .attr('class', 'axis-y');
-
     YOfficeGroups.style('font-size', '' + (+YOfficeGroups.style('font-size').replace('px', '') * 0.66) + 'px');
 
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
@@ -179,8 +173,7 @@ export class HeatmapComponent implements OnInit {
         .attr('width', width / this.managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', (dd) => ' ' + colourScale(dd.value))
-        .on('mouseover', (dd) =>
-          this.tooltip
+        .on('mouseover', (dd) => this.tooltip
             // tslint:disable-next-line:max-line-length
             .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${this.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
             .style('left', `${margin.left}px`)
@@ -398,15 +391,13 @@ export class HeatmapComponent implements OnInit {
           .merge(gridDistribution)
           .transition()
           .duration(200)
-          .style('fill', (d) => ' ' + colourScale(d.value))
-          ;
+          .style('fill', (d) => ' ' + colourScale(d.value));
         gridDistribution.enter().append('text')
           .attr('x', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('y', (d) => (d.y - 1 + 0.45) * gridSize)
           .attr('dy', 3)
           .attr('class', 'datavals')
-          .text((d) => ' ' + d.value)
-          ;
+          .text((d) => ' ' + d.value);
         const totsy = svg.selectAll('.totalsY')
           .data(totalsY).enter().append('g').append('text');
         totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
@@ -425,7 +416,6 @@ export class HeatmapComponent implements OnInit {
           colourScale.quantiles().forEach((d) => scaleC.push(d));
           const legend = svg.selectAll('.legend')
             .data(scaleC);
-
           const legend_g = legend.enter().append('g')
             .attr('class', 'legend');
           legend_g.append('rect')
@@ -452,4 +442,3 @@ export class HeatmapComponent implements OnInit {
     heatmapChart(squares ? false : true);
   }
 }
-
