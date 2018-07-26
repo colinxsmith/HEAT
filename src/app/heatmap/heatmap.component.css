@@ -13,7 +13,7 @@ circle.bordered {
 
 text.legend {
     font-size: 7px;
-    font-family: fontawesome, sans-serif;
+    font-family: fontawesome;
     fill: rgb(8, 211, 8);
 }
 
