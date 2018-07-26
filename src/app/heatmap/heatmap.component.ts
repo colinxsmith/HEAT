@@ -365,19 +365,16 @@ export class HeatmapComponent implements OnInit {
           painKiller = gridDistribution.enter().append('circle')
             .attr('cx', width * 0.5)
             .attr('cy', height * 0.5)
-            .attr('class', 'bordered')
-            .attr('r', gridSize / 2)
-            .style('fill', ' ' + colours[Math.floor(buckets / 2)]);
+            .attr('r', gridSize / 8);
         } else {
           painKiller = gridDistribution.enter().append('rect')
-            .attr('x', () => Math.random() * 10000)
-            .attr('y', () => Math.random() * 10000)
-            .attr('class', 'bordered')
+            .attr('x', () => Math.min(width * 0.5, Math.random() * 1000))
+            .attr('y', () => Math.min(height * 0.5,  Math.random() * 1000))
             .attr('width', gridSize)
-            .attr('height', gridSize)
-            .style('fill', ' ' + colours[Math.floor(buckets / 2)]);
+            .attr('height', gridSize);
         }
         painKiller
+          .attr('class', 'bordered')
           .on('mouseover', (d) => this.tooltip
             // tslint:disable-next-line:max-line-length
             .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
@@ -392,6 +389,7 @@ export class HeatmapComponent implements OnInit {
           .attr('y', (d) => (d.y - 1) * gridSize)
           .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
+          .attr('r', gridSize / 2)
           .style('fill', (d) => ' ' + colourScale(d.value));
         gridDistribution.enter().append('text')
           .attr('x', (d) => (d.x - 1 + 0.45) * gridSize)
