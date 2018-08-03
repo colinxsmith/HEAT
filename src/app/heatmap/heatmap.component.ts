@@ -231,9 +231,11 @@ export class HeatmapComponent implements OnInit {
                 return `translate(${dt} , ${heightHere / 2}) rotate(270)`;
               }
             )
-              .attr('class', 'totalsX')
+            .style('opacity', 0)
+            .attr('class', 'totalsX')
               .text((d, id) => '' + this.managerData[id][i].value)
               .transition().duration(1500)
+              .style('opacity', 1)
               .attr('transform', (d) => {
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
                 +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
