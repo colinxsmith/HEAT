@@ -223,16 +223,23 @@ export class HeatmapComponent implements OnInit {
               .attr('height', heightHere)
               .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
             datamagLab
-              .attr('x', width * 0.5)
-              .attr('y', height * 0.5)
-              .attr('transform', `translate(0, 0) rotate(90)`)
+              .attr('x', 0)
+              .attr('y', 0)
+              .attr('transform', (d) => {
+                const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
+                +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
+                return `translate(${dt} , ${heightHere / 2}) rotate(270)`;
+              }
+            )
               .attr('class', 'totalsX')
-              .text((d, id) => ' ' + this.managerData[id][i].value)
+              .text((d, id) => '' + this.managerData[id][i].value)
               .transition().duration(500)
-              .attr('x', (d) => +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
-              +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2)
-              .attr('y', 4)
-              .attr('transform', `translate(0, ${heightHere / 2}) rotate(0)`)
+              .attr('transform', (d) => {
+                const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
+                +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
+                return `translate(${dt} , ${heightHere / 2}) rotate(0)`;
+              }
+            )
               .on('mouseover', (d, id) =>
                 this.tooltip
                   .style('left', `${d3.event.pageX}px`)
