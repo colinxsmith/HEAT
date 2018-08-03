@@ -227,21 +227,21 @@ export class HeatmapComponent implements OnInit {
               .attr('y', 0)
               .attr('transform', (d) => {
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
-                +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
+                  +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
                 return `translate(${dt} , ${heightHere / 2}) rotate(270)`;
               }
-            )
-            .style('opacity', 0)
-            .attr('class', 'totalsX')
+              )
+              .style('opacity', 0)
+              .attr('class', 'totalsX')
               .text((d, id) => '' + this.managerData[id][i].value)
               .transition().duration(1500)
               .style('opacity', 1)
               .attr('transform', (d) => {
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
-                +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
+                  +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
                 return `translate(${dt} , ${heightHere / 2}) rotate(0)`;
               }
-            )
+              )
               .on('mouseover', (d, id) =>
                 this.tooltip
                   .style('left', `${d3.event.pageX}px`)
@@ -267,16 +267,16 @@ export class HeatmapComponent implements OnInit {
           }
         }
       }, rectH = svg.append('rect')
-      .attr('x', margin.left)
-      .attr('y', margin.top)
-      .attr('width', width)
-      .attr('height', height)
-      .style('stroke-width', 4)
-      .style('stroke', 'cyan')
-      .style('fill', 'none')
-      .style('opacity', 0)
-      .on('mouseout', () => clicker(this.managerData[0], -1))
-      .on('click', () => clicker(this.managerData[0], -1));
+        .attr('x', margin.left)
+        .attr('y', margin.top)
+        .attr('width', width)
+        .attr('height', height)
+        .style('stroke-width', 4)
+        .style('stroke', 'cyan')
+        .style('fill', 'none')
+        .style('opacity', 0)
+        .on('mouseout', () => clicker(this.managerData[0], -1))
+        .on('click', () => clicker(this.managerData[0], -1));
     clicker(this.managerData[0], -1);
   }
   setPad() {
@@ -311,7 +311,7 @@ export class HeatmapComponent implements OnInit {
       height = 1000 - margin.top - margin.bottom - legendSize,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
-      legendSize = Math.min(legendSize, legendElementWidth);
+    legendSize = Math.min(legendSize, legendElementWidth);
     if (labelsXY.x[buckets - 1] === 'Total') {
       buckets--;
     }
