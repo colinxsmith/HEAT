@@ -233,7 +233,7 @@ export class HeatmapComponent implements OnInit {
             )
               .attr('class', 'totalsX')
               .text((d, id) => '' + this.managerData[id][i].value)
-              .transition().duration(500)
+              .transition().duration(1500)
               .attr('transform', (d) => {
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
                 +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
