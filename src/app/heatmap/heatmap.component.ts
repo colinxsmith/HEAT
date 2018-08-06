@@ -378,8 +378,8 @@ export class HeatmapComponent implements OnInit {
             .attr('r', gridSize / 8);
         } else {
           painKiller = gridDistribution.enter().append('rect')
-            .attr('x', () => Math.min(width * 0.5, Math.random() * 1000))
-            .attr('y', () => Math.min(height * 0.5,  Math.random() * 1000))
+            .attr('x', () => Math.min(width , Math.random() * width))
+            .attr('y', () => Math.min(height,  Math.random() * height))
             .attr('width', gridSize)
             .attr('height', gridSize);
         }
