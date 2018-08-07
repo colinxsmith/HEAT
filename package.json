@@ -36,7 +36,7 @@
     "@types/d3": "^5.0.0",
     "@types/jasmine": "^2.8.8",
     "@types/jasminewd2": "^2.0.2",
-    "@types/node": "^6.0.115",
+    "@types/node": "^6.0.116",
     "codelyzer": "^4.4.3",
     "d3": "^5.5.0",
     "font-awesome": "^4.7.0",
