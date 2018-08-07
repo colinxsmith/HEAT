@@ -170,7 +170,7 @@ export class HeatmapComponent implements OnInit {
         .attr('y', (dd, i) => margin.top + scaleY(i))
         .attr('width', width / this.managerDataTypes.length)
         .attr('height', height / di.length)
-        .style('fill', (dd) => ' ' + colourScale(dd.value))
+        .style('fill', (dd) => `${colourScale(dd.value)}`)
         .on('mouseover', (dd) => this.tooltip
             // tslint:disable-next-line:max-line-length
             .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${this.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
@@ -233,7 +233,7 @@ export class HeatmapComponent implements OnInit {
               )
               .style('opacity', 0)
               .attr('class', 'totalsX')
-              .text((d, id) => '' + this.managerData[id][i].value)
+              .text((d, id) => `${this.managerData[id][i].value}`)
               .transition().duration(1500)
               .style('opacity', 1)
               .attr('transform', (d) => {
@@ -400,12 +400,12 @@ export class HeatmapComponent implements OnInit {
           .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
           .attr('r', gridSize / 2)
-          .style('fill', (d) => ' ' + colourScale(d.value));
+          .style('fill', (d) => `${colourScale(d.value)}`);
         gridDistribution.enter().append('text')
           .attr('transform', (d) => `translate(${(d.x - 1) * gridSize}, ${(d.y - 1) * gridSize}) rotate(135)`)
           .attr('dy', 3)
           .attr('class', 'datavals')
-          .text((d) => ' ' + d.value)
+          .text((d) => `${d.value}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(0)`);
         const totsy = svg.selectAll('.totalsY')
@@ -433,7 +433,7 @@ export class HeatmapComponent implements OnInit {
             .attr('y', (labelsXY.y.length + 0.25) * gridSize)
             .attr('width', legendElementWidth)
             .attr('height', legendSize)
-            .style('fill', (d, i) => '' + colours[i])
+            .style('fill', (d, i) => `${colours[i]}`)
             .on('mouseover', (d) => {
               this.tooltip.style('opacity', 0.9);
               this.tooltip
