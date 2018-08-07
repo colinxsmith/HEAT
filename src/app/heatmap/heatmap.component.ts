@@ -224,20 +224,14 @@ export class HeatmapComponent implements OnInit {
             datamagLab
               .attr('x', 0)
               .attr('y', 0)
-              .attr('transform', (d) => {
-                const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
-                  +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
-                return `translate(${dt} , ${heightHere / 2}) rotate(270)`;
-              }
-              )
               .attr('class', 'totalsX')
               .text((d, id) => `${this.managerData[id][i].value}`)
               .transition().duration(1500)
               .styleTween('opacity', () => (t: number) => `${Math.sqrt(t)}`)
-              .attr('transform', (d) => {
+              .attrTween('transform', (d) => {
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
                   +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
-                return `translate(${dt} , ${heightHere / 2}) rotate(0)`;
+                return (t: number) => `translate(${dt} , ${heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`;
               }
               )
               .on('mouseover', (d, id) =>
