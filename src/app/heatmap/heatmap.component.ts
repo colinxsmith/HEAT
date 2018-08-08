@@ -227,7 +227,7 @@ export class HeatmapComponent implements OnInit {
               .attr('class', 'totalsX')
               .text((d, labIndex) => `${this.managerData[labIndex][i].value}`)
               .transition().duration(1500)
-              .tween('ttt', (d, labIndex, datamagRef) => { // Shows how to use .tween instead of .styleTween and .attrTween
+              .tween('', (d, labIndex, datamagRef) => { // Shows how to use .tween instead of .styleTween and .attrTween
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
                   +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
                 return (t: number) => d3.select(datamagRef[labIndex])
