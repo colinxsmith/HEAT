@@ -225,8 +225,16 @@ export class HeatmapComponent implements OnInit {
               .attr('x', 0)
               .attr('y', 0)
               .attr('class', 'totalsX')
-              .text((d, id) => `${this.managerData[id][i].value}`)
+              .text((d, labIndex) => `${this.managerData[labIndex][i].value}`)
               .transition().duration(1500)
+              .tween('ttt', (d, labIndex, datamagRef) => { // Shows how to use .tween instead of .styleTween and .attrTween
+                const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
+                  +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2, pp = d3.select(datamagRef[labIndex]);
+                return (t: number) => pp
+                  .attr('transform', `translate(${dt} , ${heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
+                  .style('opacity', `${Math.sqrt(t)}`);
+              })
+              /*
               .styleTween('opacity', () => (t: number) => `${Math.sqrt(t)}`)
               .attrTween('transform', (d) => {
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
@@ -234,6 +242,7 @@ export class HeatmapComponent implements OnInit {
                 return (t: number) => `translate(${dt} , ${heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`;
               }
               )
+              */
               .on('mouseover', (d, id) =>
                 this.tooltip
                   .style('left', `${d3.event.pageX}px`)
