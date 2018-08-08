@@ -7,8 +7,8 @@ import { AppComponent } from '../app.component';
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
   template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
-// tslint:disable-next-line:max-line-length
-//  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
+  // tslint:disable-next-line:max-line-length
+  //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
@@ -33,11 +33,11 @@ export class HeatmapComponent implements OnInit {
   colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
   // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
   constructor() {
-   this.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
-        d.forEach((dd) => {
-          dd.y = dd.y.replace(/[0-9]/g, '');
-        });
+    this.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
+      d.forEach((dd) => {
+        dd.y = dd.y.replace(/[0-9]/g, '');
       });
+    });
   }
   chooseData(daig: string) {
     this.chosenData = daig;
@@ -171,11 +171,11 @@ export class HeatmapComponent implements OnInit {
         .attr('height', height / di.length)
         .style('fill', (dd) => `${colourScale(dd.value)}`)
         .on('mouseover', (dd) => this.tooltip
-            // tslint:disable-next-line:max-line-length
-            .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${this.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
-            .style('left', `${margin.left}px`)
-            .style('top', `${d3.event.pageY - 28}px`)
-            .style('opacity', 1)
+          // tslint:disable-next-line:max-line-length
+          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${this.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
+          .style('left', `${margin.left}px`)
+          .style('top', `${d3.event.pageY - 28}px`)
+          .style('opacity', 1)
         )
         .on('click', (dd, i) => clicker(di, i))
         .on('mouseout', () => this.tooltip.style('opacity', 0));
@@ -198,12 +198,10 @@ export class HeatmapComponent implements OnInit {
           .attr('y', `${margin.top + scaleY(doBig ? i : 0)}`)
           .style('opacity', '1');
         if (doDatamag) {
-          const heightHere = 90;
+          const heightHere = 100;
           if (doBig) {
             datamag
               .attr('class', 'mag')
-              .attr('width', 0)
-              .attr('x', (d) => d3.select(d.nodes()[(i + 1) % d.nodes().length]).attr('x'))
               .attr('y', 4)
               .style('fill', 'rgb(5, 247, 236)')
               .on('mouseover', (d, id) =>
@@ -215,35 +213,33 @@ export class HeatmapComponent implements OnInit {
                   .html(`<a class="fa fa-gears leafy"></a>${this.managerData[id][i].x}<br>${this.managerData[id][i].y}<br>${this.managerDataTypes[id]}<br>${this.managerData[id][i].value}`)
               )
               .on('mouseout', () => this.tooltip.style('opacity', 0));
-            datamag.transition().duration(500)
-              .styleTween('opacity', () => (t: number) => `${t * t}`)
-              .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'))
-              .attr('x', (d) => d3.select(d.nodes()[i]).attr('x'))
-              .attrTween('height', () => (t: number) => `${heightHere * t * t}px`)
-              .attr('width', (d) => d3.select(d.nodes()[i]).attr('width'));
+            datamag.transition().duration(1500)
+              .tween('', (d, k, HH) => {
+                return (t: number) => {
+                  const transformParameter = (parm: number) => 0.5 * width * (1 - t) * (1 - t) * (1 - t) + t * t * t * parm,
+                  x = transformParameter(+(d3.select(d.nodes()[i]).attr('x').replace('px', ''))),
+                  w = transformParameter(+(d3.select(d.nodes()[i]).attr('width').replace('px', '')));
+                  d3.select(HH[k])
+                  .attr('x', `${x}px`)
+                  .attr('width', `${w}px`)
+                  .attr('height', `${transformParameter(heightHere)}px`)
+                  .style('opacity', `${t}`);
+                };
+              })
+              .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'));
             datamagLab
               .attr('x', 0)
               .attr('y', 0)
               .attr('class', 'totalsX')
               .text((d, labIndex) => `${this.managerData[labIndex][i].value}`)
               .transition().duration(1500)
-              .tween('', (d, labIndex, datamagRef) => { // Shows how to use .tween instead of .styleTween and .attrTween
+              .tween('', (d, labIndex, datamagRef) => { 
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
                   +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
                 return (t: number) => d3.select(datamagRef[labIndex])
                   .attr('transform', `translate(${dt} , ${heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
                   .style('opacity', `${Math.sqrt(t)}`);
-              })
-              /*
-              .styleTween('opacity', () => (t: number) => `${Math.sqrt(t)}`)
-              .attrTween('transform', (d) => {
-                const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
-                  +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
-                return (t: number) => `translate(${dt} , ${heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`;
-              }
-              )
-              */
-              .on('mouseover', (d, id) =>
+              })              .on('mouseover', (d, id) =>
                 this.tooltip
                   .style('left', `${d3.event.pageX}px`)
                   .style('top', `${d3.event.pageY}px`)
@@ -447,7 +443,7 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'legend')
             .text((d) => '\uf07e ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
             .attr('x', (d, i) => legendElementWidth * (i + 0.25))
-            .attr('y',  (labelsXY.y.length + 0.25) * gridSize + legendSize / 2 + 3);
+            .attr('y', (labelsXY.y.length + 0.25) * gridSize + legendSize / 2 + 3);
         }
       };
     heatmapChart(squares ? false : true);
