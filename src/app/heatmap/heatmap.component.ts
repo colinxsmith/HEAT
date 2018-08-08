@@ -217,13 +217,13 @@ export class HeatmapComponent implements OnInit {
               .tween('', (d, k, HH) => {
                 return (t: number) => {
                   const transformParameter = (parm: number) => 0.5 * width * (1 - t) * (1 - t) * (1 - t) + t * t * t * parm,
-                  x = transformParameter(+(d3.select(d.nodes()[i]).attr('x').replace('px', ''))),
-                  w = transformParameter(+(d3.select(d.nodes()[i]).attr('width').replace('px', '')));
+                    x = transformParameter(+(d3.select(d.nodes()[i]).attr('x').replace('px', ''))),
+                    w = transformParameter(+(d3.select(d.nodes()[i]).attr('width').replace('px', '')));
                   d3.select(HH[k])
-                  .attr('x', `${x}px`)
-                  .attr('width', `${w}px`)
-                  .attr('height', `${transformParameter(heightHere)}px`)
-                  .style('opacity', `${t}`);
+                    .attr('x', `${x}px`)
+                    .attr('width', `${w}px`)
+                    .attr('height', `${transformParameter(heightHere)}px`)
+                    .style('opacity', `${t}`);
                 };
               })
               .style('fill', (d) => d3.select(d.nodes()[i]).style('fill'));
@@ -233,13 +233,13 @@ export class HeatmapComponent implements OnInit {
               .attr('class', 'totalsX')
               .text((d, labIndex) => `${this.managerData[labIndex][i].value}`)
               .transition().duration(1500)
-              .tween('', (d, labIndex, datamagRef) => { 
+              .tween('', (d, labIndex, datamagRef) => {
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
                   +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
                 return (t: number) => d3.select(datamagRef[labIndex])
                   .attr('transform', `translate(${dt} , ${heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
                   .style('opacity', `${Math.sqrt(t)}`);
-              })              .on('mouseover', (d, id) =>
+              }).on('mouseover', (d, id) =>
                 this.tooltip
                   .style('left', `${d3.event.pageX}px`)
                   .style('top', `${d3.event.pageY}px`)
