@@ -230,6 +230,7 @@ export class HeatmapComponent implements OnInit {
             datamagLab
               .attr('x', 0)
               .attr('y', 0)
+              .style('opacity', 0)
               .attr('class', 'totalsX')
               .text((d, labIndex) => `${this.managerData[labIndex][i].value}`)
               .transition().duration(1500)
