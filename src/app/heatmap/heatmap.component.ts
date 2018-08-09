@@ -99,8 +99,7 @@ export class HeatmapComponent implements OnInit {
       .attr('height', `${height + margin.bottom + margin.top}`).attr('x', '0').attr('y', '0').attr('class', 'rim');
     svg.append('rect').attr('width', width).attr('height', height)
       .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
-    const magnify = svg.append('g');
-    const XLabels = svg.selectAll('.xLabel')
+    const magnify = svg.append('g'), XLabels = svg.selectAll('.xLabel')
       .data(managerDataTypes)
       .enter().append('text')
       .text((d) => d)
