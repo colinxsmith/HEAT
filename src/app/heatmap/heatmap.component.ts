@@ -6,7 +6,7 @@ import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -14,9 +14,7 @@ import { AppComponent } from '../app.component';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  managerDataTypes = this.myData.managerDataTypes;
   managerFigure = ['Heat Map', 'Large Map'].reverse();
-  managerData = this.myData.managerData;
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -25,15 +23,15 @@ export class HeatmapComponent implements OnInit {
   buttonName = 'Squares';
   transpose = true;
   squares = true;
-  viewbox = true;
-  chosenData = this.managerDataTypes[0];
+  viewbox = true; // Use viewBox attribute for setting width and height (no good on IE)
+  chosenData = this.myData.managerDataTypes[0];
   chosenFigure = this.managerFigure[0];
   pad = true;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
   // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
   constructor() {
-    this.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
+    this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
       d.forEach((dd) => {
         dd.y = dd.y.replace(/[0-9]/g, '');
       });
@@ -77,23 +75,23 @@ export class HeatmapComponent implements OnInit {
   ngOnInit() {
     d3.selectAll('svg').remove();
     if (this.chosenFigure === 'Heat Map') {
-      this.managerDataTypes.forEach((d, i) => {
+      this.myData.managerDataTypes.forEach((d, i) => {
         if (this.chosenData === d) {
-          this.managerProcess(this.managerData[i]);
+          this.managerProcess(this.myData.managerData[i]);
         }
       });
       this.buttonName = this.squares ? 'Circles' : 'Squares';
       this.setUp(this.managerX, this.managerY, this.managerPlot);
     } else if (this.chosenFigure === 'Large Map') {
-      this.largeMap();
+      this.largeMap(this.myData.managerDataTypes, this.myData.managerData);
     }
   }
-  largeMap() {
+  largeMap(managerDataTypes: string[], managerData: {x: string; y: string; value: number; }[][]) {
     const margin = { top: 110, right: 10, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
-      scaleX = d3.scaleLinear().domain([0, this.managerDataTypes.length]).range([0, width]),
-      scaleY = d3.scaleLinear().domain([0, this.managerData[0].length]).range([0, height]),
+      scaleX = d3.scaleLinear().domain([0, managerDataTypes.length]).range([0, width]),
+      scaleY = d3.scaleLinear().domain([0, managerData[0].length]).range([0, height]),
       svg = d3.select('app-heatmap').append('svg')
         .attr('width', `${width + margin.left + margin.right}`)
         .attr('height', `${height + margin.bottom + margin.top}`);
@@ -103,7 +101,7 @@ export class HeatmapComponent implements OnInit {
       .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
     const magnify = svg.append('g');
     const XLabels = svg.selectAll('.xLabel')
-      .data(this.managerDataTypes)
+      .data(managerDataTypes)
       .enter().append('text')
       .text((d) => d)
       .attr('x', 0)
@@ -114,7 +112,7 @@ export class HeatmapComponent implements OnInit {
     let pastLabel = '', nL = 1;
     const iOffice: {} = {}; // Find the office numbers
     const YOffice = svg.selectAll('.yLabel0')
-      .data(this.managerData[0])
+      .data(managerData[0])
       .enter().append('text')
       .text((d) => {
         let back = '';
@@ -136,7 +134,7 @@ export class HeatmapComponent implements OnInit {
       .attr('class', 'axis-y');
     console.log(iOffice);
     const YOfficeGroups = svg.selectAll('.yLabel1')
-      .data(this.managerData[0])
+      .data(managerData[0])
       .enter().append('text')
       .text((d) => d.y)
       .attr('x', -10)
@@ -149,7 +147,7 @@ export class HeatmapComponent implements OnInit {
     // Daryl's "heat map" is plotted as a load of verticle heat map strips, each with its own scale
 
     const colouredRectangles: d3.Selection<d3.BaseType, { x: string, y: string, value: number }, d3.BaseType, {}>[] = [];
-    this.managerData.forEach((di, ix) => {
+    managerData.forEach((di, ix) => {
       const ixx = ix % (this.colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
         .domain([0, this.numColours - 1])
@@ -167,12 +165,12 @@ export class HeatmapComponent implements OnInit {
         .enter().append('rect')
         .attr('x', (dd) => margin.left + scaleX(ix))
         .attr('y', (dd, i) => margin.top + scaleY(i))
-        .attr('width', width / this.managerDataTypes.length)
+        .attr('width', width / managerDataTypes.length)
         .attr('height', height / di.length)
         .style('fill', (dd) => `${colourScale(dd.value)}`)
         .on('mouseover', (dd) => this.tooltip
           // tslint:disable-next-line:max-line-length
-          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${this.managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
+          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
           .style('left', `${margin.left}px`)
           .style('top', `${d3.event.pageY - 28}px`)
           .style('opacity', 1)
@@ -210,7 +208,7 @@ export class HeatmapComponent implements OnInit {
                   .style('top', `${d3.event.pageY}px`)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${this.managerData[id][i].x}<br>${this.managerData[id][i].y}<br>${this.managerDataTypes[id]}<br>${this.managerData[id][i].value}`)
+                  .html(`<a class="fa fa-gears leafy"></a>${managerData[id][i].x}<br>${managerData[id][i].y}<br>${managerDataTypes[id]}<br>${managerData[id][i].value}`)
               )
               .on('mouseout', () => this.tooltip.style('opacity', 0));
             datamag.transition().duration(1500)
@@ -232,7 +230,7 @@ export class HeatmapComponent implements OnInit {
               .attr('y', 0)
               .style('opacity', 0)
               .attr('class', 'totalsX')
-              .text((d, labIndex) => `${this.managerData[labIndex][i].value}`)
+              .text((d, labIndex) => `${managerData[labIndex][i].value}`)
               .transition().duration(1500)
               .tween('', (d, labIndex, datamagRef) => {
                 const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
@@ -246,7 +244,7 @@ export class HeatmapComponent implements OnInit {
                   .style('top', `${d3.event.pageY}px`)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${this.managerData[id][i].x}<br>${this.managerData[id][i].y}<br>${this.managerDataTypes[id]}<br>${this.managerData[id][i].value}`)
+                  .html(`<a class="fa fa-gears leafy"></a>${managerData[id][i].x}<br>${managerData[id][i].y}<br>${managerDataTypes[id]}<br>${managerData[id][i].value}`)
               )
               .on('mouseout', () => this.tooltip.style('opacity', 0));
             magnifyBorder
@@ -273,9 +271,9 @@ export class HeatmapComponent implements OnInit {
         .style('stroke', 'cyan')
         .style('fill', 'none')
         .style('opacity', 0)
-        .on('mouseout', () => clicker(this.managerData[0], -1))
-        .on('click', () => clicker(this.managerData[0], -1));
-    clicker(this.managerData[0], -1);
+        .on('mouseout', () => clicker(managerData[0], -1))
+        .on('click', () => clicker(managerData[0], -1));
+    clicker(managerData[0], -1);
   }
   setPad() {
     this.pad = !this.pad;
