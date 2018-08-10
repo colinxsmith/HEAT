@@ -81,12 +81,12 @@ export class HeatmapComponent implements OnInit {
         }
       });
       this.buttonName = this.squares ? 'Circles' : 'Squares';
-      this.setUp(this.managerX, this.managerY, this.managerPlot);
+      this.setUp(this.managerX, this.managerY, this.managerPlot, this.colourrange);
     } else if (this.chosenFigure === 'Large Map') {
-      this.largeMap(this.myData.managerDataTypes, this.myData.managerData);
+      this.largeMap(this.myData.managerDataTypes, this.myData.managerData, this.colourrange);
     }
   }
-  largeMap(managerDataTypes: string[], managerData: {x: string; y: string; value: number; }[][]) {
+  largeMap(managerDataTypes: string[], managerData: {x: string; y: string; value: number; }[][], colourrange: string[]) {
     const margin = { top: 110, right: 10, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
@@ -147,10 +147,10 @@ export class HeatmapComponent implements OnInit {
 
     const colouredRectangles: d3.Selection<d3.BaseType, { x: string, y: string, value: number }, d3.BaseType, {}>[] = [];
     managerData.forEach((di, ix) => {
-      const ixx = ix % (this.colourrange.length - 1);
+      const ixx = ix % (colourrange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
         .domain([0, this.numColours - 1])
-        .range([d3.rgb(this.colourrange[(ixx > 0 ? ixx + 1 : ixx) % this.colourrange.length]), d3.rgb(this.colourrange[1])]),
+        .range([d3.rgb(colourrange[(ixx > 0 ? ixx + 1 : ixx) % colourrange.length]), d3.rgb(colourrange[1])]),
         colours: d3.RGBColor[] = [];
       for (let i = 0; i < this.numColours; ++i) {
         colours[i] = coloursd(i);
@@ -288,7 +288,7 @@ export class HeatmapComponent implements OnInit {
     this.buttonName = this.squares ? 'Circles' : 'Squares';
     this.ngOnInit();
   }
-  setUp(xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[]) {
+  setUp(xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[], colourrange: string[]) {
     const squares = this.squares,
       transpose = this.transpose,
       labelsXY = { x: [' '], y: [' '] }, heatData: { x: number, y: number, value: number }[] = [];
@@ -312,7 +312,7 @@ export class HeatmapComponent implements OnInit {
     }
     const coloursd = d3.scaleLinear<d3.RGBColor>()
       .domain([0, buckets - 1])
-      .range([d3.rgb(this.colourrange[0]), d3.rgb(this.colourrange[1])]), colours: d3.RGBColor[] = [],
+      .range([d3.rgb(colourrange[0]), d3.rgb(colourrange[1])]), colours: d3.RGBColor[] = [],
       svgheat = d3.select('app-heatmap').append('svg');
     for (let i = 0; i < buckets; i++) {
       colours[i] = coloursd(i);
