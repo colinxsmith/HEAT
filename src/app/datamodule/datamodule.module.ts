@@ -1,4 +1,32 @@
 export class DatamoduleModule {
+  perfMap = [{
+    name: 'Apple',
+    performance: [
+      -0.09334, -0.29041, -0.05744, -0.21093, -0.00551, -0.06005, -0.09430, 0.16770, 0.17872, -0.23842, 0.22268,
+      -0.16702, 0.45135, 0.43907, 0.09515, -0.07643, 0.25622, 0.47131, -0.47805, -0.27640, 0.03434, -0.17760, 0.49086,
+      0.31780, -0.31646, -0.00741, -0.29980, 0.29520, 0.19212, -0.08093, 0.10021, -0.41508, -0.22059, 0.38078, 0.02169,
+      0.37842, -0.24862, 0.13498, -0.38625, 0.07412, 0.26521, -0.27359, 0.23342, 0.33766, 0.45231, 0.24146, 0.14666,
+      -0.10541, -0.28616, 0.32289, -0.15268, 0.12052, -0.43820, -0.37093, 0.20565, -0.20264, 0.34645, 0.36653,
+      -0.30963, 0.28963, 0.46948, -0.32728, -0.46132, 0.42699, -0.47172, 0.17496, -0.35967, 0.43970, 0.15832,
+      -0.12261, 0.03462, 0.16221, -0.02997, 0.10558, 0.15105, 0.11315, -0.26447, 0.24452, -0.42893, -0.12271,
+      -0.42271, 0.10277, -0.49144, -0.22354, -0.18306, -0.33984, -0.45374, -0.48144, -0.27330, -0.10526,
+      -0.49498, 0.34107, -0.04570, 0.19024, 0.43866, 0.05600, -0.04928, 0.40694, -0.09748, 0.16995,
+      -0.18636, -0.21445, 0.04976, -0.35139, 0.07688, -0.44927, -0.34878, -0.14822, -0.12959,
+      0.38320, 0.12392, 0.26825, -0.12163, 0.48528, -0.36011, 0.40275, 0.34965, -0.21335, -0.43463,
+      -0.10723, 0.17651, 0.07749, 0.23321, 0.38607, -0.37361, 0.23190, 0.34861, -0.21568, 0.08310,
+      -0.13381, 0.23465, 0.06218, 0.16041, 0.21726, -0.44993, -0.14034, 0.34872, 0.43799, -0.41058,
+      0.27415, 0.29642, -0.09184, -0.04624, 0.37594, -0.17971, -0.40777, -0.20509, -0.19228, 0.35335, -0.07212],
+    hold: [
+      false, false, false, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false, false,
+      false, true, true, false, false, false, false, true, false, false, true, false, false, true, true, false, false, false, true,
+      false, false, false, true, false, true, true, false, false, false, false, false, true, true, false, true, true, true, false,
+      false, true, false, true, false, true, false, true, true, false, false, true, false, false, false, false, false, false, true,
+      true, false, true, true, true, true, false, true, true, false, true, false, true, true, false, false, true, true, false, false,
+      false, true, true, false, true, false, false, true, false, false, false, true, false, false, true, false, false, true, true,
+      false, false, true, true, true, true, false, false, false, false, true, false, true, true, true, false, false, false, false,
+      true, true, true, true, false, false, true, true, true, true, false, true, true, false, true, false
+    ]
+  }];
   managerDataTypes = ['Number Clients', 'Number BMIDs', '%BMID failed>1', 'Flags passed', 'Flags out with KE', 'Flags out no KE',
     '1-5 Days', '6-10 Days',
     '10 Days +', 'Volatility Out', 'non BL Out', 'MHW Out', 'T error Out', 'Sector Out', 'Portfolio Concentration Out', 'Commonality Out',

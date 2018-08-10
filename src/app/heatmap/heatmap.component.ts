@@ -1,20 +1,19 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
-// import { RGBColor } from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
   // tslint:disable-next-line:max-line-length
-  //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of managerFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
+  //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  managerFigure = ['Heat Map', 'Large Map'].reverse();
+  plotFigure = ['Heat Map', 'Perf Map', 'Large Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -25,7 +24,8 @@ export class HeatmapComponent implements OnInit {
   squares = true;
   viewbox = true; // Use viewBox attribute for setting width and height (no good on IE)
   chosenData = this.myData.managerDataTypes[0];
-  chosenFigure = this.managerFigure[0];
+  perfData = this.myData.perfMap;
+  chosenFigure = this.plotFigure[0];
   pad = true;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
@@ -45,7 +45,7 @@ export class HeatmapComponent implements OnInit {
     this.chosenFigure = daig;
     this.ngOnInit();
   }
-  managerProcess(dataV: { x: string, y: string, value: number }[]) {
+  managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
     const here = this, xmap = {}, ymap = {};
     this.managerX = [];
     this.managerY = [];
@@ -72,7 +72,7 @@ export class HeatmapComponent implements OnInit {
       }
     }
   }
-  ngOnInit() {
+  ngOnInit() { // Decide whether large map or smaller heatmap
     d3.selectAll('svg').remove();
     if (this.chosenFigure === 'Heat Map') {
       this.myData.managerDataTypes.forEach((d, i) => {
@@ -84,9 +84,40 @@ export class HeatmapComponent implements OnInit {
       this.heatMaps(this.managerX, this.managerY, this.managerPlot, this.colourrange, this.squares);
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap(this.myData.managerDataTypes, this.myData.managerData, this.colourrange);
+    } else if (this.chosenFigure === 'Perf Map') {
+      this.perfMap(this.perfData);
     }
   }
-  largeMap(managerDataTypes: string[], managerData: {x: string; y: string; value: number; }[][], colourrange: string[]) {
+  perfMap(perfData: { name: string; performance: number[]; hold: boolean[]; }[]) {
+    const margin = { top: 110, right: 10, bottom: 30, left: 90 },
+      width = 1000 - margin.left - margin.right,
+      height = 1500 - margin.top - margin.bottom,
+      svg = d3.select('app-heatmap').append('svg');
+      if (this.viewbox) {
+        svg.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
+      } else {
+        svg.attr('width', width + margin.left + margin.right);
+        svg.attr('height', height + margin.top + margin.bottom);
+      }
+
+    perfData.forEach((d, iperf) => {
+      const perf: { name: string; performance: number; hold: boolean }[] = [];
+      d.hold.forEach((dd, i) => {
+        const perfi = { name: d.name, hold: d.hold[i], performance: d.performance[i] };
+        perf.push(perfi);
+      });
+      const perfS = svg.selectAll('perfs').data(perf).enter(), numberPerfs = Math.max(10, perfData.length);
+      perfS.append('rect')
+        .attr('x', (perfi, i) => width * i / perf.length)
+        .attr('y', () => height * iperf / numberPerfs)
+        .attr('height', height / numberPerfs)
+        .attr('width', width / perf.length)
+        .style('fill', (perfi) => perfi.performance > 0 ? 'green' : 'red')
+        .style('stroke', 'black')
+        .style('stroke-width', (perfi) => perfi.hold ? '4px' : '1px');
+    });
+  }
+  largeMap(managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourrange: string[]) {
     const margin = { top: 110, right: 10, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
@@ -274,12 +305,12 @@ export class HeatmapComponent implements OnInit {
         .on('click', () => clicker(managerData[0], -1));
     clicker(managerData[0], -1);
   }
-  setPad() {
+  setPad() { // Set up the small heatmap data for zeros or no zeros
     this.pad = !this.pad;
     this.padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
     this.ngOnInit();
   }
-  setTrans() {
+  setTrans() { // Set up data the other way round
     this.transpose = !this.transpose;
     this.ngOnInit();
   }
