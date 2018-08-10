@@ -81,7 +81,7 @@ export class HeatmapComponent implements OnInit {
         }
       });
       this.buttonName = this.squares ? 'Circles' : 'Squares';
-      this.setUp(this.managerX, this.managerY, this.managerPlot, this.colourrange);
+      this.heatMaps(this.managerX, this.managerY, this.managerPlot, this.colourrange, this.squares);
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap(this.myData.managerDataTypes, this.myData.managerData, this.colourrange);
     }
@@ -288,9 +288,9 @@ export class HeatmapComponent implements OnInit {
     this.buttonName = this.squares ? 'Circles' : 'Squares';
     this.ngOnInit();
   }
-  setUp(xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[], colourrange: string[]) {
-    const squares = this.squares,
-      transpose = this.transpose,
+  heatMaps(xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
+     colourrange: string[], squares: boolean) {
+    const transpose = this.transpose,
       labelsXY = { x: [' '], y: [' '] }, heatData: { x: number, y: number, value: number }[] = [];
     if (transpose) {
       labelsXY.x = yLabels;
