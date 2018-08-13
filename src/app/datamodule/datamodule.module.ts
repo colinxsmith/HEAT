@@ -1,4 +1,30 @@
 export class DatamoduleModule {
+  radarData = [
+    [
+      { axis: 'UK Gilt LongShort Yield Spread', value: '0.0000' },
+      { axis: 'IG CorpUST Yield Spread', value: '0' },
+      { axis: 'HY CorpUST Yield Spread', value: '0' },
+      { axis: 'EMUST Sov Yield Spread', value: '0.0000' },
+      { axis: 'Equity', value: '0.4850' },
+      { axis: 'RPI', value: '0' },
+      { axis: 'BoE Interest Rates', value: '0' },
+      { axis: 'VIX', value: '0' },
+      { axis: 'Oil', value: '0.0481' },
+      { axis: 'USD/GBP', value: '0' },
+    ],
+    [
+      { axis: 'UK Gilt LongShort Yield Spread', value: '0' },
+      { axis: 'IG CorpUST Yield Spread', value: '0.1315' },
+      { axis: 'HY CorpUST Yield Spread', value: '3.2694' },
+      { axis: 'EMUST Sov Yield Spread', value: '0' },
+      { axis: 'Equity', value: '0' },
+      { axis: 'RPI', value: '0' },
+      { axis: 'BoE Interest Rates', value: '0.9739' },
+      { axis: 'VIX', value: '0' },
+      { axis: 'Oil', value: '0' },
+      { axis: 'USD/GBP', value: '0.455' },
+    ]
+  ];
   perfMap = [{
     name: 'Apple',
     performance: [
