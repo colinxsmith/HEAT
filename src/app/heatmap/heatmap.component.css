@@ -68,3 +68,24 @@ text.axis-y {
     shape-rendering: crispEdges;
     fill: rgb(5, 247, 235);
 }
+text.perfM {
+    font-size: 20px;
+    font-family: Calibri, sans-serif;
+    fill: rgb(19, 18, 18);
+}
+rect.perfM {
+    stroke-width: 3px;
+    shape-rendering: crispEdges;
+    stroke: black;
+}
+rect.perfS {
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+    stroke: none;
+}
+rect.perfG {
+    fill: rgb(79, 233, 33)
+}
+rect.perfB {
+    fill: rgb(245, 38, 11)
+}

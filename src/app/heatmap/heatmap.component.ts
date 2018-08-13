@@ -2,6 +2,7 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
+import { PrefixNot } from '@angular/compiler';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
@@ -13,7 +14,7 @@ import { AppComponent } from '../app.component';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  plotFigure = ['Heat Map', 'Perf Map', 'Large Map'].reverse();
+  plotFigure = ['Heat Map', 'Large Map', 'Perf Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -90,15 +91,16 @@ export class HeatmapComponent implements OnInit {
   }
   perfMap(perfData: { name: string; performance: number[]; hold: boolean[]; }[]) {
     const margin = { top: 110, right: 10, bottom: 30, left: 90 },
-      width = 1000 - margin.left - margin.right,
-      height = 1500 - margin.top - margin.bottom,
-      svg = d3.select('app-heatmap').append('svg');
+      width = 2000 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom,
+      svgbase = d3.select('app-heatmap').append('svg');
       if (this.viewbox) {
-        svg.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
+        svgbase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
       } else {
-        svg.attr('width', width + margin.left + margin.right);
-        svg.attr('height', height + margin.top + margin.bottom);
+        svgbase.attr('width', width + margin.left + margin.right);
+        svgbase.attr('height', height + margin.top + margin.bottom);
       }
+      const svg = svgbase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
     perfData.forEach((d, iperf) => {
       const perf: { name: string; performance: number; hold: boolean }[] = [];
@@ -107,14 +109,32 @@ export class HeatmapComponent implements OnInit {
         perf.push(perfi);
       });
       const perfS = svg.selectAll('perfs').data(perf).enter(), numberPerfs = Math.max(10, perfData.length);
+      perfS.append('text')
+        .attr('class', 'perfM')
+        .attr('x', 0)
+        .attr('y', () => height * (iperf + 0.8) / numberPerfs)
+        .text((perfi) => perfi.name);
       perfS.append('rect')
-        .attr('x', (perfi, i) => width * i / perf.length)
+        .attr('x', (perfi, i) => width * (i + 10) / (perf.length + 10))
         .attr('y', () => height * iperf / numberPerfs)
         .attr('height', height / numberPerfs)
         .attr('width', width / perf.length)
-        .style('fill', (perfi) => perfi.performance > 0 ? 'green' : 'red')
-        .style('stroke', 'black')
-        .style('stroke-width', (perfi) => perfi.hold ? '4px' : '1px');
+        .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
+        .on('mouseover', (perfi , ii) => this.tooltip
+          .style('left', `${d3.event.pageX}px`)
+          .style('top', `${d3.event.pageY - 28}px`)
+          .style('opacity', 1)
+          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
+          ${ii + 1}<br>${perfi.hold ? 'hold' : ''}<br>${perfi.performance}`)
+        )
+        .on('mouseout', () => this.tooltip.style('opacity', 0));
+      perfS.append('rect')
+        .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
+        .attr('x', (perfi, i) => width * (i + 10) / (perf.length + 10))
+        .attr('y', () => height * iperf / numberPerfs)
+        .attr('height', height / numberPerfs)
+        .attr('width', width / perf.length)
+        .style('fill', 'none');
     });
   }
   largeMap(managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourrange: string[]) {

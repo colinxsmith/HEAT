@@ -26,7 +26,36 @@ export class DatamoduleModule {
       false, false, true, true, true, true, false, false, false, false, true, false, true, true, true, false, false, false, false,
       true, true, true, true, false, false, true, true, true, true, false, true, true, false, true, false
     ]
-  }];
+  },
+{
+  name: 'Barclays',
+  hold: [
+    false, true, false, true, false, true, false, true, true, false, true, true, false, false, true, false, true, true, true, true, true,
+    true, true, true, false, true, true, false, false, true, true, false, true, false, false, false, true, false, true, false, true, true,
+    true, false, true, false, true, true, true, true, false, true, true, true, false, false, true, false, false, true, true, false, false,
+    false, true, false, false, true, true, true, false, false, true, false, false, false, false, true, false, true, true, true, false, true,
+    true, false, false, false, false, false, false, false, false,
+    true, true, true, false, false, false, true, false, true, false, true, true,
+    true, false, false, false, false, false, true, true, false,
+    false, false, false, false, true, false, false, true, true,
+    false, true, false,
+    false, false, false, true, false, false, false, true, false,
+    true, false, false, true, true, false, true, false, false, false, true, true,
+    true, true, true],
+    performance: [
+    0.04415, 0.09340, -0.32172, 0.28430, 0.47993, 0.11010, -0.05828, -0.43332, 0.28520, -0.03492, -0.08633, 0.04390, -0.46929,
+    -0.35087, 0.14771, -0.29965, 0.27297, 0.29964, -0.43344, 0.13441, 0.41187, 0.24620, -0.09040, -0.34237, 0.46268, -0.18931,
+    0.20909, 0.29205, -0.32905, 0.30298, -0.35976, 0.38212, 0.45242, 0.06153, -0.16709, -0.23651, -0.03816, -0.41949, -0.24226,
+    -0.16670, -0.04824, -0.26836, 0.15902, 0.12525, -0.36699, -0.40403, 0.15841, 0.26372, -0.44720, 0.21264, -0.42731, 0.11258,
+    -0.01588, 0.19245, -0.40956, -0.02047, 0.06953, 0.38807, -0.12341, -0.06842, -0.44559, -0.30023, 0.20312, 0.31504, -0.32251,
+    0.13205, 0.36523, 0.17640, -0.28497, 0.00626, 0.35294, 0.28930, -0.41892, -0.28619, -0.38074, 0.28902, 0.44499, 0.13399, -0.32818,
+    0.17989, 0.48251, -0.12575, -0.35595, 0.23874, -0.27123, 0.44442, -0.16609, -0.32819, -0.00491, 0.21759, -0.18563, 0.09114,
+    -0.42082, -0.32963, 0.02247, -0.00656, -0.31553, 0.27732, -0.21141, 0.00514, -0.12531, -0.23302, -0.41840, -0.11666,
+    -0.17236, 0.04087, 0.37200, 0.21023, -0.32641, -0.41720, 0.20584, 0.16603, -0.31232, 0.49780, -0.08720, -0.04789,
+    -0.23126, 0.12665, -0.31592, 0.15093, 0.09564, -0.29762, 0.24220, -0.13711, -0.40326, 0.19755, -0.15651, -0.32169,
+    -0.40913, -0.38414, -0.14885, 0.38438, -0.05763, 0.03295, 0.38120, 0.19782, -0.45348, 0.49357, 0.01324, -0.29513,
+    -0.30999, 0.12433, 0.18097, -0.04115, 0.41505, -0.14475, -0.40436, -0.35406, -0.03883, 0.48446]
+}];
   managerDataTypes = ['Number Clients', 'Number BMIDs', '%BMID failed>1', 'Flags passed', 'Flags out with KE', 'Flags out no KE',
     '1-5 Days', '6-10 Days',
     '10 Days +', 'Volatility Out', 'non BL Out', 'MHW Out', 'T error Out', 'Sector Out', 'Portfolio Concentration Out', 'Commonality Out',
