@@ -90,9 +90,10 @@ export class HeatmapComponent implements OnInit {
     }
   }
   perfMap(perfData: { name: string; performance: number[]; hold: boolean[]; }[]) {
-    const margin = { top: 110, right: 10, bottom: 30, left: 90 },
-      width = 2000 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom,
+    // Performance data visual display
+    const margin = { top: 30, right: 90, bottom: 30, left: 90 },
+      width = 1000 - margin.left - margin.right,
+      height = 200 - margin.top - margin.bottom,
       svgbase = d3.select('app-heatmap').append('svg');
       if (this.viewbox) {
         svgbase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
@@ -125,7 +126,7 @@ export class HeatmapComponent implements OnInit {
           .style('top', `${d3.event.pageY - 28}px`)
           .style('opacity', 1)
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
-          ${ii + 1}<br>${perfi.hold ? 'hold' : ''}<br>${perfi.performance}`)
+          ${ii + 1}<br>${perfi.hold ? 'held' : ''}<br>${perfi.performance}`)
         )
         .on('mouseout', () => this.tooltip.style('opacity', 0));
       perfS.append('rect')

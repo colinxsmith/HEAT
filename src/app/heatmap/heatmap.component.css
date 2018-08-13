@@ -69,19 +69,21 @@ text.axis-y {
     fill: rgb(5, 247, 235);
 }
 text.perfM {
-    font-size: 20px;
+    font-size: 12.5px;
+    font-weight: lighter;
     font-family: Calibri, sans-serif;
-    fill: rgb(19, 18, 18);
+    stroke: rgb(19, 18, 18);
+    stroke-width: 0px;
 }
 rect.perfM {
-    stroke-width: 3px;
+    stroke-width: 1.5px;
     shape-rendering: crispEdges;
-    stroke: black;
+    stroke: rgb(136, 6, 6);
 }
 rect.perfS {
-    stroke-width: 1px;
+    stroke-width: 0.5px;
     shape-rendering: crispEdges;
-    stroke: none;
+    stroke: rgb(136, 6, 6);
 }
 rect.perfG {
     fill: rgb(79, 233, 33)
