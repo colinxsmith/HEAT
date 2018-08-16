@@ -97,7 +97,7 @@ export class HeatmapComponent implements OnInit {
         , width = Math.min(700, 950 - 10) - margin.left - margin.right
         , height = Math.min(width, 950 - margin.top - margin.bottom - 20);
 
-      const colour = d3.scaleOrdinal().range(['orange', 'blue']);
+      const colour = d3.scaleOrdinal<number, string>().range(['orange', 'blue']).domain([0, 1]);
 
       const radarChartOptions = {
         w: width,
@@ -522,7 +522,7 @@ export class HeatmapComponent implements OnInit {
   RadarChart(id: string, data: { axis: string; value: number; }[][], options: {
     w: number; h: number;
     margin: { top: number; right: number; bottom: number; left: number; };
-    maxValue: number; levels: number; roundStrokes: boolean; color: d3.ScaleOrdinal<string, {}>;
+    maxValue: number; levels: number; roundStrokes: boolean; color: d3.ScaleOrdinal<number, string>;
   }) {
     const cfg = {
       w: 600,				// Width of the circle
