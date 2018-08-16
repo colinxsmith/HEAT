@@ -546,9 +546,9 @@ export class HeatmapComponent implements OnInit {
       }
     }
 
-    const maxValue = Math.max(cfg.maxValue, +d3.max(data, function (i) { return d3.max(i.map(function (o) { return o.value; })); }));
+    const maxValue = Math.max(cfg.maxValue, +d3.max(data, (i) => d3.max(i.map((o) => o.value ))));
 
-    const allAxis = (data[0].map(function (i, j) { return i.axis; })),	// Names of each axis
+    const allAxis = (data[0].map((i) => i.axis)),	// Names of each axis
       total = allAxis.length,					// The number of different axes
       radius = Math.min(cfg.w / 2, cfg.h / 2), 	// Radius of the outermost circle
       Format = d3.format('.0%'),			 	// Percentage formatting
@@ -560,6 +560,30 @@ export class HeatmapComponent implements OnInit {
 
     d3.select(id).select('svg').remove();
 
+
+    const wrap = (text1, width) => {
+      text1.each((kk, i, j) => {
+        const text = d3.select(j[i]),
+          words = text.text().split(/\s+/).reverse(),
+          lineHeight = 1.4, // ems
+          y = text.attr('y'),
+          x = text.attr('x'),
+          dy = parseFloat(text.attr('dy'));
+        let word, line = [],
+          lineNumber = 0,
+          tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('dy', dy + 'em');
+        while (word = words.pop()) {
+          line.push(word);
+          tspan.text(line.join(' '));
+          if ((<SVGTSpanElement>tspan.node()).getComputedTextLength() > width) {
+            line.pop();
+            tspan.text(line.join(' '));
+            line = [word];
+            tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
+          }
+        }
+      });
+    };
 
     const svg = d3.select(id).append('svg');
 
@@ -589,7 +613,7 @@ export class HeatmapComponent implements OnInit {
       .enter()
       .append('circle')
       .attr('class', 'gridCircle')
-      .attr('r', function (d, i) { return radius / cfg.levels * d; })
+      .attr('r', (d, i) => radius / cfg.levels * d)
       .style('fill', '#CDCDCD')
       .style('stroke', '#CDCDCD')
       .style('fill-opacity', cfg.opacityCircles)
@@ -600,11 +624,11 @@ export class HeatmapComponent implements OnInit {
       .enter().append('text')
       .attr('class', 'axisLabel')
       .attr('x', 4)
-      .attr('y', function (d) { return -d * radius / cfg.levels; })
+      .attr('y', (d) => -d * radius / cfg.levels)
       .attr('dy', '0.4em')
       .style('font-size', '10px')
       .attr('fill', '#737373')
-      .text(function (d, i) { return Format(maxValue * d / cfg.levels); });
+      .text((d, i) => Format(maxValue * d / cfg.levels));
 
 
     const axis = axisGrid.selectAll('.axis')
@@ -621,8 +645,8 @@ export class HeatmapComponent implements OnInit {
       .transition()
       .ease(d3.easeBounce)
       .duration(2000)
-      .attr('x2', function (d, i) { return rScale(maxValue * 1.1) * Math.cos(angleSlice * i - Math.PI / 2); })
-      .attr('y2', function (d, i) { return rScale(maxValue * 1.1) * Math.sin(angleSlice * i - Math.PI / 2); })
+      .attr('x2', (d, i) => rScale(maxValue * 1.1) * Math.cos(angleSlice * i - Math.PI / 2))
+      .attr('y2', (d, i) => rScale(maxValue * 1.1) * Math.sin(angleSlice * i - Math.PI / 2))
       .attr('class', 'line')
       .style('stroke', 'white')
       .style('stroke-width', '2px');
@@ -632,9 +656,9 @@ export class HeatmapComponent implements OnInit {
       .style('font-size', '11px')
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em')
-      .attr('x', function (d, i) { return rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice * i - Math.PI / 2); })
-      .attr('y', function (d, i) { return rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice * i - Math.PI / 2); })
-      .text(function (d) { return d; })
+      .attr('x', (d, i) => rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice * i - Math.PI / 2))
+      .attr('y', (d, i) => rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice * i - Math.PI / 2))
+      .text((d) => d)
       .call(wrap, cfg.wrapWidth);
 
     const radarLine = d3.lineRadial()
@@ -648,7 +672,7 @@ export class HeatmapComponent implements OnInit {
     const blobWrapper = g.selectAll('.radarWrapper')
       .data(data)
       .enter().append('g')
-      .attr('data-index', function (d, i) { return i; })
+      .attr('data-index', (d, i) => i)
       .attr('class', 'radarWrapper');
 
     blobWrapper
@@ -657,7 +681,7 @@ export class HeatmapComponent implements OnInit {
       .attr('d', (d: any, i) => radarLine(d))
       .style('fill', (d, i) => cfg.color(i))
       .style('fill-opacity', cfg.opacityArea)
-      .on('mouseover', function (d, i, jj) {
+      .on('mouseover', (d, i, jj) => {
         // Dim all blobs
         d3.selectAll('.radarArea')
           .transition().duration(200)
@@ -667,12 +691,10 @@ export class HeatmapComponent implements OnInit {
           .transition().duration(200)
           .style('fill-opacity', 0.7);
       })
-      .on('mouseout', function () {
-        // Bring back all blobs
-        d3.selectAll('.radarArea')
+      .on('mouseout', () => d3.selectAll('.radarArea')
           .transition().duration(200)
-          .style('fill-opacity', cfg.opacityArea);
-      });
+          .style('fill-opacity', cfg.opacityArea)
+      );
 
     blobWrapper.append('path')
       .attr('class', 'radarStroke')
@@ -687,13 +709,13 @@ export class HeatmapComponent implements OnInit {
       .style('filter', 'url(#glow)');
 
     blobWrapper.selectAll('.radarCircle')
-      .data(function (d, i) { return d; })
+      .data((d) => d)
       .enter().append('circle')
       .attr('class', 'radarCircle')
       .attr('r', cfg.dotRadius)
-      .attr('cx', function (d, i) { return rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2); })
-      .attr('cy', function (d, i) { return rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2); })
-      .style('fill', function (d, i, j) {
+      .attr('cx', (d, i) => rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2))
+      .attr('cy', (d, i) => rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2))
+      .style('fill', (d, i, j) => {
         const parentStuff = d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode);
         return cfg.color(+parentStuff.attr('data-index'));
       })
@@ -701,16 +723,16 @@ export class HeatmapComponent implements OnInit {
     const blobCircleWrapper = g.selectAll('.radarCircleWrapper')
       .data(data)
       .enter().append('g')
-      .attr('data-index', function (d, i) { return i; })
+      .attr('data-index', (d, i) => i)
       .attr('class', 'radarCircleWrapper');
 
     blobCircleWrapper.selectAll('.radarInvisibleCircle')
-      .data(function (d, i) { return d; })
+      .data((d) => d)
       .enter().append('circle')
       .attr('class', 'radarInvisibleCircle')
       .attr('r', cfg.dotRadius * 1.1)
-      .attr('cx', function (d, i) { return rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2); })
-      .attr('cy', function (d, i) { return rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2); })
+      .attr('cx', (d, i) => rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2))
+      .attr('cy', (d, i) => rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2))
       .style('fill', (d, i, j) => {
         const parentStuff = d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode);
         return cfg.color(+parentStuff.attr('data-index'));
@@ -734,31 +756,6 @@ export class HeatmapComponent implements OnInit {
       .style('opacity', 0);
 
 
-
-    function wrap(text1, width) {
-      text1.each(function () {
-
-        const text = d3.select(this),
-          words = text.text().split(/\s+/).reverse(),
-          lineHeight = 1.4, // ems
-          y = text.attr('y'),
-          x = text.attr('x'),
-          dy = parseFloat(text.attr('dy'));
-        let word, line = [],
-          lineNumber = 0,
-          tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('dy', dy + 'em');
-        while (word = words.pop()) {
-          line.push(word);
-          tspan.text(line.join(' '));
-          if ((<SVGTSpanElement>tspan.node()).getComputedTextLength() > width) {
-            line.pop();
-            tspan.text(line.join(' '));
-            line = [word];
-            tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
-          }
-        }
-      });
-    }
 
   }
 }
