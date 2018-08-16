@@ -14,7 +14,7 @@ circle.bordered {
 text.legend {
     font-size: 7px;
     font-family: fontawesome;
-    fill: rgb(8, 211, 8);
+    fill: #333333;
 }
 
 text.datavals {

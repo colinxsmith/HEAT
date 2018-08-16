@@ -94,10 +94,10 @@ export class HeatmapComponent implements OnInit {
         bottom: 100,
         left: 100
       }
-        , width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right
-        , height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
+        , width = Math.min(700, 950 - 10) - margin.left - margin.right
+        , height = Math.min(width, 950 - margin.top - margin.bottom - 20);
 
-      const colour = d3.scaleOrdinal().range(['grey', 'blue']);
+      const colour = d3.scaleOrdinal().range(['orange', 'blue']);
 
       const radarChartOptions = {
         w: width,
@@ -206,7 +206,6 @@ export class HeatmapComponent implements OnInit {
       .style('text-anchor', 'end')
       .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-40)`)
       .attr('class', 'axis-y');
-    console.log(iOffice);
     const YOfficeGroups = svg.selectAll('.yLabel1')
       .data(managerData[0])
       .enter().append('text')
@@ -375,7 +374,6 @@ export class HeatmapComponent implements OnInit {
       labelsXY.y = yLabels;
     }
     let buckets = labelsXY.x.length, legendSize = 50;
-    console.log('Number of buckets ' + buckets);
     const margin = { top: transpose ? 30 : 60, right: 0, bottom: 10, left: 130 },
       width = 1000 - margin.left - margin.right,
       height = 1000 - margin.top - margin.bottom - legendSize,
@@ -563,11 +561,16 @@ export class HeatmapComponent implements OnInit {
     d3.select(id).select('svg').remove();
 
 
-    const svg = d3.select(id).append('svg')
-      .attr('width', cfg.w + cfg.margin.left + cfg.margin.right)
-      .attr('height', cfg.h + cfg.margin.top + cfg.margin.bottom)
-      .attr('class', 'radar' + id);
+    const svg = d3.select(id).append('svg');
 
+    if (this.viewbox) {
+      svg.attr('viewBox', `0 0 ${cfg.w + cfg.margin.left + cfg.margin.right} ${cfg.h + cfg.margin.top + cfg.margin.bottom}`);
+    } else {
+      svg
+        .attr('width', cfg.w + cfg.margin.left + cfg.margin.right)
+        .attr('height', cfg.h + cfg.margin.top + cfg.margin.bottom)
+        .attr('class', 'radar' + id);
+    }
     const g = svg.append('g')
       .attr('transform', 'translate(' + (cfg.w / 2 + cfg.margin.left) + ',' + (cfg.h / 2 + cfg.margin.top) + ')');
 
@@ -691,8 +694,8 @@ export class HeatmapComponent implements OnInit {
       .attr('cx', function (d, i) { return rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2); })
       .attr('cy', function (d, i) { return rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2); })
       .style('fill', function (d, i, j) {
-        const jj = +d3.select(j[i].parentNode).attr('data-index');
-        return cfg.color(jj);
+        const parentStuff = d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode);
+        return cfg.color(+parentStuff.attr('data-index'));
       })
       .style('fill-opacity', 0.8);
     const blobCircleWrapper = g.selectAll('.radarCircleWrapper')
@@ -708,29 +711,28 @@ export class HeatmapComponent implements OnInit {
       .attr('r', cfg.dotRadius * 1.1)
       .attr('cx', function (d, i) { return rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2); })
       .attr('cy', function (d, i) { return rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2); })
-      .style('fill', function (d, i, j) {
-        const jj = +d3.select(( j[i] ).parentNode).attr('data-index');
-        return cfg.color(jj);
+      .style('fill', (d, i, j) => {
+        const parentStuff = d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode);
+        return cfg.color(+parentStuff.attr('data-index'));
       })
       .style('pointer-events', 'all')
-      .on('mouseover', function (d, i, j) {
+      .on('mouseover', (d, i, j) => {
         const newX = parseFloat(d3.select(j[i]).attr('cx')) - 10,
           newY = parseFloat(d3.select(j[i]).attr('cy')) - 10,
           fill = d3.select(j[i]).style('fill');
-          console.log(d.value);
         tooltip
           .attr('x', newX)
           .attr('y', newY)
-          .html(Format(+d.value))
+          .text(Format(+d.value))
           .transition().duration(200)
           .style('fill', fill)
           .style('opacity', 1);
       })
-      .on('mouseout', function () {
-        tooltip.transition().duration(200)
-          .style('opacity', 0);
-      });
-    const tooltip = this.tooltip;
+      .on('mouseout', () => tooltip.transition().duration(200).style('opacity', 0));
+    const tooltip = g.append('text') // Local tooltip
+      .attr('class', 'tooltip')
+      .style('opacity', 0);
+
 
 
     function wrap(text1, width) {
@@ -748,13 +750,12 @@ export class HeatmapComponent implements OnInit {
         while (word = words.pop()) {
           line.push(word);
           tspan.text(line.join(' '));
-console.log(tspan.node());
-          /*      if (tspan.node().getComputedTextLength() > width) {
-                  line.pop();
-                  tspan.text(line.join(' '));
-                  line = [word];
-                  tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
-                }*/
+          if ((<SVGTSpanElement>tspan.node()).getComputedTextLength() > width) {
+            line.pop();
+            tspan.text(line.join(' '));
+            line = [word];
+            tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
+          }
         }
       });
     }
