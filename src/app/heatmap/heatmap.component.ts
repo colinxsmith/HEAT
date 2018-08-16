@@ -561,7 +561,7 @@ export class HeatmapComponent implements OnInit {
     d3.select(id).select('svg').remove();
 
 
-    const wrap = (text1, width) => {
+    const wrap = (text1, width) =>
       text1.each((kk, i, j) => {
         const text = d3.select(j[i]),
           words = text.text().split(/\s+/).reverse(),
@@ -583,12 +583,12 @@ export class HeatmapComponent implements OnInit {
           }
         }
       });
-    };
 
     const svg = d3.select(id).append('svg');
 
     if (this.viewbox) {
-      svg.attr('viewBox', `0 0 ${cfg.w + cfg.margin.left + cfg.margin.right} ${cfg.h + cfg.margin.top + cfg.margin.bottom}`);
+      svg.attr('viewBox', `0 0 ${cfg.w + cfg.margin.left + cfg.margin.right} ${cfg.h + cfg.margin.top + cfg.margin.bottom}`)
+        .attr('class', 'radar' + id);
     } else {
       svg
         .attr('width', cfg.w + cfg.margin.left + cfg.margin.right)
