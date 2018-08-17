@@ -14,7 +14,7 @@ circle.bordered {
 text.legend {
     font-size: 7px;
     font-family: fontawesome;
-    fill: #333333;
+    fill: rgb(8, 211, 8);
 }
 
 text.datavals {
@@ -90,4 +90,23 @@ rect.perfG {
 }
 rect.perfB {
     fill: rgb(245, 38, 11)
+}
+text.tooltipRadar{
+    font-size: 11px;
+    font-family: Calibri, sans-serif;
+}
+text.legendRadar{
+    font-size: 14px;
+    font-family: Calibri, sans-serif;
+    fill: #333333;
+    text-anchor: middle;
+    text-align: left;
+}
+text.axisRadar{
+    font-size: 13px;
+    font-stretch: expanded;
+    font-family: Calibri, sans-serif;
+    fill: #737373;
+    text-anchor:start;
+    text-align: center;
 }

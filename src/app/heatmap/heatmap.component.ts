@@ -622,12 +622,10 @@ export class HeatmapComponent implements OnInit {
     axisGrid.selectAll('.axisLabel')
       .data(d3.range(1, (cfg.levels + 1)).reverse())
       .enter().append('text')
-      .attr('class', 'axisLabel')
+      .attr('class', 'axisRadar')
       .attr('x', 4)
       .attr('y', (d) => -d * radius / cfg.levels)
       .attr('dy', '0.4em')
-      .style('font-size', '10px')
-      .attr('fill', '#737373')
       .text((d, i) => Format(maxValue * d / cfg.levels));
 
 
@@ -652,9 +650,7 @@ export class HeatmapComponent implements OnInit {
       .style('stroke-width', '2px');
 
     axis.append('text')
-      .attr('class', 'legend')
-      .style('font-size', '11px')
-      .attr('text-anchor', 'middle')
+      .attr('class', 'legendRadar')
       .attr('dy', '0.35em')
       .attr('x', (d, i) => rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice * i - Math.PI / 2))
       .attr('y', (d, i) => rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice * i - Math.PI / 2))
@@ -663,7 +659,7 @@ export class HeatmapComponent implements OnInit {
 
     const radarLine = d3.lineRadial()
       .curve(d3.curveLinearClosed)
-      .radius((d: any) => rScale(d.value))
+      .radius( (d: any) => rScale(d.value))
       .angle((d, i) => i * angleSlice);
 
     if (cfg.roundStrokes) {
@@ -742,7 +738,7 @@ export class HeatmapComponent implements OnInit {
         const newX = parseFloat(d3.select(j[i]).attr('cx')) - 10,
           newY = parseFloat(d3.select(j[i]).attr('cy')) - 10,
           fill = d3.select(j[i]).style('fill');
-        tooltip
+          localTiptool
           .attr('x', newX)
           .attr('y', newY)
           .text(Format(+d.value))
@@ -750,12 +746,9 @@ export class HeatmapComponent implements OnInit {
           .style('fill', fill)
           .style('opacity', 1);
       })
-      .on('mouseout', () => tooltip.transition().duration(200).style('opacity', 0));
-    const tooltip = g.append('text') // Local tooltip
-      .attr('class', 'tooltip')
+      .on('mouseout', () => localTiptool.transition().duration(200).style('opacity', 0));
+    const localTiptool = g.append('text')
+      .attr('class', 'tooltipRadar')
       .style('opacity', 0);
-
-
-
   }
 }
