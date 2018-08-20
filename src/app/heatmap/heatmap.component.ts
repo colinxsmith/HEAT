@@ -533,7 +533,7 @@ export class HeatmapComponent implements OnInit {
       labelFactor: 1.25, 	// How much farther than the radius of the outer circle should the labels be placed
       wrapWidth: 60, 		// The number of pixels after which a label needs to be given a new line
       opacityArea: 0.35, 	// The opacity of the area of the blob
-      dotRadius: 4, 			// The size of the colored circles of each blog
+      dotRadius: 3, 			// The size of the colored circles of each blog
       opacityCircles: 0.1, 	// The opacity of the circles of each blob
       strokeWidth: 2, 		// The width of the stroke around each blob
       roundStrokes: false,	// If true the area and stroke will follow a round path (cardinal-closed)
@@ -711,10 +711,7 @@ export class HeatmapComponent implements OnInit {
       .attr('r', cfg.dotRadius)
       .attr('cx', (d, i) => rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2))
       .attr('cy', (d, i) => rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2))
-      .style('fill', (d, i, j) => {
-        const parentStuff = d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode);
-        return cfg.color(+parentStuff.attr('data-index'));
-      })
+      .style('fill', (d, i, j) => cfg.color(+(d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode).attr('data-index'))))
       .style('fill-opacity', 0.8);
     const blobCircleWrapper = g.selectAll('.radarCircleWrapper')
       .data(data)
@@ -729,11 +726,9 @@ export class HeatmapComponent implements OnInit {
       .attr('r', cfg.dotRadius * 1.1)
       .attr('cx', (d, i) => rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2))
       .attr('cy', (d, i) => rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2))
-      .style('fill', (d, i, j) => {
-        const parentStuff = d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode);
-        return cfg.color(+parentStuff.attr('data-index'));
-      })
+      .style('fill', (d, i, j) => cfg.color(+(d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode).attr('data-index'))))
       .style('pointer-events', 'all')
+      .style('opacity', 0)
       .on('mouseover', (d, i, j) => {
         const newX = parseFloat(d3.select(j[i]).attr('cx')) - 10,
           newY = parseFloat(d3.select(j[i]).attr('cy')) - 10,
