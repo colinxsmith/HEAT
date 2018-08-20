@@ -116,8 +116,45 @@ export class HeatmapComponent implements OnInit {
     // Performance data visual display
     const margin = { top: 30, right: 90, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
-      height = 200 - margin.top - margin.bottom,
-      svgbase = d3.select('app-heatmap').append('svg');
+      height = 500 - margin.top - margin.bottom,
+      svgbase = d3.select('app-heatmap').append('svg'), spacer = 5,
+      gradientG = svgbase.append('linearGradient')
+        .attr('id', 'gradG')
+        .attr('x1', '0%')
+        .attr('y1', '0%')
+        .attr('x2', '100%')
+        .attr('y2', '100%'),
+        gradientR = svgbase.append('linearGradient')
+        .attr('id', 'gradR')
+        .attr('x1', '0%')
+        .attr('y1', '0%')
+        .attr('x2', '100%')
+        .attr('y2', '100%');
+        gradientG.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', 'rgb(144, 238, 144)')
+      .attr('stop-opacity', 1);
+    gradientG.append('stop')
+      .attr('offset', '30%')
+      .attr('stop-color', 'rgb(85, 255, 93)')
+      .attr('stop-opacity', 0.5);
+    gradientG.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', 'rgb(0, 128, 0)')
+      .attr('stop-opacity', 1);
+
+    gradientR.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', 'rgb(238, 144, 144)')
+      .attr('stop-opacity', 1);
+    gradientR.append('stop')
+      .attr('offset', '30%')
+      .attr('stop-color', 'rgb(255, 85, 93)')
+      .attr('stop-opacity', 0.5);
+    gradientR.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', 'rgb(128, 0, 0)')
+      .attr('stop-opacity', 1);
     if (this.viewbox) {
       svgbase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
     } else {
@@ -137,12 +174,12 @@ export class HeatmapComponent implements OnInit {
       perfS.append('text')
         .attr('class', 'perfM')
         .attr('x', 0)
-        .attr('y', () => height * (iperf + 0.8) / numberPerfs)
+        .attr('y', () => (height - spacer * numberPerfs) * (iperf + 0.5) / numberPerfs + spacer * (iperf - 1))
         .text((perfi) => perfi.name);
       perfS.append('rect')
         .attr('x', (perfi, i) => width * (i + 10) / (perf.length + 10))
-        .attr('y', () => height * iperf / numberPerfs)
-        .attr('height', height / numberPerfs)
+        .attr('y', () => (height - spacer * numberPerfs) * iperf / numberPerfs + spacer * (iperf - 1))
+        .attr('height', (height - spacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
         .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
         .on('mouseover', (perfi, ii) => this.tooltip
@@ -156,8 +193,8 @@ export class HeatmapComponent implements OnInit {
       perfS.append('rect')
         .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
         .attr('x', (perfi, i) => width * (i + 10) / (perf.length + 10))
-        .attr('y', () => height * iperf / numberPerfs)
-        .attr('height', height / numberPerfs)
+        .attr('y', () => (height - spacer * numberPerfs) * iperf / numberPerfs + spacer * (iperf - 1))
+        .attr('height', (height - spacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
         .style('fill', 'none');
     });
@@ -547,7 +584,7 @@ export class HeatmapComponent implements OnInit {
       }
     }
 
-    const maxValue = Math.max(cfg.maxValue, +d3.max(data, (i) => d3.max(i.map((o) => o.value ))));
+    const maxValue = Math.max(cfg.maxValue, +d3.max(data, (i) => d3.max(i.map((o) => o.value))));
 
     const allAxis = (data[0].map((i) => i.axis)),	// Names of each axis
       total = allAxis.length,					// The number of different axes
@@ -656,7 +693,7 @@ export class HeatmapComponent implements OnInit {
 
     const radarLine = d3.lineRadial()
       .curve(d3.curveLinearClosed)
-      .radius( (d: any) => rScale(d.value))
+      .radius((d: any) => rScale(d.value))
       .angle((d, i) => i * angleSlice);
 
     if (cfg.roundStrokes) {
@@ -685,8 +722,8 @@ export class HeatmapComponent implements OnInit {
           .style('fill-opacity', 0.7);
       })
       .on('mouseout', () => d3.selectAll('.radarArea')
-          .transition().duration(200)
-          .style('fill-opacity', cfg.opacityArea)
+        .transition().duration(200)
+        .style('fill-opacity', cfg.opacityArea)
       );
 
     blobWrapper.append('path')
@@ -725,7 +762,6 @@ export class HeatmapComponent implements OnInit {
       .attr('cy', (d, i) => rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2))
       .style('fill', (d, i, j) => cfg.color(+(d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode).attr('data-index'))))
       .style('pointer-events', 'all')
-      .style('opacity', 0)
       .on('mouseover', (d, i, j) => {
         const newX = parseFloat(d3.select(j[i]).attr('cx')) - 10,
           newY = parseFloat(d3.select(j[i]).attr('cy')) - 10,
@@ -733,12 +769,13 @@ export class HeatmapComponent implements OnInit {
         localTiptool
           .attr('x', newX)
           .attr('y', newY)
+          .style('fill', 'none')
+          .style('opacity', 1)
           .text(Format(+d.value))
           .transition().duration(200)
-          .style('fill', fill)
-          .style('opacity', 1);
+          .style('fill', fill);
       })
-      .on('mouseout', () => localTiptool.transition().duration(200).style('opacity', 0));
+      .on('mouseout', () => localTiptool.transition().duration(200).style('fill', 'none'));
     const localTiptool = g.append('text')
       .attr('class', 'tooltipRadar')
       .style('opacity', 0);

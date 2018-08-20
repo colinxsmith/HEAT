@@ -76,7 +76,7 @@ text.perfM {
     stroke-width: 0px;
 }
 rect.perfM {
-    stroke-width: 1.5px;
+    stroke-width: 2px;
     shape-rendering: crispEdges;
     stroke: rgb(136, 6, 6);
 }
@@ -86,10 +86,10 @@ rect.perfS {
     stroke: rgb(136, 6, 6);
 }
 rect.perfG {
-    fill: rgb(79, 233, 33)
+    fill: url(#gradG);
 }
 rect.perfB {
-    fill: rgb(245, 38, 11)
+    fill:url(#gradR);
 }
 text.tooltipRadar{
     font-size: 11px;
