@@ -126,6 +126,7 @@ export class HeatmapComponent implements OnInit {
     }
     const svg = svgbase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
+
     perfData.forEach((d, iperf) => {
       const perf: { name: string; performance: number; hold: boolean }[] = [];
       d.hold.forEach((dd, i) => {
@@ -149,7 +150,7 @@ export class HeatmapComponent implements OnInit {
           .style('top', `${d3.event.pageY - 28}px`)
           .style('opacity', 1)
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
-          ${ii + 1}<br>${perfi.hold ? 'held' : ''}<br>${perfi.performance}`)
+          ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}${perfi.performance}`)
         )
         .on('mouseout', () => this.tooltip.style('opacity', 0));
       perfS.append('rect')
@@ -596,17 +597,13 @@ export class HeatmapComponent implements OnInit {
         .attr('class', 'radar' + id);
     }
     const g = svg.append('g')
-      .attr('transform', 'translate(' + (cfg.w / 2 + cfg.margin.left) + ',' + (cfg.h / 2 + cfg.margin.top) + ')');
-
-
-    const filter = g.append('defs').append('filter').attr('id', 'glow'),
+      .attr('transform', 'translate(' + (cfg.w / 2 + cfg.margin.left) + ',' + (cfg.h / 2 + cfg.margin.top) + ')'),
+      filter = g.append('defs').append('filter').attr('id', 'glow'),
       feGaussianBlur = filter.append('feGaussianBlur').attr('stdDeviation', '2.5').attr('result', 'coloredBlur'),
       feMerge = filter.append('feMerge'),
       feMergeNode_1 = feMerge.append('feMergeNode').attr('in', 'coloredBlur'),
-      feMergeNode_2 = feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
-
-
-    const axisGrid = g.append('g').attr('class', 'axisWrapper');
+      feMergeNode_2 = feMerge.append('feMergeNode').attr('in', 'SourceGraphic'),
+      axisGrid = g.append('g').attr('class', 'axisWrapper');
 
     axisGrid.selectAll('.levels')
       .data(d3.range(1, (cfg.levels + 1)).reverse())
@@ -733,7 +730,7 @@ export class HeatmapComponent implements OnInit {
         const newX = parseFloat(d3.select(j[i]).attr('cx')) - 10,
           newY = parseFloat(d3.select(j[i]).attr('cy')) - 10,
           fill = d3.select(j[i]).style('fill');
-          localTiptool
+        localTiptool
           .attr('x', newX)
           .attr('y', newY)
           .text(Format(+d.value))
