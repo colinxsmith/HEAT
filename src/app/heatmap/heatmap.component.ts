@@ -31,26 +31,26 @@ export class HeatmapComponent implements OnInit {
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
   wrap = (text1, width, lineHeight) =>
-  text1.each((kk, i, j) => {
-    const text = d3.select(j[i]),
-      words = text.text().split(/\s+/).reverse(),
-      y = text.attr('y'),
-      x = text.attr('x'),
-      dy = parseFloat(text.attr('dy'));
-    let word, line = [],
-      lineNumber = 0,
-      tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('dy', dy + 'em');
-    while (word = words.pop()) {
-      line.push(word);
-      tspan.text(line.join(' '));
-      if ((<SVGTSpanElement>tspan.node()).getComputedTextLength() > width) {
-        line.pop();
+    text1.each((kk, i, j) => {
+      const text = d3.select(j[i]),
+        words = text.text().split(/\s+/).reverse(),
+        y = text.attr('y'),
+        x = text.attr('x'),
+        dy = parseFloat(text.attr('dy'));
+      let word, line = [],
+        lineNumber = 0,
+        tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('dy', dy + 'em');
+      while (word = words.pop()) {
+        line.push(word);
         tspan.text(line.join(' '));
-        line = [word];
-        tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
+        if ((<SVGTSpanElement>tspan.node()).getComputedTextLength() > width) {
+          line.pop();
+          tspan.text(line.join(' '));
+          line = [word];
+          tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
+        }
       }
-    }
-  })
+    })
 
   // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
   constructor() {
