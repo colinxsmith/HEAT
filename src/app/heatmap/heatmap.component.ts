@@ -196,7 +196,7 @@ export class HeatmapComponent implements OnInit {
         .call(this.wrap, 60, 0.9);
       perfS.append('rect')
         .attr('x', (perfi, i) => width * (i + textspace) / (perf.length + textspace))
-        .attr('y', (perfi, i) => Math.sin(width * i / (perf.length + textspace)) * height * 0.005
+        .attr('y', (perfi, i) => Math.sin(width * i / (perf.length + textspace)) * height * 0.003
         + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
         .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
@@ -214,7 +214,7 @@ export class HeatmapComponent implements OnInit {
         .attr('rx', (perfi) => perfi.hold ? '2' : '0')
         .attr('ry', (perfi) => perfi.hold ? '2' : '0')
         .attr('x', (perfi, i) => width * (i + textspace) / (perf.length + textspace))
-        .attr('y',  (perfi, i) => Math.sin(width * i / (perf.length + textspace)) * height * 0.005
+        .attr('y',  (perfi, i) => Math.sin(width * i / (perf.length + textspace)) * height * 0.003
         + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
         .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
