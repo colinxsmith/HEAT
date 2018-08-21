@@ -89,7 +89,7 @@ rect.perfG {
     fill: url(#gradG);
 }
 rect.perfB {
-    fill:url(#gradR);
+    fill: url(#gradR);
 }
 text.tooltipRadar{
     font-size: 11px;
