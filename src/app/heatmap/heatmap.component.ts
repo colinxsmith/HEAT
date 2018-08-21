@@ -510,6 +510,8 @@ export class HeatmapComponent implements OnInit {
           painKiller = gridDistribution.enter().append('rect')
             .attr('x', (d) => Math.min(d.y * gridSize, Math.random() * width))
             .attr('y', (d) => Math.min(d.x * gridSize, Math.random() * height))
+            .attr('rx', 20)
+            .attr('ry', 20)
             .attr('width', gridSize)
             .attr('height', gridSize);
         }
@@ -529,6 +531,8 @@ export class HeatmapComponent implements OnInit {
           .attr('y', (d) => (d.y - 1) * gridSize)
           .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
+          .attr('rx', 0)
+          .attr('ry', 0)
           .attr('r', gridSize / 2)
           .style('fill', (d) => `${colourScale(d.value)}`);
         gridDistribution.enter().append('text')
