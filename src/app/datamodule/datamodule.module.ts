@@ -97,7 +97,7 @@ export class DatamoduleModule {
       -0.30999, 0.12433, 0.18097, -0.04115, 0.41505, -0.14475, -0.40436, -0.35406, -0.03883, 0.48446]
   },
   {
-    name: 'COR-FS',
+    name: 'COR Financial',
     hold: [true, true, true, true, true, true, false, true, false, false, false, true, true, false, false, true, true,
       true, false, true, false, true, false, true, true, false, true, true, true, true, false, false, true, false, false,
       true, true, true, true, false, true, false, false, false, true, true, false, true, false, true, false, true, false,
@@ -123,7 +123,7 @@ export class DatamoduleModule {
       0.44268, 0.46185, 0.36229, 0.08596]
   },
   {
-    name: 'BITA',
+    name: 'BITA Plus Consultants',
     hold: [false, false, false, false, true, false, false, false, true, false, true, false, true, true, false,
       false, true, false, true, false, true, true, false, true, false, true, true, true, true, false, false, false,
       false, true, false, true, true, false, true, false, true, false, false, false, true, true, false, true, false,

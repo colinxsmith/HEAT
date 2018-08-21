@@ -30,6 +30,28 @@ export class HeatmapComponent implements OnInit {
   pad = true;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
+  wrap = (text1, width, lineHeight) =>
+  text1.each((kk, i, j) => {
+    const text = d3.select(j[i]),
+      words = text.text().split(/\s+/).reverse(),
+      y = text.attr('y'),
+      x = text.attr('x'),
+      dy = parseFloat(text.attr('dy'));
+    let word, line = [],
+      lineNumber = 0,
+      tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('dy', dy + 'em');
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(' '));
+      if ((<SVGTSpanElement>tspan.node()).getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(' '));
+        line = [word];
+        tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
+      }
+    }
+  })
+
   // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
   constructor() {
     this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
@@ -117,7 +139,7 @@ export class HeatmapComponent implements OnInit {
     const margin = { top: 30, right: 90, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
-      svgbase = d3.select('app-heatmap').append('svg'), spacer = 5,
+      svgbase = d3.select('app-heatmap').append('svg'), vspacer = 5, textspace = 15,
       gradientG = svgbase.append('linearGradient')
         .attr('id', 'gradG')
         .attr('x1', '0%')
@@ -168,18 +190,20 @@ export class HeatmapComponent implements OnInit {
       perfS.append('text')
         .attr('class', 'perfM')
         .attr('x', 0)
-        .attr('y', () => (height - spacer * numberPerfs) * (iperf + 0.5) / numberPerfs + spacer * (iperf - 1))
-        .text((perfi) => perfi.name);
+        .attr('y', () => (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
+        .attr('dy', 1.5)
+        .text((perfi) => perfi.name)
+        .call(this.wrap, 60, 0.9);
       perfS.append('rect')
-        .attr('x', (perfi, i) => width * (i + 10) / (perf.length + 10))
-        .attr('y', () => (height - spacer * numberPerfs) * iperf / numberPerfs + spacer * (iperf - 1))
-        .attr('height', (height - spacer * numberPerfs) / numberPerfs)
+        .attr('x', (perfi, i) => width * (i + textspace) / (perf.length + textspace))
+        .attr('y', (perfi, i) => Math.sin(width * i / (perf.length + textspace)) * height * 0.005
+        + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
+        .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
         .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
         .on('mouseover', (perfi, ii) => this.tooltip
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
         Period: ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
-          .transition().delay(200)
           .style('left', `${d3.event.pageX + 10}px`)
           .style('top', `${d3.event.pageY - 28}px`)
           .style('opacity', 1)
@@ -189,15 +213,16 @@ export class HeatmapComponent implements OnInit {
         .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
         .attr('rx', (perfi) => perfi.hold ? '2' : '0')
         .attr('ry', (perfi) => perfi.hold ? '2' : '0')
-        .attr('x', (perfi, i) => width * (i + 10) / (perf.length + 10))
-        .attr('y', () => (height - spacer * numberPerfs) * iperf / numberPerfs + spacer * (iperf - 1))
-        .attr('height', (height - spacer * numberPerfs) / numberPerfs)
+        .attr('x', (perfi, i) => width * (i + textspace) / (perf.length + textspace))
+        .attr('y',  (perfi, i) => Math.sin(width * i / (perf.length + textspace)) * height * 0.005
+        + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
+        .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
         .style('fill', 'none');
     });
   }
   largeMap(managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourrange: string[]) {
-    const margin = { top: 110, right: 10, bottom: 30, left: 90 },
+    const margin = { top: 110, right: 10, bottom: 40, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear().domain([0, managerDataTypes.length]).range([0, width]),
@@ -213,11 +238,13 @@ export class HeatmapComponent implements OnInit {
       .data(managerDataTypes)
       .enter().append('text')
       .text((d) => d)
-      .attr('x', 0)
-      .attr('y', 0)
+      .attr('x', 5)
+      .attr('y', -20)
+      .attr('dy', 1)
       .style('text-anchor', 'right')
       .attr('transform', (d, i) => `translate(${margin.left + scaleX(i + 0.65)},${margin.top - 3}) rotate(280)`)
-      .attr('class', 'axis-x');
+      .attr('class', 'axis-x')
+      .call(this.wrap, 60, 0.8);
     let pastLabel = '', nL = 1;
     const iOffice: {} = {}; // Find the office numbers
     const YOffice = svg.selectAll('.yLabel0')
@@ -567,6 +594,7 @@ export class HeatmapComponent implements OnInit {
       maxValue: 0, 			// What is the value that the biggest circle will represent
       labelFactor: 1.25, 	// How much farther than the radius of the outer circle should the labels be placed
       wrapWidth: 60, 		// The number of pixels after which a label needs to be given a new line
+      lineHeight: 1.4, 		// Height for wrapped lines
       opacityArea: 0.35, 	// The opacity of the area of the blob
       dotRadius: 3, 			// The size of the colored circles of each blog
       opacityCircles: 0.1, 	// The opacity of the circles of each blob
@@ -594,31 +622,6 @@ export class HeatmapComponent implements OnInit {
       .domain([0, maxValue]);
 
     d3.select(id).select('svg').remove();
-
-
-    const wrap = (text1, width) =>
-      text1.each((kk, i, j) => {
-        const text = d3.select(j[i]),
-          words = text.text().split(/\s+/).reverse(),
-          lineHeight = 1.4, // ems
-          y = text.attr('y'),
-          x = text.attr('x'),
-          dy = parseFloat(text.attr('dy'));
-        let word, line = [],
-          lineNumber = 0,
-          tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('dy', dy + 'em');
-        while (word = words.pop()) {
-          line.push(word);
-          tspan.text(line.join(' '));
-          if ((<SVGTSpanElement>tspan.node()).getComputedTextLength() > width) {
-            line.pop();
-            tspan.text(line.join(' '));
-            line = [word];
-            tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
-          }
-        }
-      });
-
     const svg = d3.select(id).append('svg');
 
     if (this.viewbox) {
@@ -686,7 +689,7 @@ export class HeatmapComponent implements OnInit {
       .attr('x', (d, i) => rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice * i - Math.PI / 2))
       .attr('y', (d, i) => rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice * i - Math.PI / 2))
       .text((d) => d)
-      .call(wrap, cfg.wrapWidth);
+      .call(this.wrap, cfg.wrapWidth, cfg.lineHeight);
 
     const radarLine = d3.lineRadial()
       .curve(d3.curveLinearClosed)
