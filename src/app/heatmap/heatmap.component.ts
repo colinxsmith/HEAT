@@ -183,10 +183,10 @@ export class HeatmapComponent implements OnInit {
         .attr('width', width / perf.length)
         .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
         .on('mouseover', (perfi, ii) => this.tooltip
-          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
-        Period ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance ${perfi.performance}`)
+          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
+        Period ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
           .transition().delay(200)
-          .style('left', `${d3.event.pageX}px`)
+          .style('left', `${d3.event.pageX + 10}px`)
           .style('top', `${d3.event.pageY - 28}px`)
           .style('opacity', 1)
         )

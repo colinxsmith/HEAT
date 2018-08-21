@@ -72,7 +72,7 @@ text.perfM {
     font-size: 12.5px;
     font-weight: lighter;
     font-family: Calibri, sans-serif;
-    stroke: rgb(19, 18, 18);
+    fill: rgb(94, 103, 231);
     stroke-width: 0px;
 }
 rect.perfM {
