@@ -124,13 +124,13 @@ export class HeatmapComponent implements OnInit {
         .attr('y1', '0%')
         .attr('x2', '0%')
         .attr('y2', '100%'),
-        gradientR = svgbase.append('linearGradient')
+      gradientR = svgbase.append('linearGradient')
         .attr('id', 'gradR')
         .attr('x1', '0%')
         .attr('y1', '0%')
         .attr('x2', '0%')
         .attr('y2', '100%');
-        gradientG.append('stop')
+    gradientG.append('stop')
       .attr('offset', '0%')
       .attr('stop-color', 'green')
       .attr('stop-opacity', 1);
@@ -142,7 +142,6 @@ export class HeatmapComponent implements OnInit {
       .attr('offset', '100%')
       .attr('stop-color', 'green')
       .attr('stop-opacity', 1);
-
     gradientR.append('stop')
       .attr('offset', '0%')
       .attr('stop-color', 'rgb(255,0,0)')
@@ -162,14 +161,9 @@ export class HeatmapComponent implements OnInit {
       svgbase.attr('height', height + margin.top + margin.bottom);
     }
     const svg = svgbase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
-
-
     perfData.forEach((d, iperf) => {
       const perf: { name: string; performance: number; hold: boolean }[] = [];
-      d.hold.forEach((dd, i) => {
-        const perfi = { name: d.name, hold: d.hold[i], performance: d.performance[i] };
-        perf.push(perfi);
-      });
+      d.hold.forEach((dd, i) => perf.push({ name: d.name, hold: d.hold[i], performance: d.performance[i]}));
       const perfS = svg.selectAll('perfs').data(perf).enter(), numberPerfs = Math.max(10, perfData.length);
       perfS.append('text')
         .attr('class', 'perfM')
@@ -184,7 +178,7 @@ export class HeatmapComponent implements OnInit {
         .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
         .on('mouseover', (perfi, ii) => this.tooltip
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
-        Period ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
+        Period: ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
           .transition().delay(200)
           .style('left', `${d3.event.pageX + 10}px`)
           .style('top', `${d3.event.pageY - 28}px`)
@@ -193,6 +187,8 @@ export class HeatmapComponent implements OnInit {
         .on('mouseout', () => this.tooltip.style('opacity', 0));
       perfS.append('rect')
         .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
+        .attr('rx', (perfi) => perfi.hold ? '2' : '0')
+        .attr('ry', (perfi) => perfi.hold ? '2' : '0')
         .attr('x', (perfi, i) => width * (i + 10) / (perf.length + 10))
         .attr('y', () => (height - spacer * numberPerfs) * iperf / numberPerfs + spacer * (iperf - 1))
         .attr('height', (height - spacer * numberPerfs) / numberPerfs)
