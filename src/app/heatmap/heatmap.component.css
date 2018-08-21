@@ -76,14 +76,14 @@ text.perfM {
     stroke-width: 0px;
 }
 rect.perfM {
-    stroke-width: 2px;
+    stroke-width: 2.5px;
     shape-rendering: crispEdges;
-    stroke: rgb(136, 6, 6);
+    stroke: rgb(122, 11, 11);
 }
 rect.perfS {
     stroke-width: 0.5px;
     shape-rendering: crispEdges;
-    stroke: rgb(136, 6, 6);
+    stroke: rgb(14, 12, 12);
 }
 rect.perfG {
     fill: url(#gradG);

@@ -14,7 +14,7 @@ import { PrefixNot } from '@angular/compiler';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  plotFigure = ['Heat Map', 'Large Map', 'Perf Map', 'Radar'].reverse();
+  plotFigure = ['Heat Map', 'Large Map', 'Radar ', 'Perf Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -122,38 +122,38 @@ export class HeatmapComponent implements OnInit {
         .attr('id', 'gradG')
         .attr('x1', '0%')
         .attr('y1', '0%')
-        .attr('x2', '100%')
+        .attr('x2', '0%')
         .attr('y2', '100%'),
         gradientR = svgbase.append('linearGradient')
         .attr('id', 'gradR')
         .attr('x1', '0%')
         .attr('y1', '0%')
-        .attr('x2', '100%')
+        .attr('x2', '0%')
         .attr('y2', '100%');
         gradientG.append('stop')
       .attr('offset', '0%')
-      .attr('stop-color', 'rgb(144, 238, 144)')
+      .attr('stop-color', 'green')
       .attr('stop-opacity', 1);
     gradientG.append('stop')
-      .attr('offset', '30%')
-      .attr('stop-color', 'rgb(85, 255, 93)')
-      .attr('stop-opacity', 0.5);
+      .attr('offset', '40%')
+      .attr('stop-color', 'lightgreen')
+      .attr('stop-opacity', 0.95);
     gradientG.append('stop')
       .attr('offset', '100%')
-      .attr('stop-color', 'rgb(0, 128, 0)')
+      .attr('stop-color', 'green')
       .attr('stop-opacity', 1);
 
     gradientR.append('stop')
       .attr('offset', '0%')
-      .attr('stop-color', 'rgb(238, 144, 144)')
+      .attr('stop-color', 'rgb(255,0,0)')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '30%')
-      .attr('stop-color', 'rgb(255, 85, 93)')
-      .attr('stop-opacity', 0.5);
+      .attr('stop-color', 'orange')
+      .attr('stop-opacity', 0.95);
     gradientR.append('stop')
       .attr('offset', '100%')
-      .attr('stop-color', 'rgb(128, 0, 0)')
+      .attr('stop-color', 'rgb(255,0,0)')
       .attr('stop-opacity', 1);
     if (this.viewbox) {
       svgbase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
