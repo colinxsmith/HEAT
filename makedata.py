@@ -1,5 +1,5 @@
 from random import random
-line = 'hold: [ '
+line = ",{name: 'BITA',hold: [ "
 for i in range(150):
 	if random() > 0.5:
 		line += 'true,'
@@ -9,4 +9,4 @@ print line + ' ],'
 line = 'performance: [ '
 for i in range(150):
 	line += '%7.5f,' % (random() - 0.5)
-print line + ' ],'
+print line + ' ]}'

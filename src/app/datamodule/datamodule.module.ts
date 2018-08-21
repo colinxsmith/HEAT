@@ -57,7 +57,8 @@ export class DatamoduleModule {
     hold: [
       false, false, false, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false, false,
       false, true, true, false, false, false, false, true, false, false, true, false, false, true, true, false, false, false, true,
-      false, false, false, true, false, true, true, false, false, false, false, false, true, true, false, true, true, true, false,
+      false, false, false, true, false{
+        name: 'COR-FS',, true, true, false, false, false, false, false, true, true, false, true, true, true, false,
       false, true, false, true, false, true, false, true, true, false, false, true, false, false, false, false, false, false, true,
       true, false, true, true, true, true, false, true, true, false, true, false, true, true, false, false, true, true, false, false,
       false, true, true, false, true, false, false, true, false, false, false, true, false, false, true, false, false, true, true,
@@ -119,7 +120,33 @@ export class DatamoduleModule {
         0.02643, 0.45357, -0.04281, -0.25494, 0.23294, -0.24991, -0.46749, 0.14945, -0.07639, 0.13615, 0.04311,
         0.08455, -0.13499, -0.44825, -0.27842, 0.49690, -0.13236, -0.02343, 0.11139, -0.18895, -0.32327, -0.18031,
         0.44268, 0.46185, 0.36229, 0.08596]
-    }];
+    },
+    {
+      name: 'BITA',
+      hold: [false, false, false, false, true, false, false, false, true, false, true, false, true, true, false,
+        false, true, false, true, false, true, true, false, true, false, true, true, true, true, false, false, false,
+        false, true, false, true, true, false, true, false, true, false, false, false, true, true, false, true, false,
+        true, false, true, true, false, false, true, true, true, true, true, false, true, false, true, false, false, true,
+        true, false, true, false, true, false, false, false, true, true, true, true, true, false, true, true, true, false,
+        true, true, false, false, true, true, false, false, true, false, false, false, false, true, false, false, true, true,
+        true, false, false, true, false, true, false, true, false, true, false, false, true, false, true, false, false, false,
+        true, false, false, false, false, true, true, true, false, false, true, true, true, false, false, false, true, true,
+        false, true, false, false, false, true, true, true, true, true, true],
+      performance: [-0.48528, 0.15196, -0.14568, -0.49844, 0.03288, 0.11841, -0.43861, 0.26600, -0.40094, -0.16236,
+        0.23862, 0.03692, 0.18178, -0.44419, 0.14770, -0.07241, -0.24235, -0.25694, -0.33641, -0.21931, 0.45805,
+        0.41919, -0.37388, -0.08406, 0.04201, -0.32580, -0.33151, -0.44232, 0.21695, 0.28877, 0.43036, 0.45214, -0.41170,
+        0.04842, -0.20895, -0.28651, -0.37250, -0.38461, -0.11709, -0.07710, -0.09670, -0.28854, 0.10250, 0.44302,
+        0.30018, 0.15719, 0.49927, 0.48938, 0.48127, -0.34330, 0.15334, 0.23900, -0.14999, 0.04368, 0.15649, -0.32627, -0.43999,
+      -0.31328, -0.29061, -0.09202, -0.17105, 0.16043, 0.00211, -0.18127, 0.04807, -0.21271, -0.48278, -0.15643, 0.05408,
+        0.43318, -0.18659, -0.27588, -0.34496, -0.08462, 0.47551, -0.32646, 0.45257, 0.47846, -0.29449, 0.20627, -0.08426,
+        0.17133, -0.08927, -0.10968, -0.42663, -0.07011, -0.47109, -0.44399, 0.40874, 0.37044, -0.13544, -0.37742, -0.32145,
+        0.44079, -0.46663, 0.07778, -0.30435, 0.13342, -0.05693, 0.38282, -0.05755, 0.49842, 0.38330, -0.16208, -0.41167,
+      -0.18328, -0.20659, 0.41568, 0.45080, -0.40717, -0.22865, -0.07434, -0.45735, 0.37159, -0.30149, -0.25424, 0.25726,
+        0.21831, -0.44276, 0.23350, 0.47928, 0.29470, -0.11509, 0.05109, 0.22865, -0.02153, -0.38857, 0.45891, -0.37128,
+        0.38619, -0.02941, 0.47770, -0.38759, 0.12035, 0.42221, -0.19593, 0.03396, 0.41637, 0.43489, 0.24912, 0.42720,
+        0.21749, 0.17335, -0.16870, 0.39275, -0.13091, 0.29914, 0.20435, -0.13017, -0.37610]
+    }
+  ];
   managerDataTypes = ['Number Clients', 'Number BMIDs', '%BMID failed>1', 'Flags passed', 'Flags out with KE', 'Flags out no KE',
     '1-5 Days', '6-10 Days',
     '10 Days +', 'Volatility Out', 'non BL Out', 'MHW Out', 'T error Out', 'Sector Out', 'Portfolio Concentration Out', 'Commonality Out',
