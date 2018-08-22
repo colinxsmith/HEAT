@@ -187,7 +187,7 @@ export class HeatmapComponent implements OnInit {
       const perfInd = d3.scaleLinear().domain(d3.extent(d.performance)).range([height * 0.015, -height * 0.015]);
       const perf: { name: string; performance: number; hold: boolean }[] = [];
       d.hold.forEach((dd, i) => perf.push({ name: d.name, hold: d.hold[i], performance: d.performance[i]}));
-      const perfS = svg.selectAll('perfs').data(perf).enter(), numberPerfs = Math.max(10, perfData.length);
+      const perfS = svg.selectAll('perfs').data(perf).enter(), numberPerfs = Math.max(4, perfData.length);
       perfS.append('text')
         .attr('class', 'perfM')
         .attr('x', 0)
@@ -199,11 +199,13 @@ export class HeatmapComponent implements OnInit {
         .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
         .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
-        .on('mouseover', (perfi, ii) => this.tooltip
+        .on('mouseover', (perfi, ii, jj) => this.tooltip
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
         Period: ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
-          .style('left', `${d3.event.pageX + 10}px`)
-          .style('top', `${d3.event.pageY - 28}px`)
+          .style('left', d3.mouse(<d3.ContainerElement>jj[ii])[0] > 0.8 * width ?
+           `${d3.event.pageX - 200}px` : `${d3.event.pageX + 10}px`)
+          .style('top', d3.mouse(<d3.ContainerElement>jj[ii])[1] > 0.8 * height ?
+          `${d3.event.pageY - 100}px` : `${d3.event.pageY - 28}px`)
           .style('opacity', 1)
         )
         .on('mouseout', () => this.tooltip.style('opacity', 0))
