@@ -208,7 +208,7 @@ export class HeatmapComponent implements OnInit {
         )
         .on('mouseout', () => this.tooltip.style('opacity', 0))
         .transition().duration(2000)
-        .attrTween('x', (perfi, i) => (t) => '' + (width * (i + textspace) / (perf.length + textspace)) * t)
+        .attrTween('x', (perfi, i) => (t) => '' + (width * (i * t + textspace) / (perf.length + textspace)))
         .attrTween('y', (perfi) => (t) => '' + (perfInd(perfi.performance) * t * t
           + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
         );
@@ -217,10 +217,10 @@ export class HeatmapComponent implements OnInit {
         .attr('rx', (perfi) => perfi.hold ? '2' : '0')
         .attr('ry', (perfi) => perfi.hold ? '2' : '0')
         .attr('x', (perfi, i) => width * (i + textspace) / (perf.length + textspace))
-        .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
         .style('fill', 'none')
         .transition().duration(2000)
+        .attrTween('height', () => (t) => '' + t * (height - vspacer * numberPerfs) / numberPerfs)
         .attrTween('y', (perfi) => (t) => '' + (perfInd(perfi.performance) * t
           + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
         );
