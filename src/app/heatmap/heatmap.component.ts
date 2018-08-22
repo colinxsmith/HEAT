@@ -30,7 +30,7 @@ export class HeatmapComponent implements OnInit {
   pad = true;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
-  wrap = (text1, width, lineHeight) =>
+  wrap = (text1, width, lineHeight) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
     text1.each((kk, i, j) => {
       const text = d3.select(j[i]),
         words = text.text().split(/\s+/).reverse(),
