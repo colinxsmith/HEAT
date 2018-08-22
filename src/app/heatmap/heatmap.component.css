@@ -77,7 +77,7 @@ text.perfM {
 }
 rect.perfM {
     stroke-width: 2.5px;
-    shape-rendering: crispEdges;
+    shape-rendering: geometricPrecision;
     stroke: rgb(122, 11, 11);
 }
 rect.perfS {

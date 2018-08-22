@@ -214,13 +214,13 @@ export class HeatmapComponent implements OnInit {
         );
       perfS.append('rect')
         .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
-        .attr('rx', (perfi) => perfi.hold ? '2' : '0')
-        .attr('ry', (perfi) => perfi.hold ? '2' : '0')
         .attr('x', (perfi, i) => width * (i + textspace) / (perf.length + textspace))
         .attr('width', width / perf.length)
         .style('fill', 'none')
         .transition().duration(2000)
-        .attrTween('height', () => (t) => '' + t * (height - vspacer * numberPerfs) / numberPerfs)
+        .attrTween('rx', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
+        .attrTween('ry', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
+        .attrTween('height', () => (t) => '' + t * t * (height - vspacer * numberPerfs) / numberPerfs)
         .attrTween('y', (perfi) => (t) => '' + (perfInd(perfi.performance) * t
           + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
         );
