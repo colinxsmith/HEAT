@@ -38,7 +38,7 @@ export class DatamoduleModule {
     ]
   ];
   perfMap = [{
-    name: 'Apple',
+    name: 'Apple Inc.',
     performance: [
       -0.09334, -0.29041, -0.05744, -0.21093, -0.00551, -0.06005, -0.09430, 0.16770, 0.17872, -0.23842, 0.22268,
       -0.16702, 0.45135, 0.43907, 0.09515, -0.07643, 0.25622, 0.47131, -0.47805, -0.27640, 0.03434, -0.17760, 0.49086,
@@ -67,7 +67,7 @@ export class DatamoduleModule {
     ]
   },
   {
-    name: 'Barclays',
+    name: 'Barclays Plc.',
     hold: [
       false, true, false, true, false, true, false, true, true, false, true, true, false, false, true, false, true, true, true, true, true,
       true, true, true, false, true, true, false, false, true, true, false, true, false, false, false, true, false, true, false, true, true,
@@ -170,6 +170,30 @@ export class DatamoduleModule {
       -0.15325, 0.00249, -0.38443, -0.31422, 0.30559, 0.31544, -0.14823, -0.08474, -0.47014, 0.03764, -0.41836, 0.25443,
       0.37141, -0.09330, 0.17129, 0.38932, 0.37663, -0.09055, -0.01371, 0.10986, -0.25301, 0.21154, 0.30548, 0.41641,
       -0.05754, 0.18394, 0.42481, -0.49801]
+  },
+  {
+    name: 'Vodafone Group',
+    hold: [false, true, false, true, false, false, false, true, false, true, true, false, true, true, false, false, false, true,
+      true, true, false, false, false, true, false, false, true, false, false, true, true, false, true, false, true, false, true,
+      true, true, true, false, false, false, false, true, false, false, false, true, true, true, false, false, false, false, false,
+      true, false, false, false, true, false, false, true, false, false, false, false, false, false, true, false, false, true, true,
+      false, false, true, true, true, true, false, true, false, false, false, true, false, false, false, true, true, false, false,
+      true, true, false, false, true, true, true, false, false, true, true, false, false, false, false, true, true, false, false,
+      false, false, true, false, true, false, true, false, false, true, true, false, true, true, true, false, true, true, false,
+      true, false, false, false, false, true, false, false, true, true, false, false, false, true, true, true, true, false],
+    performance: [0.28021, 0.25485, 0.36091, 0.40252, -0.01602, 0.35843, -0.11818, 0.47411, -0.49603, 0.45999, -0.16063,
+      -0.37820, 0.41787, -0.33324, -0.28779, -0.01138, 0.21161, -0.22224, -0.28132, -0.30082, -0.19635, -0.25853, -0.34286,
+      0.12050, 0.41536, 0.48602, -0.42165, -0.44986, 0.38680, -0.21406, -0.45773, 0.16034, 0.36260, 0.46154, 0.34193, 0.14649,
+      -0.00570, 0.34241, 0.26383, -0.35770, -0.18031, 0.00165, 0.19779, -0.32093, 0.38050, 0.31834, 0.21972, -0.21016, 0.40311,
+      0.15169, 0.10596, -0.12992, 0.44788, -0.39207, 0.28629, -0.32185, -0.35166, -0.41817, -0.31809, 0.26621, 0.20267, -0.01573,
+      0.46407, -0.04967, -0.24250, 0.46274, 0.48775, 0.36811, -0.06563, -0.43491, -0.28560, 0.32019, -0.19655, -0.42876,
+      0.35984, -0.45747, 0.11752, -0.39731, 0.08870, -0.35259, -0.13865, -0.31771, 0.26239, -0.11022, 0.13281, 0.13190,
+      0.09343, 0.37107, 0.24361, 0.31954, 0.22186, -0.24795, -0.19971, -0.16958, -0.39008, -0.34080, -0.28359, 0.30664,
+      -0.46800, 0.17249, 0.31980, -0.38772, -0.18925, 0.16778, 0.38828, -0.34968, -0.16076, -0.08549, -0.07059, -0.35719,
+      0.16197, -0.46795, -0.35830, 0.14322, 0.12309, 0.14107, -0.33244, -0.34613, -0.20079, 0.28700, -0.41735, -0.35448,
+      -0.27633, -0.01228, -0.24826, 0.12556, -0.05949, 0.29400, 0.42569, -0.24117, 0.12757, 0.36966, 0.17421, 0.16536,
+      0.27337, 0.46839, -0.13006, 0.00707, 0.26727, -0.22678, 0.48595, -0.30825, -0.44212, -0.46909, 0.18056, 0.37505,
+      -0.07488, -0.25187, 0.25581, 0.38043]
   }
   ];
   managerDataTypes = ['Number Clients', 'Number BMIDs', '%BMID failed>1', 'Flags passed', 'Flags out with KE', 'Flags out no KE',
