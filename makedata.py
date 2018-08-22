@@ -1,5 +1,6 @@
+#!/usr/bin/env python
 from random import random
-line = ",{name: 'BITA',hold: [ "
+line = ",{name: 'Enterprise Oil',hold: [ "
 for i in range(150):
 	if random() > 0.5:
 		line += 'true,'

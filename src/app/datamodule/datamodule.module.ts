@@ -146,6 +146,30 @@ export class DatamoduleModule {
       0.21831, -0.44276, 0.23350, 0.47928, 0.29470, -0.11509, 0.05109, 0.22865, -0.02153, -0.38857, 0.45891, -0.37128,
       0.38619, -0.02941, 0.47770, -0.38759, 0.12035, 0.42221, -0.19593, 0.03396, 0.41637, 0.43489, 0.24912, 0.42720,
       0.21749, 0.17335, -0.16870, 0.39275, -0.13091, 0.29914, 0.20435, -0.13017, -0.37610]
+  },
+  {
+    name: 'Enterprise Oil',
+    hold: [false, false, true, false, true, false, false, false, true, true, true, false, false, true, true, true, false,
+      false, false, true, true, false, true, true, true, true, false, true, true, false, false, true, true, true, true, true,
+      false, false, false, false, false, true, true, false, true, true, true, true, true, true, true, true, true, false, true,
+      false, true, true, true, false, false, false, true, true, true, false, true, true, true, true, false, false, false, false,
+      false, true, true, false, false, true, false, false, true, false, true, true, true, false, false, true, false, false, false,
+      true, true, true, true, false, false, true, true, true, false, false, false, true, false, false, false, false, true, true,
+      true, true, false, false, false, false, false, true, false, false, false, false, true, true, true, false, false, true,
+      true, false, true, true, true, true, true, false, true, true, false, false, true, false, true, false, false, true, true, false,],
+    performance: [0.19167, 0.42265, 0.10778, 0.35919, 0.00870, 0.10642, 0.45056, -0.38940, -0.00027, 0.17800, 0.27234,
+      0.21885, 0.08916, 0.40163, -0.47602, -0.13071, 0.35234, 0.02499, 0.04301, 0.09772, 0.32115, -0.09184, -0.06388, -0.15035,
+      0.25709, 0.22255, 0.48735, 0.46437, 0.46902, 0.36930, -0.43098, -0.30162, 0.23183, 0.21343, 0.10903, -0.03587, -0.45854,
+      0.11908, 0.02669, -0.41874, 0.07096, -0.00821, -0.00588, -0.24760, -0.47114, -0.49915, -0.40584, 0.07402, 0.25267,
+      -0.38747, 0.00158, 0.46393, -0.14145, -0.04079, -0.46437, -0.38752, -0.36425, -0.41498, 0.49777, 0.14431, 0.16994,
+      0.44009, 0.04931, -0.05442, 0.13083, -0.49226, 0.11637, -0.03780, -0.07785, 0.29649, -0.10941, 0.39950, 0.02503, -0.18141,
+      -0.45879, -0.33620, -0.31840, -0.38954, -0.42672, -0.15728, 0.44970, 0.30681, 0.43697, -0.22234, -0.47112, 0.48933,
+      -0.34010, -0.29100, 0.20701, 0.26565, 0.20572, -0.22186, -0.38616, 0.44518, -0.25780, 0.16392, 0.04637, -0.01732,
+      -0.23140, 0.33382, -0.14921, 0.00349, -0.20998, -0.30447, 0.07771, 0.14505, 0.21116, -0.15870, 0.39814, 0.09636,
+      0.43104, -0.21440, 0.34206, 0.16402, 0.32512, -0.24787, 0.25733, 0.09001, 0.16719, -0.23114, -0.16632, -0.29973,
+      -0.15325, 0.00249, -0.38443, -0.31422, 0.30559, 0.31544, -0.14823, -0.08474, -0.47014, 0.03764, -0.41836, 0.25443,
+      0.37141, -0.09330, 0.17129, 0.38932, 0.37663, -0.09055, -0.01371, 0.10986, -0.25301, 0.21154, 0.30548, 0.41641,
+      -0.05754, 0.18394, 0.42481, -0.49801,]
   }
   ];
   managerDataTypes = ['Number Clients', 'Number BMIDs', '%BMID failed>1', 'Flags passed', 'Flags out with KE', 'Flags out no KE',

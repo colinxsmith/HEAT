@@ -191,10 +191,10 @@ export class HeatmapComponent implements OnInit {
       perfS.append('text')
         .attr('class', 'perfM')
         .attr('x', 0)
-        .attr('y', () => (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
+        .attr('y', () => (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1) - 5)
         .attr('dy', 1.5)
         .text((perfi) => perfi.name)
-        .call(this.wrap, 60, 0.9);
+        .call(this.wrap, 60, 1);
       perfS.append('rect')
         .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
