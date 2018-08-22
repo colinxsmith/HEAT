@@ -139,7 +139,7 @@ export class HeatmapComponent implements OnInit {
     const margin = { top: 30, right: 90, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
-      svgbase = d3.select('app-heatmap').append('svg'), vspacer = 5, textspace = 15,
+      svgbase = d3.select('app-heatmap').append('svg'), vspacer = 15, textspace = 15,
       gradientG = svgbase.append('linearGradient')
         .attr('id', 'gradG')
         .attr('x1', '0%')
@@ -166,15 +166,15 @@ export class HeatmapComponent implements OnInit {
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '0%')
-      .attr('stop-color', 'rgb(255,0,0)')
+      .attr('stop-color', 'rgb(255,16,8)')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '30%')
-      .attr('stop-color', 'orange')
-      .attr('stop-opacity', 0.95);
+      .attr('stop-color', 'rgb(238,144,144)')
+      .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '100%')
-      .attr('stop-color', 'rgb(255,0,0)')
+      .attr('stop-color', 'rgb(255,16,8)')
       .attr('stop-opacity', 1);
     if (this.viewbox) {
       svgbase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
@@ -184,6 +184,7 @@ export class HeatmapComponent implements OnInit {
     }
     const svg = svgbase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
     perfData.forEach((d, iperf) => {
+      const perfInd = d3.scaleLinear().domain(d3.extent(d.performance)).range([height * 0.015, -height * 0.015]);
       const perf: { name: string; performance: number; hold: boolean }[] = [];
       d.hold.forEach((dd, i) => perf.push({ name: d.name, hold: d.hold[i], performance: d.performance[i]}));
       const perfS = svg.selectAll('perfs').data(perf).enter(), numberPerfs = Math.max(10, perfData.length);
@@ -195,9 +196,6 @@ export class HeatmapComponent implements OnInit {
         .text((perfi) => perfi.name)
         .call(this.wrap, 60, 0.9);
       perfS.append('rect')
-        .attr('x', (perfi, i) => width * (i + textspace) / (perf.length + textspace))
-        .attr('y', (perfi, i) => Math.sin(width * i / (perf.length + textspace)) * height * 0.003
-        + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
         .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
         .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
@@ -208,17 +206,24 @@ export class HeatmapComponent implements OnInit {
           .style('top', `${d3.event.pageY - 28}px`)
           .style('opacity', 1)
         )
-        .on('mouseout', () => this.tooltip.style('opacity', 0));
+        .on('mouseout', () => this.tooltip.style('opacity', 0))
+        .transition().duration(2000)
+        .attrTween('x', (perfi, i) => (t) => '' + (width * (i + textspace) / (perf.length + textspace)) * t)
+        .attrTween('y', (perfi) => (t) => '' + (perfInd(perfi.performance) * t * t
+          + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
+        );
       perfS.append('rect')
         .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
         .attr('rx', (perfi) => perfi.hold ? '2' : '0')
         .attr('ry', (perfi) => perfi.hold ? '2' : '0')
         .attr('x', (perfi, i) => width * (i + textspace) / (perf.length + textspace))
-        .attr('y',  (perfi, i) => Math.sin(width * i / (perf.length + textspace)) * height * 0.003
-        + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
         .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
         .attr('width', width / perf.length)
-        .style('fill', 'none');
+        .style('fill', 'none')
+        .transition().duration(2000)
+        .attrTween('y', (perfi) => (t) => '' + (perfInd(perfi.performance) * t
+          + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
+        );
     });
   }
   largeMap(managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourrange: string[]) {
