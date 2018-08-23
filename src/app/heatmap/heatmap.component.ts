@@ -164,7 +164,7 @@ export class HeatmapComponent implements OnInit {
         , width = Math.min(700, 950 - 10) - margin.left - margin.right
         , height = Math.min(width, 950 - margin.top - margin.bottom - 20);
 
-      const colour = d3.scaleOrdinal<number, string>().range(['orange', 'blue']).domain([0, 1]);
+      const radarBlobColour = d3.scaleOrdinal<number, string>().range(['rgb(255,160,160)', 'green']).domain([0, 1]);
 
       const radarChartOptions = {
         w: width,
@@ -173,7 +173,7 @@ export class HeatmapComponent implements OnInit {
         maxValue: 0.5,
         levels: 5,
         roundStrokes: true,
-        color: colour
+        color: radarBlobColour
       };
 
       this.RadarChart('app-heatmap', this.myData.radarData, radarChartOptions);
@@ -634,7 +634,7 @@ export class HeatmapComponent implements OnInit {
     const allAxis = (data[0].map((i) => i.axis)),	// Names of each axis
       total = allAxis.length,					// The number of different axes
       radius = Math.min(cfg.w / 2, cfg.h / 2), 	// Radius of the outermost circle
-      Format = d3.format('.0%'),			 	// Percentage formatting
+      percentFormat = d3.format('.0%'),			 	// Percentage formatting
       angleSlice = Math.PI * 2 / total;		// The width in radians of each "slice"
 
     const rScale = d3.scaleLinear()
@@ -680,7 +680,7 @@ export class HeatmapComponent implements OnInit {
       .attr('x', 4)
       .attr('y', (d) => -d * radius / cfg.levels)
       .attr('dy', '0.4em')
-      .text((d, i) => Format(maxValue * d / cfg.levels));
+      .text((d, i) => percentFormat(maxValue * d / cfg.levels));
 
 
     const axis = axisGrid.selectAll('.axis')
@@ -791,7 +791,7 @@ export class HeatmapComponent implements OnInit {
           .attr('y', newY)
           .style('fill', 'none')
           .style('opacity', 1)
-          .text(Format(+d.value))
+          .text(percentFormat(+d.value))
           .transition().duration(200)
           .style('fill', fill);
       })
