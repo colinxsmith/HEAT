@@ -51,7 +51,52 @@ export class HeatmapComponent implements OnInit {
         }
       }
     })
+  displayOneLine = (performanceLine: { name: string; performance: number; hold: boolean; }[], assetIndex: number,
+    performanceHeightIndicator: d3.ScaleLinear<number, number>, svg: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
+    perfData: { name: string; performance: number[]; hold: boolean[]; }[], height: number, vspacer: number, width: number,
+    textspace: number) => {
+    const perfS = svg.selectAll('performanceData').data(performanceLine).enter(), numberPerfs = Math.max(4, perfData.length);
 
+    perfS.append('rect')
+      .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
+      .attr('width', width / performanceLine.length)
+      .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
+      .on('mouseover', (perfi, ii, jj) => this.tooltip
+        .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
+        Period: ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
+        .style('left', d3.mouse(<d3.ContainerElement>jj[ii])[0] > 0.8 * width ?
+          `${d3.event.pageX - 200}px` : `${d3.event.pageX + 10}px`)
+        .style('top', d3.mouse(<d3.ContainerElement>jj[ii])[1] > 0.8 * height ?
+          `${d3.event.pageY - 100}px` : `${d3.event.pageY - 28}px`)
+        .style('opacity', 1)
+      )
+      .on('mouseout', () => this.tooltip.style('opacity', 0))
+      .transition().duration(2000)
+      .attrTween('x', (perfi, i) => (t) => '' + (width * (i * t + textspace) / (performanceLine.length + textspace)))
+      .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * (t + (1 - t) * 1000)
+        + (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1))
+      );
+    perfS.append('rect')
+      .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
+      .attr('x', (perfi, i) => width * (i + textspace) / (performanceLine.length + textspace))
+      .attr('width', width / performanceLine.length)
+      .style('fill', 'none')
+      .transition().duration(2000)
+      .attrTween('rx', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
+      .attrTween('ry', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
+      .attrTween('height', () => (t) => '' + t * (height - vspacer * numberPerfs) / numberPerfs)
+      .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * t
+        + (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1))
+      );
+    const perfI = svg.selectAll('performanceNames').data([performanceLine[0]]).enter(); // Only need the text data once
+    perfI.append('text')
+      .attr('class', 'perfM')
+      .attr('x', 0)
+      .attr('y', () => (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1) - 5)
+      .attr('dy', 1.5)
+      .text((perfi) => perfi.name)
+      .call(this.wrap, 60, 1);
+  }
   // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
   constructor() {
     this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
@@ -139,7 +184,8 @@ export class HeatmapComponent implements OnInit {
     const margin = { top: 30, right: 90, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
-      svgbase = d3.select('app-heatmap').append('svg'), vspacer = 15, textspace = 15,
+      svgbase: d3.Selection<d3.BaseType, {}, HTMLElement, {}> = d3.select('app-heatmap').append('svg'),
+      vspacer = 15, textspace = 15,
       gradientG = svgbase.append('linearGradient')
         .attr('id', 'gradG')
         .attr('x1', '0%')
@@ -183,50 +229,12 @@ export class HeatmapComponent implements OnInit {
       svgbase.attr('height', height + margin.top + margin.bottom);
     }
     const svg = svgbase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
-    perfData.forEach((d, iperf) => {
-      const wiggle = 1, // each rectangle is positioned vertically according to performance if wiggle is 1
-      perfInd = d3.scaleLinear().domain(d3.extent(d.performance)).range([height * 0.015 * wiggle, -height * 0.015 * wiggle]);
-      const perf: { name: string; performance: number; hold: boolean }[] = [];
-      d.hold.forEach((dd, i) => perf.push({ name: d.name, hold: d.hold[i], performance: d.performance[i]}));
-      const perfS = svg.selectAll('perfs').data(perf).enter(), numberPerfs = Math.max(4, perfData.length);
-      perfS.append('text')
-        .attr('class', 'perfM')
-        .attr('x', 0)
-        .attr('y', () => (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1) - 5)
-        .attr('dy', 1.5)
-        .text((perfi) => perfi.name)
-        .call(this.wrap, 60, 1);
-      perfS.append('rect')
-        .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
-        .attr('width', width / perf.length)
-        .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
-        .on('mouseover', (perfi, ii, jj) => this.tooltip
-          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
-        Period: ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
-          .style('left', d3.mouse(<d3.ContainerElement>jj[ii])[0] > 0.8 * width ?
-           `${d3.event.pageX - 200}px` : `${d3.event.pageX + 10}px`)
-          .style('top', d3.mouse(<d3.ContainerElement>jj[ii])[1] > 0.8 * height ?
-          `${d3.event.pageY - 100}px` : `${d3.event.pageY - 28}px`)
-          .style('opacity', 1)
-        )
-        .on('mouseout', () => this.tooltip.style('opacity', 0))
-        .transition().duration(2000)
-        .attrTween('x', (perfi, i) => (t) => '' + (width * (i * t + textspace) / (perf.length + textspace)))
-        .attrTween('y', (perfi) => (t) => '' + (perfInd(perfi.performance) * t * t
-          + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
-        );
-      perfS.append('rect')
-        .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
-        .attr('x', (perfi, i) => width * (i + textspace) / (perf.length + textspace))
-        .attr('width', width / perf.length)
-        .style('fill', 'none')
-        .transition().duration(2000)
-        .attrTween('rx', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
-        .attrTween('ry', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
-        .attrTween('height', () => (t) => '' + t * t * (height - vspacer * numberPerfs) / numberPerfs)
-        .attrTween('y', (perfi) => (t) => '' + (perfInd(perfi.performance) * t
-          + (height - vspacer * numberPerfs) * iperf / numberPerfs + vspacer * (iperf - 1))
-        );
+    perfData.forEach((ydata, yi) => {
+      const wiggle = 1, // each rectangle is positioned vertically according to performance if wiggle > 0
+        perfInd = d3.scaleLinear().domain(d3.extent(ydata.performance)).range([height * 0.015 * wiggle, -height * 0.015 * wiggle]);
+      const perf: { name: string; performance: number; hold: boolean }[] = []; // perf[] is the true data plotted
+      ydata.performance.forEach((perform, xi) => perf.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi] }));
+      this.displayOneLine(perf, yi, perfInd, svg, this.perfData, height, vspacer, width, textspace);
     });
   }
   largeMap(managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourrange: string[]) {

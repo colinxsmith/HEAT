@@ -86,11 +86,11 @@ rect.perfS {
     stroke: rgb(14, 12, 12);
 }
 rect.perfG {
-    fill: rgb(10, 241, 10);
+    stroke: rgb(10, 241, 10);
     fill: url(#gradG);
 }
 rect.perfB {
-    fill: rgb(241, 10, 10);
+    stroke: rgb(241, 10, 10);
     fill: url(#gradR);
 }
 text.tooltipRadar{
