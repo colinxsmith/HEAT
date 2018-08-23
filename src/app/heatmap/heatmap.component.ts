@@ -154,7 +154,7 @@ export class HeatmapComponent implements OnInit {
         .attr('y2', '100%');
     gradientG.append('stop')
       .attr('offset', '0%')
-      .attr('stop-color', 'green')
+      .attr('stop-color', 'rgb(10,241,10)')
       .attr('stop-opacity', 1);
     gradientG.append('stop')
       .attr('offset', '40%')
@@ -166,7 +166,7 @@ export class HeatmapComponent implements OnInit {
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '0%')
-      .attr('stop-color', 'rgb(255,16,8)')
+      .attr('stop-color', 'rgb(241,10,10)')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '30%')
@@ -184,7 +184,8 @@ export class HeatmapComponent implements OnInit {
     }
     const svg = svgbase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
     perfData.forEach((d, iperf) => {
-      const perfInd = d3.scaleLinear().domain(d3.extent(d.performance)).range([height * 0.015, -height * 0.015]);
+      const wiggle = 1, // each rectangle is positioned vertically according to performance if wiggle is 1
+      perfInd = d3.scaleLinear().domain(d3.extent(d.performance)).range([height * 0.015 * wiggle, -height * 0.015 * wiggle]);
       const perf: { name: string; performance: number; hold: boolean }[] = [];
       d.hold.forEach((dd, i) => perf.push({ name: d.name, hold: d.hold[i], performance: d.performance[i]}));
       const perfS = svg.selectAll('perfs').data(perf).enter(), numberPerfs = Math.max(4, perfData.length);
