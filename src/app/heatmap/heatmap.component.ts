@@ -92,7 +92,7 @@ export class HeatmapComponent implements OnInit {
     perfI.append('text')
       .attr('class', 'perfM')
       .attr('x', 0)
-      .attr('y', () => (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1) - 5)
+      .attr('y', (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1) - 5)
       .attr('dy', 1.5)
       .text((perfi) => perfi.name)
       .call(this.wrap, 60, 1);
@@ -642,9 +642,9 @@ export class HeatmapComponent implements OnInit {
       .domain([0, maxValue]);
 
     d3.select(id).select('svg').remove();
-    const svg = d3.select(id).append('svg');
+    const svg = d3.select(id).append('svg'), doView = false;
 
-    if (this.viewbox) {
+    if (doView) {
       svg.attr('viewBox', `0 0 ${cfg.w + cfg.margin.left + cfg.margin.right} ${cfg.h + cfg.margin.top + cfg.margin.bottom}`)
         .attr('class', 'radar' + id);
     } else {
