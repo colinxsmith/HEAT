@@ -232,9 +232,11 @@ export class HeatmapComponent implements OnInit {
     perfData.forEach((ydata, yi) => {
       const wiggle = 1, // each rectangle is positioned vertically according to performance if wiggle > 0
         perfInd = d3.scaleLinear().domain(d3.extent(ydata.performance)).range([height * 0.015 * wiggle, -height * 0.015 * wiggle]);
-      const perf: { name: string; performance: number; hold: boolean }[] = []; // perf[] is the true data plotted
-      ydata.performance.forEach((perform, xi) => perf.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi] }));
-      this.displayOneLine(perf, yi, perfInd, svg, this.perfData, height, vspacer, width, textspace);
+      const perfPlotDataAsset: { name: string; performance: number; hold: boolean }[] = []; // perfPlotDataAsset[] is the true data plotted
+      ydata.performance.forEach((perform, xi) =>
+      perfPlotDataAsset.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi] }));
+
+      this.displayOneLine(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vspacer, width, textspace);
     });
   }
   largeMap(managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourrange: string[]) {
