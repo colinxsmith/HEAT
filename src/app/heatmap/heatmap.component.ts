@@ -51,13 +51,12 @@ export class HeatmapComponent implements OnInit {
         }
       }
     })
-  displayOneLine = (performanceLine: { name: string; performance: number; hold: boolean; }[], assetIndex: number,
-    performanceHeightIndicator: d3.ScaleLinear<number, number>, svg: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
+  displayOneLinePerfData = (performanceLine: { name: string; performance: number; hold: boolean; }[], assetIndex: number,
+    performanceHeightIndicator: d3.ScaleLinear<number, number>, svgPerf: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
     perfData: { name: string; performance: number[]; hold: boolean[]; }[], height: number, vspacer: number, width: number,
     textspace: number) => {
-    const perfS = svg.selectAll('performanceData').data(performanceLine).enter(), numberPerfs = Math.max(4, perfData.length);
-
-    perfS.append('rect')
+    const perfS = svgPerf.selectAll('performanceData').data(performanceLine).enter(), numberPerfs = Math.max(4, perfData.length);
+    perfS.append('rect') // Coloured rectangles
       .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
       .attr('width', width / performanceLine.length)
       .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
@@ -73,10 +72,10 @@ export class HeatmapComponent implements OnInit {
       .on('mouseout', () => this.tooltip.style('opacity', 0))
       .transition().duration(2000)
       .attrTween('x', (perfi, i) => (t) => '' + (width * (i * t + textspace) / (performanceLine.length + textspace)))
-      .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * (t + (1 - t) * 1000)
+      .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * (t + 100 * (1 - t))
         + (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1))
       );
-    perfS.append('rect')
+    perfS.append('rect') // Open rectangles
       .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
       .attr('x', (perfi, i) => width * (i + textspace) / (performanceLine.length + textspace))
       .attr('width', width / performanceLine.length)
@@ -88,14 +87,18 @@ export class HeatmapComponent implements OnInit {
       .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * t
         + (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1))
       );
-    const perfI = svg.selectAll('performanceNames').data([performanceLine[0]]).enter(); // Only need the text data once
-    perfI.append('text')
-      .attr('class', 'perfM')
-      .attr('x', 0)
-      .attr('y', (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1) - 5)
-      .attr('dy', 1.5)
-      .text((perfi) => perfi.name)
-      .call(this.wrap, 60, 1);
+    const perfI = svgPerf.selectAll('performanceNames').data([performanceLine[0]]).enter(); // Only need the text data once
+    perfI.append('text') // Asset names
+      .transition().duration(2000)
+      .tween('', (perfi, i, j) => (t) => {
+        d3.select(j[i])
+          .text(perfi.name)
+          .attr('class', 'perfM')
+          .attr('x', 0)
+          .attr('y', t * (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1) - 5)
+          .attr('dy', 1.5 * t)
+          .call(this.wrap, 70 * t, t);
+      });
   }
   // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
   constructor() {
@@ -236,7 +239,7 @@ export class HeatmapComponent implements OnInit {
       ydata.performance.forEach((perform, xi) =>
       perfPlotDataAsset.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi] }));
 
-      this.displayOneLine(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vspacer, width, textspace);
+      this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vspacer, width, textspace);
     });
   }
   largeMap(managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourrange: string[]) {
