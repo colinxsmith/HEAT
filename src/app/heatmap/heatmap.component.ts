@@ -6,9 +6,9 @@ import { PrefixNot } from '@angular/compiler';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
   // tslint:disable-next-line:max-line-length
-  //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourrange[0] = $event.target.value" size="3" maxlength="16"  value={{colourrange[0]}}><input (input)="colourrange[1] = $event.target.value" size="3" maxlength="16"  value={{colourrange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
+  //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
@@ -29,7 +29,7 @@ export class HeatmapComponent implements OnInit {
   chosenFigure = this.plotFigure[0];
   pad = true;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  colourrange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
+  colourRange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
   wrap = (text1, width, lineHeight) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
     text1.each((kk, i, j) => {
       const text = d3.select(j[i]),
@@ -53,11 +53,11 @@ export class HeatmapComponent implements OnInit {
     })
   displayOneLinePerfData = (performanceLine: { name: string; performance: number; hold: boolean; }[], assetIndex: number,
     performanceHeightIndicator: d3.ScaleLinear<number, number>, svgPerf: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
-    perfData: { name: string; performance: number[]; hold: boolean[]; }[], height: number, vspacer: number, width: number,
-    textspace: number) => {
+    perfData: { name: string; performance: number[]; hold: boolean[]; }[], height: number, vSpacer: number, width: number,
+    textSpacer: number) => {
     const perfS = svgPerf.selectAll('performanceData').data(performanceLine).enter(), numberPerfs = Math.max(4, perfData.length);
     perfS.append('rect') // Coloured rectangles
-      .attr('height', (height - vspacer * numberPerfs) / numberPerfs)
+      .attr('height', (height - vSpacer * numberPerfs) / numberPerfs)
       .attr('width', width / performanceLine.length)
       .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
       .on('mouseover', (perfi, ii, jj) => this.tooltip
@@ -71,21 +71,21 @@ export class HeatmapComponent implements OnInit {
       )
       .on('mouseout', () => this.tooltip.style('opacity', 0))
       .transition().duration(2000)
-      .attrTween('x', (perfi, i) => (t) => '' + (width * (i * t + textspace) / (performanceLine.length + textspace)))
+      .attrTween('x', (perfi, i) => (t) => '' + (width * (i * t + textSpacer) / (performanceLine.length + textSpacer)))
       .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * (t + 100 * (1 - t))
-        + (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1))
+        + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1))
       );
     perfS.append('rect') // Open rectangles
       .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
-      .attr('x', (perfi, i) => width * (i + textspace) / (performanceLine.length + textspace))
+      .attr('x', (perfi, i) => width * (i + textSpacer) / (performanceLine.length + textSpacer))
       .attr('width', width / performanceLine.length)
       .style('fill', 'none')
       .transition().duration(2000)
       .attrTween('rx', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
       .attrTween('ry', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
-      .attrTween('height', () => (t) => '' + t * (height - vspacer * numberPerfs) / numberPerfs)
+      .attrTween('height', () => (t) => '' + t * (height - vSpacer * numberPerfs) / numberPerfs)
       .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * t
-        + (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1))
+        + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1))
       );
     const perfI = svgPerf.selectAll('performanceNames').data([performanceLine[0]]).enter(); // Only need the text data once
     perfI.append('text') // Asset names
@@ -95,7 +95,7 @@ export class HeatmapComponent implements OnInit {
           .text(perfi.name)
           .attr('class', 'perfM')
           .attr('x', 0)
-          .attr('y', t * (height - vspacer * numberPerfs) * assetIndex / numberPerfs + vspacer * (assetIndex - 1) - 5)
+          .attr('y', t * (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1) - 5)
           .attr('dy', 1.5 * t)
           .call(this.wrap, 70 * t, t);
       });
@@ -152,11 +152,11 @@ export class HeatmapComponent implements OnInit {
         }
       });
       this.buttonName = this.squares ? 'Circles' : 'Squares';
-      this.heatMaps(this.managerX, this.managerY, this.managerPlot, this.colourrange, this.squares);
+      this.heatMaps('app-heatmap', this.managerX, this.managerY, this.managerPlot, this.colourRange, this.squares);
     } else if (this.chosenFigure === 'Large Map') {
-      this.largeMap(this.myData.managerDataTypes, this.myData.managerData, this.colourrange);
+      this.largeMap('app-heatmap', this.myData.managerDataTypes, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
-      this.perfMap(this.perfData);
+      this.perfMap('app-heatmap', this.perfData);
     } else if (this.chosenFigure === 'Radar') {
       const margin = {
         top: 100,
@@ -182,20 +182,20 @@ export class HeatmapComponent implements OnInit {
       this.RadarChart('app-heatmap', this.myData.radarData, radarChartOptions);
     }
   }
-  perfMap(perfData: { name: string; performance: number[]; hold: boolean[]; }[]) {
+  perfMap(id: string, perfData: { name: string; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
     const margin = { top: 30, right: 90, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
-      svgbase: d3.Selection<d3.BaseType, {}, HTMLElement, {}> = d3.select('app-heatmap').append('svg'),
-      vspacer = 15, textspace = 15,
-      gradientG = svgbase.append('linearGradient')
+      svgBase: d3.Selection<d3.BaseType, {}, HTMLElement, {}> = d3.select(id).append('svg'),
+      vSpacer = 15, textSpacer = 15,
+      gradientG = svgBase.append('linearGradient')
         .attr('id', 'gradG')
         .attr('x1', '0%')
         .attr('y1', '0%')
         .attr('x2', '0%')
         .attr('y2', '100%'),
-      gradientR = svgbase.append('linearGradient')
+      gradientR = svgBase.append('linearGradient')
         .attr('id', 'gradR')
         .attr('x1', '0%')
         .attr('y1', '0%')
@@ -226,12 +226,12 @@ export class HeatmapComponent implements OnInit {
       .attr('stop-color', 'rgb(255,16,8)')
       .attr('stop-opacity', 1);
     if (this.viewbox) {
-      svgbase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
+      svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
     } else {
-      svgbase.attr('width', width + margin.left + margin.right);
-      svgbase.attr('height', height + margin.top + margin.bottom);
+      svgBase.attr('width', width + margin.left + margin.right);
+      svgBase.attr('height', height + margin.top + margin.bottom);
     }
-    const svg = svgbase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+    const svg = svgBase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
     perfData.forEach((ydata, yi) => {
       const wiggle = 1, // each rectangle is positioned vertically according to performance if wiggle > 0
         perfInd = d3.scaleLinear().domain(d3.extent(ydata.performance)).range([height * 0.015 * wiggle, -height * 0.015 * wiggle]);
@@ -239,23 +239,23 @@ export class HeatmapComponent implements OnInit {
       ydata.performance.forEach((perform, xi) =>
       perfPlotDataAsset.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi] }));
 
-      this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vspacer, width, textspace);
+      this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vSpacer, width, textSpacer);
     });
   }
-  largeMap(managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourrange: string[]) {
+  largeMap(id: string, managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourRange: string[]) {
     const margin = { top: 110, right: 10, bottom: 40, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear().domain([0, managerDataTypes.length]).range([0, width]),
       scaleY = d3.scaleLinear().domain([0, managerData[0].length]).range([0, height]),
-      svg = d3.select('app-heatmap').append('svg')
+      svgBase = d3.select(id).append('svg')
         .attr('width', `${width + margin.left + margin.right}`)
         .attr('height', `${height + margin.bottom + margin.top}`);
-    svg.append('rect').attr('width', `${width + margin.left + margin.right}`)
+    svgBase.append('rect').attr('width', `${width + margin.left + margin.right}`)
       .attr('height', `${height + margin.bottom + margin.top}`).attr('x', '0').attr('y', '0').attr('class', 'rim');
-    svg.append('rect').attr('width', width).attr('height', height)
+    svgBase.append('rect').attr('width', width).attr('height', height)
       .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
-    const magnify = svg.append('g'), XLabels = svg.selectAll('.xLabel')
+    const magnify = svgBase.append('g'), XLabels = svgBase.selectAll('.xLabel')
       .data(managerDataTypes)
       .enter().append('text')
       .text((d) => d)
@@ -268,7 +268,7 @@ export class HeatmapComponent implements OnInit {
       .call(this.wrap, 60, 0.8);
     let pastLabel = '', nL = 1;
     const iOffice: {} = {}; // Find the office numbers
-    const YOffice = svg.selectAll('.yLabel0')
+    const YOffice = svgBase.selectAll('.yLabel0')
       .data(managerData[0])
       .enter().append('text')
       .text((d) => {
@@ -289,7 +289,7 @@ export class HeatmapComponent implements OnInit {
       .style('text-anchor', 'end')
       .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-40)`)
       .attr('class', 'axis-y');
-    const YOfficeGroups = svg.selectAll('.yLabel1')
+    const YOfficeGroups = svgBase.selectAll('.yLabel1')
       .data(managerData[0])
       .enter().append('text')
       .text((d) => d.y)
@@ -304,10 +304,10 @@ export class HeatmapComponent implements OnInit {
 
     const colouredRectangles: d3.Selection<d3.BaseType, { x: string, y: string, value: number }, d3.BaseType, {}>[] = [];
     managerData.forEach((di, ix) => {
-      const ixx = ix % (colourrange.length - 1);
+      const ixx = ix % (colourRange.length - 1);
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
         .domain([0, this.numColours - 1])
-        .range([d3.rgb(colourrange[(ixx > 0 ? ixx + 1 : ixx) % colourrange.length]), d3.rgb(colourrange[1])]),
+        .range([d3.rgb(colourRange[(ixx > 0 ? ixx + 1 : ixx) % colourRange.length]), d3.rgb(colourRange[1])]),
         colours: d3.RGBColor[] = [];
       for (let i = 0; i < this.numColours; ++i) {
         colours[i] = coloursd(i);
@@ -316,7 +316,7 @@ export class HeatmapComponent implements OnInit {
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
-      colouredRectangles[ix] = svg.selectAll('.rect')
+      colouredRectangles[ix] = svgBase.selectAll('.rect')
         .data(di)
         .enter().append('rect')
         .attr('x', (dd) => margin.left + scaleX(ix))
@@ -334,7 +334,7 @@ export class HeatmapComponent implements OnInit {
         .on('click', (dd, i) => clicker(di, i))
         .on('mouseout', () => this.tooltip.style('opacity', 0));
     });
-    const highlite = svg.append('g').append('rect'),
+    const highlite = svgBase.append('g').append('rect'),
       datamagbase = magnify.selectAll('.mag').data(colouredRectangles).enter().append('g'),
       doDatamag = true, magnifyBorder = magnify.append('rect'),
       datamag = datamagbase.append('rect'),
@@ -358,13 +358,13 @@ export class HeatmapComponent implements OnInit {
               .attr('class', 'mag')
               .attr('y', 4)
               .style('fill', 'rgb(5, 247, 236)')
-              .on('mouseover', (d, id) =>
+              .on('mouseover', (d, idd) =>
                 this.tooltip
                   .style('left', `${d3.event.pageX}px`)
                   .style('top', `${d3.event.pageY}px`)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${managerData[id][i].x}<br>${managerData[id][i].y}<br>${managerDataTypes[id]}<br>${managerData[id][i].value}`)
+                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerDataTypes[idd]}<br>${managerData[idd][i].value}`)
               )
               .on('mouseout', () => this.tooltip.style('opacity', 0));
             datamag.transition().duration(1500)
@@ -394,13 +394,13 @@ export class HeatmapComponent implements OnInit {
                 return (t: number) => d3.select(datamagRef[labIndex])
                   .attr('transform', `translate(${dt} , ${heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
                   .style('opacity', `${Math.sqrt(t)}`);
-              }).on('mouseover', (d, id) =>
+              }).on('mouseover', (d, idd) =>
                 this.tooltip
                   .style('left', `${d3.event.pageX}px`)
                   .style('top', `${d3.event.pageY}px`)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${managerData[id][i].x}<br>${managerData[id][i].y}<br>${managerDataTypes[id]}<br>${managerData[id][i].value}`)
+                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerDataTypes[idd]}<br>${managerData[idd][i].value}`)
               )
               .on('mouseout', () => this.tooltip.style('opacity', 0));
             magnifyBorder
@@ -418,7 +418,7 @@ export class HeatmapComponent implements OnInit {
             magnifyBorder.style('stroke', 'none');
           }
         }
-      }, rectH = svg.append('rect')
+      }, rectH = svgBase.append('rect')
         .attr('x', margin.left)
         .attr('y', margin.top)
         .attr('width', width)
@@ -445,8 +445,8 @@ export class HeatmapComponent implements OnInit {
     this.buttonName = this.squares ? 'Circles' : 'Squares';
     this.ngOnInit();
   }
-  heatMaps(xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
-    colourrange: string[], squares: boolean) {
+  heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
+    colourRange: string[], squares: boolean) {
     const transpose = this.transpose,
       labelsXY = { x: [' '], y: [' '] }, heatData: { x: number, y: number, value: number }[] = [];
     if (transpose) {
@@ -468,18 +468,18 @@ export class HeatmapComponent implements OnInit {
     }
     const coloursd = d3.scaleLinear<d3.RGBColor>()
       .domain([0, buckets - 1])
-      .range([d3.rgb(colourrange[0]), d3.rgb(colourrange[1])]), colours: d3.RGBColor[] = [],
-      svgheat = d3.select('app-heatmap').append('svg');
+      .range([d3.rgb(colourRange[0]), d3.rgb(colourRange[1])]), colours: d3.RGBColor[] = [],
+      svgBase = d3.select(id).append('svg');
     for (let i = 0; i < buckets; i++) {
       colours[i] = coloursd(i);
     }
     if (this.viewbox) {
-      svgheat.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`);
+      svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`);
     } else {
-      svgheat.attr('width', width + margin.left + margin.right);
-      svgheat.attr('height', height + margin.top + margin.bottom + legendSize);
+      svgBase.attr('width', width + margin.left + margin.right);
+      svgBase.attr('height', height + margin.top + margin.bottom + legendSize);
     }
-    const svg = svgheat
+    const svg = svgBase
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
       YLabels = svg.selectAll('.yLabel')
