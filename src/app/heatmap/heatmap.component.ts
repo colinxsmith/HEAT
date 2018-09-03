@@ -389,8 +389,9 @@ export class HeatmapComponent implements OnInit {
               .text((d, labIndex) => `${managerData[labIndex][i].value}`)
               .transition().duration(1500)
               .tween('', (d, labIndex, datamagRef) => {
-                const dt = +d3.select(d.nodes()[i]).attr('x').replace('px', '') +
-                  +d3.select(d.nodes()[i]).attr('width').replace('px', '') / 2;
+                const nodeI = d3.select(d.nodes()[i]);
+                const dt = +nodeI.attr('x').replace('px', '') +
+                  +nodeI.attr('width').replace('px', '') / 2;
                 return (t: number) => d3.select(datamagRef[labIndex])
                   .attr('transform', `translate(${dt} , ${heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
                   .style('opacity', `${Math.sqrt(t)}`);
