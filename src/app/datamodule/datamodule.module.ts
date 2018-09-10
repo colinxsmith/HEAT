@@ -1,4 +1,5 @@
 export class DatamoduleModule {
+  fiveCircles = [0.1, 0.3, 0.5, 0.6, 0.7];
   radarData = [
     [
       { axis: 'Equity', value: 0.6 },

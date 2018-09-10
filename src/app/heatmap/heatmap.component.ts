@@ -158,7 +158,7 @@ export class HeatmapComponent implements OnInit {
     } else if (this.chosenFigure === 'Perf Map') {
       this.perfMap('app-heatmap', this.perfData);
     } else if (this.chosenFigure === '5 Circles') {
-      this.fiveCircles('app-heatmap');
+      this.fiveCircles('app-heatmap', this.myData.fiveCircles);
     } else if (this.chosenFigure === 'Radar') {
       const margin = {
         top: 100,
@@ -184,8 +184,8 @@ export class HeatmapComponent implements OnInit {
       this.RadarChart('app-heatmap', this.myData.radarData, radarChartOptions);
     }
   }
-  fiveCircles(id: string) {
-    const nCirc = 5, lowerR = 1, angle5 = Math.PI * 2 / nCirc, radRat = Math.sin(angle5 * 0.5),
+  fiveCircles(id: string, circData: number[]) {
+    const nCirc = circData.length, angle5 = Math.PI * 2 / nCirc, radRat = Math.sin(angle5 * 0.5),
       margin = { top: 120, right: 90, bottom: 120, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
@@ -214,17 +214,18 @@ export class HeatmapComponent implements OnInit {
           .style('stroke-width', 3)
           .attr('cx', cx)
           .attr('cy', cy)
-          .attr('r', RAD);
+          .attr('r', 0);
       }
-      const smallRad = RAD * lowerR;
+      const smallRad = RAD;
       for (let i = 0; i < nCirc; ++i) {
         if (depth < maxdepth) {
           groupCirc(smallRad * radRat, cx + RAD * Math.sin(angle5 * i), cy - RAD * Math.cos(angle5 * i), depth, maxdepth);
         }
-          svg.append('circle')
+        svg.append('circle')
           .style('fill', () => cc[i])
           .style('stroke', 'black')
           .style('stroke-width', 3)
+          .attr('ddd', circData[i])
           .attr('cx', cx + smallRad * Math.sin(angle5 * i))
           .attr('cy', cy - smallRad * Math.cos(angle5 * i))
           .attr('r', smallRad * radRat);
@@ -234,18 +235,29 @@ export class HeatmapComponent implements OnInit {
     groupCirc(baseRad, 0, 0, 0, 4);
     const largeC: number[] = [];
     svg.selectAll('circle').attr('r', (d, i, HH) =>
-      largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''));
+      largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''))
+      .on('mouseover', (d, i, HH) => this.tooltip
+        .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
+        .style('left', `${d3.event.pageX - 50}px`)
+        .style('top', `${d3.event.pageY - 50}px`)
+        .style('opacity', 1)
+      )
+      .on('mouseout', (d, i) => this.tooltip
+        .style('opacity', 0)
+      )
+      ;
     svg.selectAll('circle').transition().duration(1500)
       .tween('', (d, i, kk) => {
         return (t: number) => {
           const here = d3.select(kk[i]), newRad = (+here.attr('r').replace('px', '') * (1 - t));
-          if (largeC[i] >= baseRad * radRat * lowerR) {
-            here.attr('r', largeC[i]);
+          if (largeC[i] >= baseRad * radRat) {
+            here.attr('r', largeC[i] * t);
           } else {
-            here .attr('r', newRad);
+            here.attr('r', newRad);
           }
         };
-      });
+      })
+      ;
   }
   perfMap(id: string, perfData: { name: string; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
