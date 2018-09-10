@@ -81,7 +81,7 @@ rect.perfM {
     stroke: black;
 }
 rect.perfS {
-    stroke-width: 0px;
+    stroke-width: 0.5px;
     shape-rendering: crispEdges;
     stroke: rgb(14, 12, 12);
 }

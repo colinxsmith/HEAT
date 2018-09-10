@@ -19,7 +19,7 @@ export class HeatmapComponent implements OnInit {
   managerX: string[] = [];
   managerY: string[] = [];
   managerPlot: { x: number, y: number, value: number }[] = [];
-  numColours = 25;
+  numColours = 250;
   buttonName = 'Squares';
   transpose = true;
   squares = true;
@@ -54,7 +54,7 @@ export class HeatmapComponent implements OnInit {
   displayOneLinePerfData = (performanceLine: { name: string; performance: number; hold: boolean; }[], assetIndex: number,
     performanceHeightIndicator: d3.ScaleLinear<number, number>, svgPerf: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
     perfData: { name: string; performance: number[]; hold: boolean[]; }[], height: number, vSpacer: number, width: number,
-    textSpacer: number) => {
+    textSpacer: number, numberPerfs: number) => {
     const decorate: number[] = [];
     performanceLine.forEach((d, i) => decorate[i] = d.performance);
     const redwhitegreen1 = d3.scaleLinear<d3.RGBColor>().domain([d3.extent(decorate)[0], 0])
@@ -64,7 +64,7 @@ export class HeatmapComponent implements OnInit {
     const rwg = [];
     console.log(d3.extent(decorate));
     performanceLine.forEach((d, i) => rwg[i] = d.performance < 0 ? redwhitegreen1(d.performance) : redwhitegreen2(d.performance));
-    const perfS = svgPerf.selectAll('performanceData').data(performanceLine).enter(), numberPerfs = Math.max(20, perfData.length);
+    const perfS = svgPerf.selectAll('performanceData').data(performanceLine).enter();
     perfS.append('rect') // Coloured rectangles
       .attr('height', (height - vSpacer * numberPerfs) / numberPerfs)
       .attr('width', width / performanceLine.length)
@@ -271,7 +271,7 @@ export class HeatmapComponent implements OnInit {
   }
   perfMap(id: string, perfData: { name: string; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
-    const margin = { top: 30, right: 90, bottom: 30, left: 90 },
+    const margin = { top: 30, right: 90, bottom: 30, left: 90 }, numberPerfs = Math.max(20, perfData.length),
       width = 1000 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
       svgBase: d3.Selection<d3.BaseType, {}, HTMLElement, {}> = d3.select(id).append('svg'),
@@ -326,8 +326,18 @@ export class HeatmapComponent implements OnInit {
       ydata.performance.forEach((perform, xi) =>
       perfPlotDataAsset.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi] }));
 
-      this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vSpacer, width, textSpacer);
+      this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vSpacer, width, textSpacer, numberPerfs);
     });
+    svg.append('rect')
+    .attr('height', (height - vSpacer * numberPerfs) / numberPerfs * perfData.length + vSpacer * (perfData.length - 1) )
+    .attr('y', -vSpacer)
+      .attr('x', width * (textSpacer) / (perfData[0].performance.length + textSpacer))
+      .attr('width', (width * perfData[0].performance.length / (perfData[0].performance.length + textSpacer)))
+      .style('fill', 'none')
+    .style('stroke', 'black')
+    .style('stroke-width', 2)
+    ;
+
   }
   largeMap(id: string, managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourRange: string[]) {
     const margin = { top: 110, right: 10, bottom: 40, left: 90 },
