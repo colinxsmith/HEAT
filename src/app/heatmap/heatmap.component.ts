@@ -14,7 +14,7 @@ import { PrefixNot } from '@angular/compiler';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  plotFigure = ['Heat Map', 'Large Map', 'Radar ', 'Perf Map', '5 Circles'].reverse();
+  plotFigure = ['Heat Map', 'Large Map', 'Radar ', '5 Circles', 'Perf Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -55,11 +55,21 @@ export class HeatmapComponent implements OnInit {
     performanceHeightIndicator: d3.ScaleLinear<number, number>, svgPerf: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
     perfData: { name: string; performance: number[]; hold: boolean[]; }[], height: number, vSpacer: number, width: number,
     textSpacer: number) => {
-    const perfS = svgPerf.selectAll('performanceData').data(performanceLine).enter(), numberPerfs = Math.max(4, perfData.length);
+    const decorate: number[] = [];
+    performanceLine.forEach((d, i) => decorate[i] = d.performance);
+    const redwhitegreen1 = d3.scaleLinear<d3.RGBColor>().domain([d3.extent(decorate)[0], 0])
+      .range([d3.rgb(200, 0, 0), d3.rgb(255, 255, 255)]);
+    const redwhitegreen2 = d3.scaleLinear<d3.RGBColor>().domain([0, d3.extent(decorate)[1]])
+      .range([d3.rgb(255, 255, 255), d3.rgb(0, 200, 0)]);
+    const rwg = [];
+    console.log(d3.extent(decorate));
+    performanceLine.forEach((d, i) => rwg[i] = d.performance < 0 ? redwhitegreen1(d.performance) : redwhitegreen2(d.performance));
+    const perfS = svgPerf.selectAll('performanceData').data(performanceLine).enter(), numberPerfs = Math.max(20, perfData.length);
     perfS.append('rect') // Coloured rectangles
       .attr('height', (height - vSpacer * numberPerfs) / numberPerfs)
       .attr('width', width / performanceLine.length)
-      .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
+  //    .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
+      .style('fill', (perfi, i) => rwg[i])
       .on('mouseover', (perfi, ii, jj) => this.tooltip
         .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
         Period: ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
@@ -81,8 +91,8 @@ export class HeatmapComponent implements OnInit {
       .attr('width', width / performanceLine.length)
       .style('fill', 'none')
       .transition().duration(2000)
-      .attrTween('rx', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
-      .attrTween('ry', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
+    //  .attrTween('rx', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
+    //  .attrTween('ry', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
       .attrTween('height', () => (t) => '' + t * (height - vSpacer * numberPerfs) / numberPerfs)
       .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * t
         + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1))
@@ -249,9 +259,9 @@ export class HeatmapComponent implements OnInit {
     svg.selectAll('circle').transition().duration(1500)
       .tween('', (d, i, kk) => {
         return (t: number) => {
-          const here = d3.select(kk[i]), newRad = (+here.attr('r').replace('px', '') * (1 - t));
+          const here = d3.select(kk[i]), newRad = (+here.attr('r').replace('px', '') * (1 - t * t));
           if (largeC[i] >= baseRad * radRat) {
-            here.attr('r', largeC[i] * t);
+            here.attr('r', largeC[i]);
           } else {
             here.attr('r', newRad);
           }
@@ -265,7 +275,7 @@ export class HeatmapComponent implements OnInit {
       width = 1000 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
       svgBase: d3.Selection<d3.BaseType, {}, HTMLElement, {}> = d3.select(id).append('svg'),
-      vSpacer = 15, textSpacer = 15,
+      vSpacer = 3, textSpacer = 15,
       gradientG = svgBase.append('linearGradient')
         .attr('id', 'gradG')
         .attr('x1', '0%')
@@ -310,7 +320,7 @@ export class HeatmapComponent implements OnInit {
     }
     const svg = svgBase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
     perfData.forEach((ydata, yi) => {
-      const wiggle = 1, // each rectangle is positioned vertically according to performance if wiggle > 0
+      const wiggle = 0, // each rectangle is positioned vertically according to performance if wiggle > 0
         perfInd = d3.scaleLinear().domain(d3.extent(ydata.performance)).range([height * 0.015 * wiggle, -height * 0.015 * wiggle]);
       const perfPlotDataAsset: { name: string; performance: number; hold: boolean }[] = []; // perfPlotDataAsset[] is the true data plotted
       ydata.performance.forEach((perform, xi) =>
