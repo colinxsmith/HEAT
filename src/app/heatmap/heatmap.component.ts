@@ -14,7 +14,7 @@ import { PrefixNot } from '@angular/compiler';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  plotFigure = ['Heat Map', 'Large Map', 'Radar ', 'Perf Map'].reverse();
+  plotFigure = ['Heat Map', 'Large Map', 'Radar ', '5 Circles', 'Perf Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -55,11 +55,21 @@ export class HeatmapComponent implements OnInit {
     performanceHeightIndicator: d3.ScaleLinear<number, number>, svgPerf: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
     perfData: { name: string; performance: number[]; hold: boolean[]; }[], height: number, vSpacer: number, width: number,
     textSpacer: number) => {
-    const perfS = svgPerf.selectAll('performanceData').data(performanceLine).enter(), numberPerfs = Math.max(4, perfData.length);
+    const decorate: number[] = [];
+    performanceLine.forEach((d, i) => decorate[i] = d.performance);
+    const redwhitegreen1 = d3.scaleLinear<d3.RGBColor>().domain([d3.extent(decorate)[0], 0])
+      .range([d3.rgb(200, 0, 0), d3.rgb(255, 255, 255)]);
+    const redwhitegreen2 = d3.scaleLinear<d3.RGBColor>().domain([0, d3.extent(decorate)[1]])
+      .range([d3.rgb(255, 255, 255), d3.rgb(0, 200, 0)]);
+    const rwg = [];
+    console.log(d3.extent(decorate));
+    performanceLine.forEach((d, i) => rwg[i] = d.performance < 0 ? redwhitegreen1(d.performance) : redwhitegreen2(d.performance));
+    const perfS = svgPerf.selectAll('performanceData').data(performanceLine).enter(), numberPerfs = Math.max(20, perfData.length);
     perfS.append('rect') // Coloured rectangles
       .attr('height', (height - vSpacer * numberPerfs) / numberPerfs)
       .attr('width', width / performanceLine.length)
-      .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
+  //    .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
+      .style('fill', (perfi, i) => rwg[i])
       .on('mouseover', (perfi, ii, jj) => this.tooltip
         .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
         Period: ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
@@ -81,8 +91,8 @@ export class HeatmapComponent implements OnInit {
       .attr('width', width / performanceLine.length)
       .style('fill', 'none')
       .transition().duration(2000)
-      .attrTween('rx', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
-      .attrTween('ry', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
+    //  .attrTween('rx', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
+    //  .attrTween('ry', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
       .attrTween('height', () => (t) => '' + t * (height - vSpacer * numberPerfs) / numberPerfs)
       .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * t
         + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1))
@@ -157,6 +167,8 @@ export class HeatmapComponent implements OnInit {
       this.largeMap('app-heatmap', this.myData.managerDataTypes, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
       this.perfMap('app-heatmap', this.perfData);
+    } else if (this.chosenFigure === '5 Circles') {
+      this.fiveCircles('app-heatmap', this.myData.fiveCircles);
     } else if (this.chosenFigure === 'Radar') {
       const margin = {
         top: 100,
@@ -182,13 +194,88 @@ export class HeatmapComponent implements OnInit {
       this.RadarChart('app-heatmap', this.myData.radarData, radarChartOptions);
     }
   }
+  fiveCircles(id: string, circData: number[]) {
+    const nCirc = circData.length, angle5 = Math.PI * 2 / nCirc, radRat = Math.sin(angle5 * 0.5),
+      margin = { top: 120, right: 90, bottom: 120, left: 90 },
+      width = 1000 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom,
+      svgBase: d3.Selection<d3.BaseType, {}, HTMLElement, {}> = d3.select(id).append('svg');
+    if (this.viewbox) {
+      svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
+    } else {
+      svgBase.attr('width', width + margin.left + margin.right);
+      svgBase.attr('height', height + margin.top + margin.bottom);
+    }
+    const svg = svgBase.append('g').attr('transform', `translate(${margin.left + width / 2},${margin.top + height / 2})`),
+      colours = d3.scaleLinear<d3.RGBColor>()
+        .domain([0, nCirc])
+        .range([d3.rgb(255, 0, 0), d3.rgb(0, 255, 0)]),
+      baseRad = Math.min(width, height) * 0.5;
+    const cc = [];
+    for (let i = 0; i < nCirc; ++i) {
+      cc[i] = colours(i);
+    }
+    const groupCirc = (RAD: number, cx: number, cy: number, depth: number, maxdepth: number) => {
+      depth++;
+      if (depth === 1) {
+        svg.append('circle')
+          .style('fill', 'none')
+          .style('stroke', 'black')
+          .style('stroke-width', 3)
+          .attr('cx', cx)
+          .attr('cy', cy)
+          .attr('r', 0);
+      }
+      const smallRad = RAD;
+      for (let i = 0; i < nCirc; ++i) {
+        if (depth < maxdepth) {
+          groupCirc(smallRad * radRat, cx + RAD * Math.sin(angle5 * i), cy - RAD * Math.cos(angle5 * i), depth, maxdepth);
+        }
+        svg.append('circle')
+          .style('fill', () => cc[i])
+          .style('stroke', 'black')
+          .style('stroke-width', 3)
+          .attr('ddd', circData[i])
+          .attr('cx', cx + smallRad * Math.sin(angle5 * i))
+          .attr('cy', cy - smallRad * Math.cos(angle5 * i))
+          .attr('r', smallRad * radRat);
+      }
+
+    };
+    groupCirc(baseRad, 0, 0, 0, 4);
+    const largeC: number[] = [];
+    svg.selectAll('circle').attr('r', (d, i, HH) =>
+      largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''))
+      .on('mouseover', (d, i, HH) => this.tooltip
+        .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
+        .style('left', `${d3.event.pageX - 50}px`)
+        .style('top', `${d3.event.pageY - 50}px`)
+        .style('opacity', 1)
+      )
+      .on('mouseout', (d, i) => this.tooltip
+        .style('opacity', 0)
+      )
+      ;
+    svg.selectAll('circle').transition().duration(1500)
+      .tween('', (d, i, kk) => {
+        return (t: number) => {
+          const here = d3.select(kk[i]), newRad = (+here.attr('r').replace('px', '') * (1 - t * t));
+          if (largeC[i] >= baseRad * radRat) {
+            here.attr('r', largeC[i]);
+          } else {
+            here.attr('r', newRad);
+          }
+        };
+      })
+      ;
+  }
   perfMap(id: string, perfData: { name: string; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
     const margin = { top: 30, right: 90, bottom: 30, left: 90 },
       width = 1000 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
       svgBase: d3.Selection<d3.BaseType, {}, HTMLElement, {}> = d3.select(id).append('svg'),
-      vSpacer = 15, textSpacer = 15,
+      vSpacer = 3, textSpacer = 15,
       gradientG = svgBase.append('linearGradient')
         .attr('id', 'gradG')
         .attr('x1', '0%')
@@ -233,7 +320,7 @@ export class HeatmapComponent implements OnInit {
     }
     const svg = svgBase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
     perfData.forEach((ydata, yi) => {
-      const wiggle = 1, // each rectangle is positioned vertically according to performance if wiggle > 0
+      const wiggle = 0, // each rectangle is positioned vertically according to performance if wiggle > 0
         perfInd = d3.scaleLinear().domain(d3.extent(ydata.performance)).range([height * 0.015 * wiggle, -height * 0.015 * wiggle]);
       const perfPlotDataAsset: { name: string; performance: number; hold: boolean }[] = []; // perfPlotDataAsset[] is the true data plotted
       ydata.performance.forEach((perform, xi) =>
