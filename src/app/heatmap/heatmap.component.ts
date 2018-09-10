@@ -14,7 +14,7 @@ import { PrefixNot } from '@angular/compiler';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  plotFigure = ['Heat Map', 'Large Map', 'Radar ', 'Perf Map'].reverse();
+  plotFigure = ['Heat Map', 'Large Map', 'Radar ', 'Perf Map', '5 Circles'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -157,6 +157,8 @@ export class HeatmapComponent implements OnInit {
       this.largeMap('app-heatmap', this.myData.managerDataTypes, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
       this.perfMap('app-heatmap', this.perfData);
+    } else if (this.chosenFigure === '5 Circles') {
+      this.fiveCircles('app-heatmap');
     } else if (this.chosenFigure === 'Radar') {
       const margin = {
         top: 100,
@@ -181,6 +183,69 @@ export class HeatmapComponent implements OnInit {
 
       this.RadarChart('app-heatmap', this.myData.radarData, radarChartOptions);
     }
+  }
+  fiveCircles(id: string) {
+    const nCirc = 5, lowerR = 1, angle5 = Math.PI * 2 / nCirc, radRat = Math.sin(angle5 * 0.5),
+      margin = { top: 120, right: 90, bottom: 120, left: 90 },
+      width = 1000 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom,
+      svgBase: d3.Selection<d3.BaseType, {}, HTMLElement, {}> = d3.select(id).append('svg');
+    if (this.viewbox) {
+      svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
+    } else {
+      svgBase.attr('width', width + margin.left + margin.right);
+      svgBase.attr('height', height + margin.top + margin.bottom);
+    }
+    const svg = svgBase.append('g').attr('transform', `translate(${margin.left + width / 2},${margin.top + height / 2})`),
+      colours = d3.scaleLinear<d3.RGBColor>()
+        .domain([0, nCirc])
+        .range([d3.rgb(255, 0, 0), d3.rgb(0, 255, 0)]),
+      baseRad = Math.min(width, height) * 0.5;
+    const cc = [];
+    for (let i = 0; i < nCirc; ++i) {
+      cc[i] = colours(i);
+    }
+    const groupCirc = (RAD: number, cx: number, cy: number, depth: number, maxdepth: number) => {
+      depth++;
+      if (depth === 1) {
+        svg.append('circle')
+          .style('fill', 'none')
+          .style('stroke', 'black')
+          .style('stroke-width', 3)
+          .attr('cx', cx)
+          .attr('cy', cy)
+          .attr('r', RAD);
+      }
+      const smallRad = RAD * lowerR;
+      for (let i = 0; i < nCirc; ++i) {
+        if (depth < maxdepth) {
+          groupCirc(smallRad * radRat, cx + RAD * Math.sin(angle5 * i), cy - RAD * Math.cos(angle5 * i), depth, maxdepth);
+        }
+          svg.append('circle')
+          .style('fill', () => cc[i])
+          .style('stroke', 'black')
+          .style('stroke-width', 3)
+          .attr('cx', cx + smallRad * Math.sin(angle5 * i))
+          .attr('cy', cy - smallRad * Math.cos(angle5 * i))
+          .attr('r', smallRad * radRat);
+      }
+
+    };
+    groupCirc(baseRad, 0, 0, 0, 4);
+    const largeC: number[] = [];
+    svg.selectAll('circle').attr('r', (d, i, HH) =>
+      largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''));
+    svg.selectAll('circle').transition().duration(1500)
+      .tween('', (d, i, kk) => {
+        return (t: number) => {
+          const here = d3.select(kk[i]), newRad = (+here.attr('r').replace('px', '') * (1 - t));
+          if (largeC[i] >= baseRad * radRat * lowerR) {
+            here.attr('r', largeC[i]);
+          } else {
+            here .attr('r', newRad);
+          }
+        };
+      });
   }
   perfMap(id: string, perfData: { name: string; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
