@@ -54,7 +54,7 @@ export class HeatmapComponent implements OnInit {
   displayOneLinePerfData = (performanceLine: { name: string; performance: number; hold: boolean; }[], assetIndex: number,
     performanceHeightIndicator: d3.ScaleLinear<number, number>, svgPerf: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
     perfData: { name: string; performance: number[]; hold: boolean[]; }[], height: number, vSpacer: number, width: number,
-    textSpacer: number, numberPerfs: number) => {
+    textSpacer: number, numberPerfs: number, dateSeries: string[]) => {
     const decorate: number[] = [];
     performanceLine.forEach((d, i) => decorate[i] = d.performance);
     const redwhitegreen1 = d3.scaleLinear<d3.RGBColor>().domain([d3.extent(decorate)[0], 0])
@@ -72,7 +72,7 @@ export class HeatmapComponent implements OnInit {
       .style('fill', (perfi, i) => rwg[i])
       .on('mouseover', (perfi, ii, jj) => this.tooltip
         .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
-        Period: ${ii + 1}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
+        Date: ${dateSeries[ii]}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
         .style('left', d3.mouse(<d3.ContainerElement>jj[ii])[0] > 0.8 * width ?
           `${d3.event.pageX - 200}px` : `${d3.event.pageX + 10}px`)
         .style('top', d3.mouse(<d3.ContainerElement>jj[ii])[1] > 0.8 * height ?
@@ -179,7 +179,7 @@ export class HeatmapComponent implements OnInit {
         , width = Math.min(700, 950 - 10) - margin.left - margin.right
         , height = Math.min(width, 950 - margin.top - margin.bottom - 20);
 
-      const radarBlobColour = d3.scaleOrdinal<number, string>().range(['rgb(255,160,160)', 'green']).domain([0, 1]);
+      const radarBlobColour = d3.scaleOrdinal<number, string>().range(['rgb(255,50,50)', 'rgb(50,255,50)', 'rgb(50,50,255)']);
 
       const radarChartOptions = {
         w: width,
@@ -319,14 +319,23 @@ export class HeatmapComponent implements OnInit {
       svgBase.attr('height', height + margin.top + margin.bottom);
     }
     const svg = svgBase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+    const time1 = new Date(Date.parse('2015/01/01'));
+    const dateSeries: string[] = []; // This is an after thought, should be in the data
     perfData.forEach((ydata, yi) => {
       const wiggle = 0, // each rectangle is positioned vertically according to performance if wiggle > 0
         perfInd = d3.scaleLinear().domain(d3.extent(ydata.performance)).range([height * 0.015 * wiggle, -height * 0.015 * wiggle]);
-      const perfPlotDataAsset: { name: string; performance: number; hold: boolean }[] = []; // perfPlotDataAsset[] is the true data plotted
-      ydata.performance.forEach((perform, xi) =>
-      perfPlotDataAsset.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi] }));
+      const perfPlotDataAsset: { name: string; performance: number; hold: boolean}[] = [];
+     // perfPlotDataAsset[] is the true data plotted
+      ydata.performance.forEach((perform, xi) => {
+        const time2 = new Date(time1.getTime() + 1000 * 60 * 60 * 24 * 7 * xi);
+        if (yi === 0) {
+          dateSeries[xi] = '' + time2.getFullYear() + '/' + (time2.getMonth() + 1) + '/' + time2.getDate();
+        }
+      perfPlotDataAsset.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi]});
+      });
 
-      this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vSpacer, width, textSpacer, numberPerfs);
+      this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vSpacer, width,
+        textSpacer, numberPerfs, dateSeries);
     });
     svg.append('rect')
     .attr('height', (height - vSpacer * numberPerfs) / numberPerfs * perfData.length + vSpacer * (perfData.length - 1) )
@@ -336,7 +345,21 @@ export class HeatmapComponent implements OnInit {
       .style('fill', 'none')
     .style('stroke', 'black')
     .style('stroke-width', 2)
-    ;
+      ;
+    svg.selectAll('toptitles').append('g').data(dateSeries).enter()
+      .append('rect')
+      .attr('x', (d, i) => width * (textSpacer + i) / (perfData[0].performance.length + textSpacer))
+      .attr('y', -vSpacer * 5)
+      .attr('width', 30)
+      .attr('height', 10)
+      .style('fill', (d, i) => i % 52 === 1 ? 'lightgrey' : 'none');
+    svg.selectAll('toptitles').append('g').data(dateSeries).enter()
+      .append('text')
+      .attr('class', 'topdates')
+      .text((d, i) => i % 52 === 1 ? d.split('/')[0] : '')
+      .attr('x', (d, i) => width * (textSpacer + i) / (perfData[0].performance.length + textSpacer))
+      .attr('y', -vSpacer * 2);
+
 
   }
   largeMap(id: string, managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourRange: string[]) {

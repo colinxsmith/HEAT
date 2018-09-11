@@ -112,3 +112,10 @@ text.axisRadar{
     text-anchor:start;
     text-align: center;
 }
+text.topdates {
+    font-size: 10px;
+    font-weight: normal;
+    font-family: Calibri, sans-serif;
+    fill:rgb(84,83,79);
+    stroke-width: 10px;
+}

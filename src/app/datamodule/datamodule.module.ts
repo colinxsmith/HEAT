@@ -36,6 +36,24 @@ export class DatamoduleModule {
       { axis: 'F-Duration', value: 0.5 },
       { axis: 'F-Quality', value: 0.4 },
       { axis: 'Cash', value: 0.05 },
+    ],
+    [
+      { axis: 'Equity', value: 0.9 },
+      { axis: 'E-Oil Factor', value: 0.4 },
+      { axis: 'E-GBP Factor', value: 0.7 },
+      { axis: 'E-EUR Factor', value: 0.8 },
+      { axis: 'E-USD Factor', value: 0.2 },
+      { axis: 'E-Int rate Factor', value: 0.2 },
+      { axis: 'E-Growth', value: 0.25 },
+      { axis: 'E-Value', value: 0.39 },
+      { axis: 'E-Income', value: 0.29 },
+      { axis: 'E-Small cap', value: 0.27 },
+      { axis: 'E-Med cap', value: 0.21 },
+      { axis: 'E-Large cap', value: 0.1 },
+      { axis: 'Fixed Income', value: 0.41 },
+      { axis: 'F-Duration', value: 0.2 },
+      { axis: 'F-Quality', value: 0.1 },
+      { axis: 'Cash', value: 0.002 },
     ]
   ];
   perfMap = [{
