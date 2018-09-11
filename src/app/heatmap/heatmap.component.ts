@@ -340,17 +340,33 @@ export class HeatmapComponent implements OnInit {
     .style('stroke', 'black')
     .style('stroke-width', 2)
       ;
+    let yearChange = 0;
     svg.selectAll('toptitles').append('g').data(perfData[0].dates).enter()
       .append('rect')
       .attr('x', (d, i) => width * (textSpacer + i) / (perfData[0].performance.length + textSpacer))
       .attr('y', -vSpacer * 5)
       .attr('width', 30)
       .attr('height', 10)
-      .style('fill', (d, i) => i % 52 === 0 ? 'lightgrey' : 'none');
+      .style('fill', (d, i) => {
+        let change = false;
+        if (+d.split('/')[0] > yearChange) {
+          yearChange = +d.split('/')[0];
+          change = true;
+        }
+        return change  && (i === 0 || i > 10) ? 'lightgrey' : 'none';
+      });
+    yearChange = 0;
     svg.selectAll('toptitles').append('g').data(perfData[0].dates).enter()
       .append('text')
       .attr('class', 'topdates')
-      .text((d, i) => i % 52 === 0 ? d.split('/')[0] : '')
+      .text((d, i) => {
+        let change = false;
+        if (+d.split('/')[0] > yearChange) {
+          yearChange = +d.split('/')[0];
+          change = true;
+        }
+        return change && (i === 0 || i > 10) ? yearChange : '';
+      })
       .attr('x', (d, i) => width * (textSpacer + i) / (perfData[0].performance.length + textSpacer))
       .attr('y', -vSpacer * 2);
 
