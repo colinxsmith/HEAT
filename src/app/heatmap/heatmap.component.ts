@@ -30,33 +30,33 @@ export class HeatmapComponent implements OnInit {
   pad = true;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourRangeMaps = ['rgb(234,235,236)', 'rgb(245,10,5)'];
-  colourRange = ['rgb(234,235,236)', 'rgb(245,10,5)',
-    'rgb(234,235,236)', 'rgb(245,10,5)',
-    'rgb(234,235,236)', 'rgb(245,10,5)',
-    'rgb(236,234,235)', 'rgb(5,245,10)',
-    'rgb(236,234,235)', 'rgb(5,245,10)',
-    'rgb(236,234,235)', 'rgb(5,245,10)',
-    'rgb(236,234,235)', 'rgb(5,10,245)',
-    'rgb(236,234,235)', 'rgb(5,10,245)',
-    'rgb(236,234,235)', 'rgb(5,10,245)',
+  colourRange = ['white', 'rgb(245,200,105)',
+    'white', 'rgb(245,100,105)',
+    'white', 'rgb(245,100,105)',
+    'white', 'rgb(105,245,100)',
+    'white', 'rgb(105,245,100)',
+    'white', 'rgb(105,245,100)',
+    'white', 'rgb(175,170,245)',
+    'white', 'rgb(175,170,245)',
+    'white', 'rgb(175,170,245)',
     'white', 'black',
     'white', 'black',
     'white', 'black',
     'white', 'black',
     'white', 'black',
-    'cyan', 'blue',
-    'cyan', 'blue',
-    'cyan', 'blue',
-    'cyan', 'blue',
-    'cyan', 'blue',
-    'yellow', 'green',
-    'yellow', 'green',
-    'yellow', 'green',
-    'yellow', 'green',
-    'yellow', 'green',
-    'rgb(10,10,10)', 'rgb(100,100,255)',
-    'rgb(200,225,201)', 'rgb(100,100,255)',
-    'rgb(200,225,201)', 'rgb(100,100,255)'
+    'white', 'blue',
+    'white', 'blue',
+    'white', 'blue',
+    'white', 'blue',
+    'white', 'blue',
+    'white', 'green',
+    'white', 'green',
+    'white', 'green',
+    'white', 'green',
+    'white', 'green',
+    'white', 'rgb(150,150,255)',
+    'white', 'rgb(150,150,255)',
+    'white', 'rgb(150,150,255)'
   ];
   wrap = (text1, width, lineHeight) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
     text1.each((kk, i, j) => {
@@ -259,7 +259,7 @@ export class HeatmapComponent implements OnInit {
       for (let i = 0; i < nCirc; ++i) {
         if (depth < maxdepth) {
           groupCirc(smallRad * radRat, cx + RAD * Math.sin(angle5 * i), cy - RAD * Math.cos(angle5 * i), depth, maxdepth);
-        }
+        }欠航
         svg.append('circle')
           .style('fill', () => cc[i])
           .style('stroke', 'black')
@@ -298,7 +298,7 @@ export class HeatmapComponent implements OnInit {
       })
       ;
   }
-  perfMap(id: string, perfData: { name: string; dates: string []; performance: number[]; hold: boolean[]; }[]) {
+  perfMap(id: string, perfData: { name: 欠航string; dates: string []; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
     const margin = { top: 30, right: 90, bottom: 30, left: 90 }, numberPerfs = Math.max(20, perfData.length),
       width = 1000 - margin.left - margin.right,
@@ -322,7 +322,7 @@ export class HeatmapComponent implements OnInit {
       .attr('stop-color', 'rgb(10,241,10)')
       .attr('stop-opacity', 1);
     gradientG.append('stop')
-      .attr('offset', '40%')
+      .attr('offset', '40%')欠航
       .attr('stop-color', 'lightgreen')
       .attr('stop-opacity', 0.95);
     gradientG.append('stop')
@@ -335,7 +335,7 @@ export class HeatmapComponent implements OnInit {
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '30%')
-      .attr('stop-color', 'rgb(238,144,144)')
+      .attr('stop-color', 'rgb(238,144欠航,144)')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '100%')
