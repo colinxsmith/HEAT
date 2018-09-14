@@ -38,7 +38,7 @@ export class HeatmapComponent implements OnInit {
     'white', 'rgb(105,245,100)',
     'white', 'rgb(175,170,245)',
     'white', 'rgb(175,170,245)',
-    'white', 'rgb(175,170,245)',
+    'white', 'rgb(175,10,245)',
     'white', 'black',
     'white', 'black',
     'white', 'black',
@@ -259,7 +259,7 @@ export class HeatmapComponent implements OnInit {
       for (let i = 0; i < nCirc; ++i) {
         if (depth < maxdepth) {
           groupCirc(smallRad * radRat, cx + RAD * Math.sin(angle5 * i), cy - RAD * Math.cos(angle5 * i), depth, maxdepth);
-        }欠航
+        }
         svg.append('circle')
           .style('fill', () => cc[i])
           .style('stroke', 'black')
@@ -298,7 +298,7 @@ export class HeatmapComponent implements OnInit {
       })
       ;
   }
-  perfMap(id: string, perfData: { name: 欠航string; dates: string []; performance: number[]; hold: boolean[]; }[]) {
+  perfMap(id: string, perfData: { name: string; dates: string []; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
     const margin = { top: 30, right: 90, bottom: 30, left: 90 }, numberPerfs = Math.max(20, perfData.length),
       width = 1000 - margin.left - margin.right,
@@ -322,7 +322,7 @@ export class HeatmapComponent implements OnInit {
       .attr('stop-color', 'rgb(10,241,10)')
       .attr('stop-opacity', 1);
     gradientG.append('stop')
-      .attr('offset', '40%')欠航
+      .attr('offset', '40%')
       .attr('stop-color', 'lightgreen')
       .attr('stop-opacity', 0.95);
     gradientG.append('stop')
