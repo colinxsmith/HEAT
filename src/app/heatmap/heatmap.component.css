@@ -59,7 +59,7 @@ text.axis-y {
 }
 .HL {
     stroke-width: 5px;
-    stroke: rgb(177, 36, 36);
+    stroke: none; /* rgb(177, 36, 36); */
     fill: rgb(6, 153, 6);
     shape-rendering: crispEdges;
     z-index: 99999999;
@@ -81,7 +81,7 @@ rect.perfM {
     stroke: black;
 }
 rect.perfS {
-    stroke-width: 0.5px;
+    stroke-width: 0px;
     shape-rendering: crispEdges;
     stroke: rgb(14, 12, 12);
 }

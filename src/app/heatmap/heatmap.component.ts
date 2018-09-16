@@ -6,7 +6,7 @@ import { PrefixNot } from '@angular/compiler';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -14,7 +14,7 @@ import { PrefixNot } from '@angular/compiler';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  plotFigure = ['Heat Map', 'Large Map', 'Radar ', '5 Circles', 'Perf Map'].reverse();
+  plotFigure = ['Heat Map', 'Radar ', '5 Circles', 'Perf Map', 'Large Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -29,7 +29,35 @@ export class HeatmapComponent implements OnInit {
   chosenFigure = this.plotFigure[0];
   pad = true;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  colourRange = ['rgb(234,235,236)', 'rgb(245,10,5)'];
+  colourRangeMaps = ['rgb(234,235,236)', 'rgb(245,10,5)'];
+  colourRange = ['white', 'rgb(245,200,105)',
+    'white', 'rgb(245,100,105)',
+    'white', 'rgb(245,100,105)',
+    'white', 'rgb(105,245,100)',
+    'white', 'rgb(105,245,100)',
+    'white', 'rgb(105,245,100)',
+    'white', 'rgb(175,170,245)',
+    'white', 'rgb(175,170,245)',
+    'white', 'rgb(175,10,245)',
+    'white', 'black',
+    'white', 'black',
+    'white', 'black',
+    'white', 'black',
+    'white', 'black',
+    'white', 'blue',
+    'white', 'blue',
+    'white', 'blue',
+    'white', 'blue',
+    'white', 'blue',
+    'white', 'green',
+    'white', 'green',
+    'white', 'green',
+    'white', 'green',
+    'white', 'green',
+    'white', 'rgb(150,150,255)',
+    'white', 'rgb(150,150,255)',
+    'white', 'rgb(150,150,255)'
+  ];
   wrap = (text1, width, lineHeight) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
     text1.each((kk, i, j) => {
       const text = d3.select(j[i]),
@@ -70,6 +98,7 @@ export class HeatmapComponent implements OnInit {
       .attr('width', width / performanceLine.length)
   //    .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
       .style('fill', (perfi, i) => rwg[i])
+      .style('stroke-width', 0)
       .on('mouseover', (perfi, ii, jj) => this.tooltip
         .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
         Date: ${perfData[0].dates[ii]}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
@@ -162,7 +191,7 @@ export class HeatmapComponent implements OnInit {
         }
       });
       this.buttonName = this.squares ? 'Circles' : 'Squares';
-      this.heatMaps('app-heatmap', this.managerX, this.managerY, this.managerPlot, this.colourRange, this.squares);
+      this.heatMaps('app-heatmap', this.managerX, this.managerY, this.managerPlot, this.colourRangeMaps, this.squares);
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap('app-heatmap', this.myData.managerDataTypes, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
@@ -306,7 +335,7 @@ export class HeatmapComponent implements OnInit {
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '30%')
-      .attr('stop-color', 'rgb(238,144,144)')
+      .attr('stop-color', 'rgb(238,144欠航,144)')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '100%')
@@ -374,7 +403,7 @@ export class HeatmapComponent implements OnInit {
   }
   largeMap(id: string, managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourRange: string[]) {
     const margin = { top: 110, right: 10, bottom: 40, left: 90 },
-      width = 1000 - margin.left - margin.right,
+      width = 800 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear().domain([0, managerDataTypes.length]).range([0, width]),
       scaleY = d3.scaleLinear().domain([0, managerData[0].length]).range([0, height]),
@@ -434,10 +463,10 @@ export class HeatmapComponent implements OnInit {
 
     const colouredRectangles: d3.Selection<d3.BaseType, { x: string, y: string, value: number }, d3.BaseType, {}>[] = [];
     managerData.forEach((di, ix) => {
-      const ixx = ix % (colourRange.length - 1);
+      const ixx = (ix % (colourRange.length / 2)) * 2;
       const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
-        .domain([0, this.numColours - 1])
-        .range([d3.rgb(colourRange[(ixx > 0 ? ixx + 1 : ixx) % colourRange.length]), d3.rgb(colourRange[1])]),
+        .domain([0, this.numColours])
+        .range([d3.rgb(colourRange[ixx]), d3.rgb(colourRange[ixx + 1])]),
         colours: d3.RGBColor[] = [];
       for (let i = 0; i < this.numColours; ++i) {
         colours[i] = coloursd(i);
@@ -449,9 +478,9 @@ export class HeatmapComponent implements OnInit {
       colouredRectangles[ix] = svgBase.selectAll('.rect')
         .data(di)
         .enter().append('rect')
-        .attr('x', (dd) => margin.left + scaleX(ix))
+        .attr('x', (dd) => margin.left + scaleX(ix) + 1)
         .attr('y', (dd, i) => margin.top + scaleY(i))
-        .attr('width', width / managerDataTypes.length)
+        .attr('width', width / managerDataTypes.length - 2)
         .attr('height', height / di.length)
         .style('fill', (dd) => `${colourScale(dd.value)}`)
         .on('mouseover', (dd) => this.tooltip
@@ -482,7 +511,7 @@ export class HeatmapComponent implements OnInit {
           .attr('y', `${margin.top + scaleY(doBig ? i : 0)}`)
           .style('opacity', '1');
         if (doDatamag) {
-          const heightHere = 100;
+          const heightHere = 40;
           if (doBig) {
             datamag
               .attr('class', 'mag')
@@ -523,7 +552,7 @@ export class HeatmapComponent implements OnInit {
                 const dt = +nodeI.attr('x').replace('px', '') +
                   +nodeI.attr('width').replace('px', '') / 2;
                 return (t: number) => d3.select(datamagRef[labIndex])
-                  .attr('transform', `translate(${dt} , ${heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
+                  .attr('transform', `translate(${dt} , ${1.5 * heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
                   .style('opacity', `${Math.sqrt(t)}`);
               }).on('mouseover', (d, idd) =>
                 this.tooltip
