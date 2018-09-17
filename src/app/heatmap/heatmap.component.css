@@ -76,7 +76,7 @@ text.perfM {
     stroke-width: 0px;
 }
 path.perfM {
-    stroke-width: 1.5px;
+    stroke-width: 2px;
     shape-rendering: geometricPrecision;
     stroke: black;
 }

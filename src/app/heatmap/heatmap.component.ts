@@ -137,8 +137,8 @@ const openBox = true;
         const right = (i === (performanceLine.length - 1)) || (next !== cl);
         return (t) => {
         here.attr('d', () => {
-          const x = width * (i + textSpacer) / (performanceLine.length + textSpacer);
-          const w = width / performanceLine.length;
+          const x = t * width * (i + textSpacer) / (performanceLine.length + textSpacer);
+          const w = t * width / performanceLine.length;
           const h = t * (height - vSpacer * numberPerfs) / numberPerfs;
           const y = (performanceHeightIndicator(perfi.performance) * t
             + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1));
