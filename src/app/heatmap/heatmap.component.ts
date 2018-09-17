@@ -14,7 +14,7 @@ import { PrefixNot } from '@angular/compiler';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  plotFigure = ['Heat Map', 'Radar ', '5 Circles', 'Perf Map', 'Large Map'].reverse();
+  plotFigure = ['Heat Map', 'Radar ', '5 Circles', 'Large Map', 'Perf Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
@@ -107,25 +107,57 @@ export class HeatmapComponent implements OnInit {
         .style('top', d3.mouse(<d3.ContainerElement>jj[ii])[1] > 0.8 * height ?
           `${d3.event.pageY - 100}px` : `${d3.event.pageY - 28}px`)
         .style('opacity', 1)
-      )
+    )
       .on('mouseout', () => this.tooltip.style('opacity', 0))
       .transition().duration(2000)
       .attrTween('x', (perfi, i) => (t) => '' + (width * (i * t + textSpacer) / (performanceLine.length + textSpacer)))
       .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * (t + 100 * (1 - t))
         + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1))
       );
-    perfS.append('rect') // Open rectangles
+const openBox = false;
+    perfS.append('path') // Open rectangles
       .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
-      .attr('x', (perfi, i) => width * (i + textSpacer) / (performanceLine.length + textSpacer))
-      .attr('width', width / performanceLine.length)
+      .attr('d', (perfi, i) => {
+        const x = width * (i + textSpacer) / (performanceLine.length + textSpacer);
+        const w = width / performanceLine.length;
+        const h = (height - vSpacer * numberPerfs) / numberPerfs;
+        const y = (performanceHeightIndicator(perfi.performance)
+          + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1));
+        return `M ${x} ${y} l ${w} 0l 0 ${h} l ${-w} 0 l 0 ${-h}`;
+      })
       .style('fill', 'none')
       .transition().duration(2000)
-    //  .attrTween('rx', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
-    //  .attrTween('ry', (perfi) => (t) => perfi.hold ? `${2 * t * t}` : '0')
-      .attrTween('height', () => (t) => '' + t * (height - vSpacer * numberPerfs) / numberPerfs)
-      .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * t
-        + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1))
-      );
+      .tween('a', (perfi, i, kk) => {
+        const here = d3.select(kk[i]);
+        const last = i > 0 ? d3.select(kk[i - 1]).attr('class') : ' ';
+        const next = i < (performanceLine.length - 1) ? d3.select(kk[i + 1]).attr('class') : ' ';
+        const cl = here.attr('class');
+        const sw = +here.style('stroke-width').replace('px', '') / 2;
+        const left = (i === 0) || (last !== cl);
+        const right = (i === (performanceLine.length - 1)) || (next !== cl);
+        return (t) => {
+        here.attr('d', () => {
+          const x = width * (i + textSpacer) / (performanceLine.length + textSpacer);
+          const w = width / performanceLine.length;
+          const h = t * (height - vSpacer * numberPerfs) / numberPerfs;
+          const y = (performanceHeightIndicator(perfi.performance) * t
+            + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1));
+            let back = '';
+            if (openBox) {
+              back += `M ${x} ${y} l ${w} 0 m 0 ${h} l ${-w} 0 `;
+              if (left) {
+                back += `M ${x} ${y - sw} l 0 ${h + 2 * sw} `;
+              } else if (right) {
+                back += `M ${x + w} ${y - sw} l 0 ${h + 2 * sw} `;
+              }
+            } else {
+              back += `M ${x} ${y} l ${w} 0l 0 ${h} l ${-w} 0 l 0 ${-h}`;
+            }
+            return back;
+          });
+        };
+      })
+      ;
     const perfI = svgPerf.selectAll('performanceNames').data([performanceLine[0]]).enter(); // Only need the text data once
     perfI.append('text') // Asset names
       .transition().duration(2000)
