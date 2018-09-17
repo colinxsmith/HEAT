@@ -114,7 +114,7 @@ export class HeatmapComponent implements OnInit {
       .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * (t + 100 * (1 - t))
         + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1))
       );
-const openBox = false;
+const openBox = true;
     perfS.append('path') // Open rectangles
       .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
       .attr('d', (perfi, i) => {
