@@ -322,7 +322,7 @@ export class HeatmapComponent implements OnInit {
       })
       ;
   }
-  perfMap(id: string, perfData: { name: string; dates: string []; performance: number[]; hold: boolean[]; }[]) {
+  perfMap(id: string, perfData: { name: string; dates: string[]; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
     const margin = { top: 30, right: 90, bottom: 30, left: 90 }, numberPerfs = Math.max(20, perfData.length),
       width = 1000 - margin.left - margin.right,
@@ -335,7 +335,7 @@ export class HeatmapComponent implements OnInit {
         .attr('y1', '0%')
         .attr('x2', '0%')
         .attr('y2', '100%'),
-        gradientGr = svgBase.append('linearGradient')
+      gradientGr = svgBase.append('linearGradient')
         .attr('id', 'gradGr')
         .attr('x1', '0%')
         .attr('y1', '0%')
@@ -347,31 +347,31 @@ export class HeatmapComponent implements OnInit {
         .attr('y1', '0%')
         .attr('x2', '0%')
         .attr('y2', '100%');
-        gradientG.append('stop')
-        .attr('offset', '0%')
-        .attr('stop-color', 'rgb(10,241,10)')
-        .attr('stop-opacity', 1);
-      gradientG.append('stop')
-        .attr('offset', '40%')
-        .attr('stop-color', 'lightgreen')
-        .attr('stop-opacity', 0.95);
-      gradientG.append('stop')
-        .attr('offset', '100%')
-        .attr('stop-color', 'green')
-        .attr('stop-opacity', 1);
-        gradientGr.append('stop')
-        .attr('offset', '0%')
-        .attr('stop-color', 'lightgrey')
-        .attr('stop-opacity', 1);
-      gradientGr.append('stop')
-        .attr('offset', '40%')
-        .attr('stop-color', 'rgb(198,255,198)')
-        .attr('stop-opacity', 0.95);
-      gradientGr.append('stop')
-        .attr('offset', '100%')
-        .attr('stop-color', 'lightgrey')
-        .attr('stop-opacity', 1);
-        gradientR.append('stop')
+    gradientG.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', 'rgb(10,241,10)')
+      .attr('stop-opacity', 1);
+    gradientG.append('stop')
+      .attr('offset', '40%')
+      .attr('stop-color', 'lightgreen')
+      .attr('stop-opacity', 0.95);
+    gradientG.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', 'green')
+      .attr('stop-opacity', 1);
+    gradientGr.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', 'lightgrey')
+      .attr('stop-opacity', 1);
+    gradientGr.append('stop')
+      .attr('offset', '40%')
+      .attr('stop-color', 'rgb(198,255,198)')
+      .attr('stop-opacity', 0.95);
+    gradientGr.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', 'lightgrey')
+      .attr('stop-opacity', 1);
+    gradientR.append('stop')
       .attr('offset', '0%')
       .attr('stop-color', 'rgb(241,10,10)')
       .attr('stop-opacity', 1);
@@ -403,20 +403,20 @@ export class HeatmapComponent implements OnInit {
         textSpacer, numberPerfs);
     });
     svg.append('rect')
-    .attr('height', (height - vSpacer * numberPerfs) / numberPerfs * perfData.length + vSpacer * (perfData.length - 1) )
-    .attr('y', -vSpacer)
+      .attr('height', (height - vSpacer * numberPerfs) / numberPerfs * perfData.length + vSpacer * (perfData.length - 1))
+      .attr('y', -vSpacer)
       .attr('x', width * (textSpacer) / (perfData[0].performance.length + textSpacer))
       .attr('width', (width * perfData[0].performance.length / (perfData[0].performance.length + textSpacer)))
       .style('fill', 'none')
-    .style('stroke', 'black')
-    .style('stroke-width', 2)
+      .style('stroke', 'black')
+      .style('stroke-width', 2)
       ;
     let yearChange = 0, okInt = 0;
     svg.selectAll('toptitles').data(perfData[0].dates).enter()
       .append('rect')
       .attr('x', (d, i) => width * (textSpacer + i) / (perfData[0].performance.length + textSpacer))
       .attr('y', -vSpacer * 5)
-      .attr('width', width  / (perfData[0].performance.length + textSpacer))
+      .attr('width', width / (perfData[0].performance.length + textSpacer))
       .attr('height', 10)
       .attr('class', (d, i) => {
         okInt++;
@@ -424,7 +424,7 @@ export class HeatmapComponent implements OnInit {
           yearChange = +d.split('/')[0];
           okInt = 0;
         }
-        return okInt <= 5   ? 'grey' : 'none';
+        return okInt <= 5 ? 'grey' : 'none'; // Counts 5 "spaces" for the rectangle shading around year label
       });
     yearChange = 0;
     svg.selectAll('toptitles').append('g').data(perfData[0].dates).enter()
