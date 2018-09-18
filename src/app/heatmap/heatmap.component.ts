@@ -120,6 +120,9 @@ export class HeatmapComponent implements OnInit {
       .transition().duration(2000)
       .tween('held', (perfi, i, kk) => {
         const here = d3.select(kk[i]);
+        if (!openBox) {
+          here.style('stroke-width', (+here.style('stroke-width').replace('px', '') * 0.75) + 'px');
+        }
         const last = i > 0 ? d3.select(kk[i - 1]).attr('class') : ' ';
         const next = i < (performanceLine.length - 1) ? d3.select(kk[i + 1]).attr('class') : ' ';
         const cl = here.attr('class');
@@ -142,7 +145,7 @@ export class HeatmapComponent implements OnInit {
                 back += `M ${x + w} ${y - sw} l 0 ${h + 2 * sw} `;
               }
             } else {
-              back += `M ${x} ${y} l ${w} 0l 0 ${h} l ${-w} 0 l 0 ${-h}`;
+              back += `M ${x} ${y} l ${w} 0l 0 ${h} l ${-w} 0 z`;
             }
             return back;
           });
