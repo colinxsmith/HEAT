@@ -76,14 +76,16 @@ text.perfM {
     stroke-width: 0px;
 }
 path.perfM {
-    stroke-width: 2px;
+    stroke-width: 1.5px;
     shape-rendering: geometricPrecision;
     stroke: black;
+    fill:none;
 }
 path.perfS {
     stroke-width: 0px;
     shape-rendering: crispEdges;
     stroke: rgb(14, 12, 12);
+    fill:none;
 }
 rect.perfM {
     stroke-width: 1px;

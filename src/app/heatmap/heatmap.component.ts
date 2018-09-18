@@ -114,40 +114,31 @@ export class HeatmapComponent implements OnInit {
       .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * (t + 100 * (1 - t))
         + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1))
       );
-const openBox = true;
+    const openBox = true;
     perfS.append('path') // Open rectangles
       .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
-      .attr('d', (perfi, i) => {
-        const x = width * (i + textSpacer) / (performanceLine.length + textSpacer);
-        const w = width / performanceLine.length;
-        const h = (height - vSpacer * numberPerfs) / numberPerfs;
-        const y = (performanceHeightIndicator(perfi.performance)
-          + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1));
-        return `M ${x} ${y} l ${w} 0l 0 ${h} l ${-w} 0 l 0 ${-h}`;
-      })
-      .style('fill', 'none')
       .transition().duration(2000)
-      .tween('a', (perfi, i, kk) => {
+      .tween('held', (perfi, i, kk) => {
         const here = d3.select(kk[i]);
         const last = i > 0 ? d3.select(kk[i - 1]).attr('class') : ' ';
         const next = i < (performanceLine.length - 1) ? d3.select(kk[i + 1]).attr('class') : ' ';
         const cl = here.attr('class');
         const sw = +here.style('stroke-width').replace('px', '') / 2;
-        const left = (i === 0) || (last !== cl);
-        const right = (i === (performanceLine.length - 1)) || (next !== cl);
+        const heldLeft = (i === 0) || (last !== cl);
+        const heldRight = (i === (performanceLine.length - 1)) || (next !== cl);
         return (t) => {
-        here.attr('d', () => {
-          const x = t * width * (i + textSpacer) / (performanceLine.length + textSpacer);
-          const w = t * width / performanceLine.length;
-          const h = t * (height - vSpacer * numberPerfs) / numberPerfs;
-          const y = (performanceHeightIndicator(perfi.performance) * t
-            + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1));
+          here.attr('d', () => {
+            const x = t * width * (i + textSpacer) / (performanceLine.length + textSpacer);
+            const w = t * width / performanceLine.length;
+            const h = t * (height - vSpacer * numberPerfs) / numberPerfs;
+            const y = (performanceHeightIndicator(perfi.performance) * t
+              + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1));
             let back = '';
             if (openBox) {
               back += `M ${x} ${y} l ${w} 0 m 0 ${h} l ${-w} 0 `;
-              if (left) {
+              if (heldLeft) {
                 back += `M ${x} ${y - sw} l 0 ${h + 2 * sw} `;
-              } else if (right) {
+              } else if (heldRight) {
                 back += `M ${x + w} ${y - sw} l 0 ${h + 2 * sw} `;
               }
             } else {
@@ -171,7 +162,6 @@ const openBox = true;
           .call(this.wrap, 70 * t, t);
       });
   }
-  // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
   constructor() {
     this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
       d.forEach((dd) => {
