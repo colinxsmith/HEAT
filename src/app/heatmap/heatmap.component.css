@@ -78,13 +78,13 @@ text.perfM {
 path.perfM {
     stroke-width: 1.5px;
     shape-rendering: geometricPrecision;
-    stroke: black;
+    stroke: rgb(22, 41, 44);
     fill:none;
 }
 path.perfS {
     stroke-width: 0px;
     shape-rendering: crispEdges;
-    stroke: rgb(14, 12, 12);
+    stroke: rgba(245, 239, 239, 0.5);
     fill:none;
 }
 rect.perfM {
