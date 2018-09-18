@@ -96,7 +96,6 @@ export class HeatmapComponent implements OnInit {
     perfS.append('rect') // Coloured rectangles
       .attr('height', (height - vSpacer * numberPerfs) / numberPerfs)
       .attr('width', width / performanceLine.length)
-  //    .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
       .style('fill', (perfi, i) => rwg[i])
       .style('stroke-width', 0)
       .on('mouseover', (perfi, ii, jj) => this.tooltip
@@ -114,44 +113,38 @@ export class HeatmapComponent implements OnInit {
       .attrTween('y', (perfi) => (t) => '' + (performanceHeightIndicator(perfi.performance) * (t + 100 * (1 - t))
         + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1))
       );
-const openBox = true;
+    const openBox = true;
     perfS.append('path') // Open rectangles
       .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
-      .attr('d', (perfi, i) => {
-        const x = width * (i + textSpacer) / (performanceLine.length + textSpacer);
-        const w = width / performanceLine.length;
-        const h = (height - vSpacer * numberPerfs) / numberPerfs;
-        const y = (performanceHeightIndicator(perfi.performance)
-          + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1));
-        return `M ${x} ${y} l ${w} 0l 0 ${h} l ${-w} 0 l 0 ${-h}`;
-      })
-      .style('fill', 'none')
       .transition().duration(2000)
-      .tween('a', (perfi, i, kk) => {
+      .tween('held', (perfi, i, kk) => {
         const here = d3.select(kk[i]);
+        if (!openBox) {
+          here.style('stroke-width', (+here.style('stroke-width').replace('px', '') * 0.75) + 'px');
+        }
         const last = i > 0 ? d3.select(kk[i - 1]).attr('class') : ' ';
         const next = i < (performanceLine.length - 1) ? d3.select(kk[i + 1]).attr('class') : ' ';
         const cl = here.attr('class');
         const sw = +here.style('stroke-width').replace('px', '') / 2;
-        const left = (i === 0) || (last !== cl);
-        const right = (i === (performanceLine.length - 1)) || (next !== cl);
+        const heldLeft = (i === 0) || (last !== cl);
+        const heldRight = (i === (performanceLine.length - 1)) || (next !== cl);
         return (t) => {
-        here.attr('d', () => {
-          const x = t * width * (i + textSpacer) / (performanceLine.length + textSpacer);
-          const w = t * width / performanceLine.length;
-          const h = t * (height - vSpacer * numberPerfs) / numberPerfs;
-          const y = (performanceHeightIndicator(perfi.performance) * t
-            + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1));
+          here.attr('d', () => {
+            const x = t * width * (i + textSpacer) / (performanceLine.length + textSpacer);
+            const w = t * width / performanceLine.length;
+            const h = t * (height - vSpacer * numberPerfs) / numberPerfs;
+            const y = (performanceHeightIndicator(perfi.performance) * t
+              + (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1));
             let back = '';
             if (openBox) {
               back += `M ${x} ${y} l ${w} 0 m 0 ${h} l ${-w} 0 `;
-              if (left) {
+              if (heldLeft) {
                 back += `M ${x} ${y - sw} l 0 ${h + 2 * sw} `;
-              } else if (right) {
+              } else if (heldRight) {
                 back += `M ${x + w} ${y - sw} l 0 ${h + 2 * sw} `;
               }
             } else {
-              back += `M ${x} ${y} l ${w} 0l 0 ${h} l ${-w} 0 l 0 ${-h}`;
+              back += `M ${x} ${y} l ${w} 0l 0 ${h} l ${-w} 0 z`;
             }
             return back;
           });
@@ -171,7 +164,6 @@ const openBox = true;
           .call(this.wrap, 70 * t, t);
       });
   }
-  // , 'cyan', 'yellow', 'lightgreen', 'steelblue', 'rgb(200,100,200)', 'rgb(200,200,100)'];
   constructor() {
     this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
       d.forEach((dd) => {
@@ -330,7 +322,7 @@ const openBox = true;
       })
       ;
   }
-  perfMap(id: string, perfData: { name: string; dates: string []; performance: number[]; hold: boolean[]; }[]) {
+  perfMap(id: string, perfData: { name: string; dates: string[]; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
     const margin = { top: 30, right: 90, bottom: 30, left: 90 }, numberPerfs = Math.max(20, perfData.length),
       width = 1000 - margin.left - margin.right,
@@ -339,6 +331,12 @@ const openBox = true;
       vSpacer = 3, textSpacer = 15,
       gradientG = svgBase.append('linearGradient')
         .attr('id', 'gradG')
+        .attr('x1', '0%')
+        .attr('y1', '0%')
+        .attr('x2', '0%')
+        .attr('y2', '100%'),
+      gradientGr = svgBase.append('linearGradient')
+        .attr('id', 'gradGr')
         .attr('x1', '0%')
         .attr('y1', '0%')
         .attr('x2', '0%')
@@ -361,19 +359,32 @@ const openBox = true;
       .attr('offset', '100%')
       .attr('stop-color', 'green')
       .attr('stop-opacity', 1);
+    gradientGr.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', '#bbc9a5')
+      .attr('stop-opacity', 1);
+    gradientGr.append('stop')
+      .attr('offset', '40%')
+      .attr('stop-color', 'lightgreen')
+      .attr('stop-opacity', 0.95);
+    gradientGr.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', '#bec0b8')
+      .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '0%')
       .attr('stop-color', 'rgb(241,10,10)')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
-      .attr('offset', '30%')
-      .attr('stop-color', 'rgb(238,144欠航,144)')
+      .attr('offset', '40%')
+      .attr('stop-color', 'rgb(238,144,144)')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '100%')
       .attr('stop-color', 'rgb(255,16,8)')
       .attr('stop-opacity', 1);
-    if (this.viewbox) {
+      const doView = false;
+    if (doView) {
       svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
     } else {
       svgBase.attr('width', width + margin.left + margin.right);
@@ -393,40 +404,40 @@ const openBox = true;
         textSpacer, numberPerfs);
     });
     svg.append('rect')
-    .attr('height', (height - vSpacer * numberPerfs) / numberPerfs * perfData.length + vSpacer * (perfData.length - 1) )
-    .attr('y', -vSpacer)
+      .attr('height', (height - vSpacer * numberPerfs) / numberPerfs * perfData.length + vSpacer * (perfData.length - 1))
+      .attr('y', -vSpacer)
       .attr('x', width * (textSpacer) / (perfData[0].performance.length + textSpacer))
       .attr('width', (width * perfData[0].performance.length / (perfData[0].performance.length + textSpacer)))
       .style('fill', 'none')
-    .style('stroke', 'black')
-    .style('stroke-width', 2)
+      .style('stroke', 'black')
+      .style('stroke-width', 2)
       ;
-    let yearChange = 0;
-    svg.selectAll('toptitles').append('g').data(perfData[0].dates).enter()
+    let yearChange = 0, okInt = 0;
+    svg.selectAll('toptitles').data(perfData[0].dates).enter()
       .append('rect')
       .attr('x', (d, i) => width * (textSpacer + i) / (perfData[0].performance.length + textSpacer))
       .attr('y', -vSpacer * 5)
-      .attr('width', 30)
+      .attr('width', width / (perfData[0].performance.length + textSpacer))
       .attr('height', 10)
-      .style('fill', (d, i) => {
-        let change = false;
+      .attr('class', (d, i) => {
+        okInt++;
         if (+d.split('/')[0] > yearChange) {
           yearChange = +d.split('/')[0];
-          change = true;
+          okInt = 0;
         }
-        return change  && (i === 0 || i > 10) ? 'lightgrey' : 'none';
+        return okInt <= 5 ? 'grey' : 'none'; // Counts 5 "spaces" for the rectangle shading around year label
       });
     yearChange = 0;
     svg.selectAll('toptitles').append('g').data(perfData[0].dates).enter()
       .append('text')
       .attr('class', 'topdates')
       .text((d, i) => {
-        let change = false;
+        let changeY = false;
         if (+d.split('/')[0] > yearChange) {
           yearChange = +d.split('/')[0];
-          change = true;
+          changeY = true;
         }
-        return change && (i === 0 || i > 10) ? yearChange : '';
+        return changeY && (i === 0 || i > 10) ? yearChange : '';
       })
       .attr('x', (d, i) => width * (textSpacer + i) / (perfData[0].performance.length + textSpacer))
       .attr('y', -vSpacer * 2);
