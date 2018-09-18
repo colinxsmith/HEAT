@@ -105,6 +105,12 @@ rect.perfB {
     stroke: rgb(241, 10, 10);
     fill: url(#gradR);
 }
+rect.grey {
+    fill: url(#gradGr); 
+}
+rect.none {
+    fill:none;
+}
 text.tooltipRadar{
     font-size: 11px;
     font-family: Calibri, sans-serif;

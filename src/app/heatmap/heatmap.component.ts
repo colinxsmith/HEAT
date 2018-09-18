@@ -96,7 +96,6 @@ export class HeatmapComponent implements OnInit {
     perfS.append('rect') // Coloured rectangles
       .attr('height', (height - vSpacer * numberPerfs) / numberPerfs)
       .attr('width', width / performanceLine.length)
-  //    .attr('class', (perfi) => perfi.performance > 0 ? 'perfG' : 'perfB')
       .style('fill', (perfi, i) => rwg[i])
       .style('stroke-width', 0)
       .on('mouseover', (perfi, ii, jj) => this.tooltip
@@ -336,31 +335,49 @@ export class HeatmapComponent implements OnInit {
         .attr('y1', '0%')
         .attr('x2', '0%')
         .attr('y2', '100%'),
+        gradientGr = svgBase.append('linearGradient')
+        .attr('id', 'gradGr')
+        .attr('x1', '0%')
+        .attr('y1', '0%')
+        .attr('x2', '0%')
+        .attr('y2', '100%'),
       gradientR = svgBase.append('linearGradient')
         .attr('id', 'gradR')
         .attr('x1', '0%')
         .attr('y1', '0%')
         .attr('x2', '0%')
         .attr('y2', '100%');
-    gradientG.append('stop')
-      .attr('offset', '0%')
-      .attr('stop-color', 'rgb(10,241,10)')
-      .attr('stop-opacity', 1);
-    gradientG.append('stop')
-      .attr('offset', '40%')
-      .attr('stop-color', 'lightgreen')
-      .attr('stop-opacity', 0.95);
-    gradientG.append('stop')
-      .attr('offset', '100%')
-      .attr('stop-color', 'green')
-      .attr('stop-opacity', 1);
-    gradientR.append('stop')
+        gradientG.append('stop')
+        .attr('offset', '0%')
+        .attr('stop-color', 'rgb(10,241,10)')
+        .attr('stop-opacity', 1);
+      gradientG.append('stop')
+        .attr('offset', '40%')
+        .attr('stop-color', 'lightgreen')
+        .attr('stop-opacity', 0.95);
+      gradientG.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', 'green')
+        .attr('stop-opacity', 1);
+        gradientGr.append('stop')
+        .attr('offset', '0%')
+        .attr('stop-color', 'lightgrey')
+        .attr('stop-opacity', 1);
+      gradientGr.append('stop')
+        .attr('offset', '40%')
+        .attr('stop-color', 'rgb(198,255,198)')
+        .attr('stop-opacity', 0.95);
+      gradientGr.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', 'lightgrey')
+        .attr('stop-opacity', 1);
+        gradientR.append('stop')
       .attr('offset', '0%')
       .attr('stop-color', 'rgb(241,10,10)')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
-      .attr('offset', '30%')
-      .attr('stop-color', 'rgb(238,144欠航,144)')
+      .attr('offset', '40%')
+      .attr('stop-color', 'rgb(238,144,144)')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '100%')
@@ -394,32 +411,32 @@ export class HeatmapComponent implements OnInit {
     .style('stroke', 'black')
     .style('stroke-width', 2)
       ;
-    let yearChange = 0;
-    svg.selectAll('toptitles').append('g').data(perfData[0].dates).enter()
+    let yearChange = 0, okInt = 0;
+    svg.selectAll('toptitles').data(perfData[0].dates).enter()
       .append('rect')
       .attr('x', (d, i) => width * (textSpacer + i) / (perfData[0].performance.length + textSpacer))
       .attr('y', -vSpacer * 5)
-      .attr('width', 30)
+      .attr('width', width  / (perfData[0].performance.length + textSpacer))
       .attr('height', 10)
-      .style('fill', (d, i) => {
-        let change = false;
+      .attr('class', (d, i) => {
+        okInt++;
         if (+d.split('/')[0] > yearChange) {
           yearChange = +d.split('/')[0];
-          change = true;
+          okInt = 0;
         }
-        return change  && (i === 0 || i > 10) ? 'lightgrey' : 'none';
+        return okInt <= 5   ? 'grey' : 'none';
       });
     yearChange = 0;
     svg.selectAll('toptitles').append('g').data(perfData[0].dates).enter()
       .append('text')
       .attr('class', 'topdates')
       .text((d, i) => {
-        let change = false;
+        let changeY = false;
         if (+d.split('/')[0] > yearChange) {
           yearChange = +d.split('/')[0];
-          change = true;
+          changeY = true;
         }
-        return change && (i === 0 || i > 10) ? yearChange : '';
+        return changeY && (i === 0 || i > 10) ? yearChange : '';
       })
       .attr('x', (d, i) => width * (textSpacer + i) / (perfData[0].performance.length + textSpacer))
       .attr('y', -vSpacer * 2);
