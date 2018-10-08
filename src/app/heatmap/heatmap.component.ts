@@ -86,9 +86,9 @@ export class HeatmapComponent implements OnInit {
     const decorate: number[] = [];
     performanceLine.forEach((d, i) => decorate[i] = d.performance);
     const redwhitegreen1 = d3.scaleLinear<d3.RGBColor>().domain([d3.extent(decorate)[0], 0])
-      .range([d3.rgb(200, 0, 0), d3.rgb(255, 255, 255)]);
+      .range([d3.rgb('#ff000d'), d3.rgb('#dddddd')]);
     const redwhitegreen2 = d3.scaleLinear<d3.RGBColor>().domain([0, d3.extent(decorate)[1]])
-      .range([d3.rgb(255, 255, 255), d3.rgb(0, 200, 0)]);
+      .range([d3.rgb('#dddddd'), d3.rgb('#01ff07')]);
     const rwg = [];
     console.log(d3.extent(decorate));
     performanceLine.forEach((d, i) => rwg[i] = d.performance < 0 ? redwhitegreen1(d.performance) : redwhitegreen2(d.performance));
@@ -361,15 +361,15 @@ export class HeatmapComponent implements OnInit {
       .attr('stop-opacity', 1);
     gradientGr.append('stop')
       .attr('offset', '0%')
-      .attr('stop-color', '#bbc9a5')
+      .attr('stop-color', '#748b97')
       .attr('stop-opacity', 1);
     gradientGr.append('stop')
       .attr('offset', '40%')
-      .attr('stop-color', 'lightgreen')
+      .attr('stop-color', '#9bb53c')
       .attr('stop-opacity', 0.95);
     gradientGr.append('stop')
       .attr('offset', '100%')
-      .attr('stop-color', '#bec0b8')
+      .attr('stop-color', '#85a3b2')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
       .attr('offset', '0%')
