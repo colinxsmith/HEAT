@@ -360,15 +360,15 @@ export class HeatmapComponent implements OnInit {
       .attr('stop-color', 'green')
       .attr('stop-opacity', 1);
     gradientGr.append('stop')
-      .attr('offset', '0%')
+      .attr('offset', '10%')
       .attr('stop-color', '#748b97')
       .attr('stop-opacity', 1);
     gradientGr.append('stop')
-      .attr('offset', '40%')
+      .attr('offset', '30%')
       .attr('stop-color', '#9bb53c')
       .attr('stop-opacity', 0.95);
     gradientGr.append('stop')
-      .attr('offset', '100%')
+      .attr('offset', '80%')
       .attr('stop-color', '#85a3b2')
       .attr('stop-opacity', 1);
     gradientR.append('stop')
