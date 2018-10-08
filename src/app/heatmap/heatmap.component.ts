@@ -383,7 +383,7 @@ export class HeatmapComponent implements OnInit {
       .attr('offset', '100%')
       .attr('stop-color', 'rgb(255,16,8)')
       .attr('stop-opacity', 1);
-    const doView = false;
+    const doView = true;
     if (doView) {
       svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
     } else {
