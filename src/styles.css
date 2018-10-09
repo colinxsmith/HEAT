@@ -19,5 +19,5 @@
     fill:none;
 }
 body {
-    background-image: linear-gradient(to right, rgb(228, 243, 192) 0%,rgb(217, 217, 236) 100%);
+    background-image: linear-gradient(to top left, rgb(228, 243, 192) 0%,rgb(217, 217, 236) 100%);
 }
