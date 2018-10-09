@@ -118,7 +118,7 @@ text.tooltipRadar{
 text.legendRadar{
     font-size: 14px;
     font-family: Calibri, sans-serif;
-    fill: #333333;
+    fill: rgb(51, 51, 51);
     text-anchor: middle;
     text-align: left;
 }
@@ -126,7 +126,7 @@ text.axisRadar{
     font-size: 13px;
     font-stretch: expanded;
     font-family: Calibri, sans-serif;
-    fill: #737373;
+    fill: rgb(115, 115, 115);
     text-anchor:start;
     text-align: center;
 }
