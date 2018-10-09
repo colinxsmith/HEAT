@@ -1,6 +1,6 @@
 {
   "name": "heat",
-  "version": "2.0.9",
+  "version": "2.1.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -29,7 +29,7 @@
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^0.8.3",
+    "@angular-devkit/build-angular": "^0.8.4",
     "@angular/cli": "^6.2.4",
     "@angular/compiler-cli": "^6.1.9",
     "@angular/language-service": "^6.1.9",
