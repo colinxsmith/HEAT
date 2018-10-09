@@ -55,12 +55,13 @@ text.axis-y {
 }
 .leafy {
     color: rgba(195, 255, 40, 0.568);
-    background-image: linear-gradient(rgba(50,255,10,0.9),rgba(20,255,20,0.5));
+    background-image: linear-gradient(to top right,rgba(50,255,10,0.9),
+    rgba(20,255,20,0.25));
     font-size: 36px;
 }
 .HL {
-    stroke-width: 5px;
-    stroke: none; /* rgb(177, 36, 36); */
+    stroke-width: 2.5px;
+    stroke: none; /* rgba(177, 36, 36,0.5); */
     fill: rgb(6, 153, 6);
     shape-rendering: crispEdges;
     z-index: 99999999;
