@@ -304,7 +304,7 @@ export class HeatmapComponent implements OnInit {
     svg.selectAll('circle').attr('r', (d, i, HH) =>
       largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''))
       .on('mouseover', (d, i, HH) => {
-        const [tX, tY] = this.toolTipPosition(i, HH, width, height);
+        const [tX, tY] = this.toolTipPosition(i, HH, baseRad, baseRad);
         this.tooltip
         .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
         .style('left', tX)
