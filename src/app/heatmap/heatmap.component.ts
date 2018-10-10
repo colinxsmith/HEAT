@@ -79,6 +79,10 @@ export class HeatmapComponent implements OnInit {
         }
       }
     })
+  toolTipPosition = (ii: number, jj: d3.BaseType[] | d3.ArrayLike<d3.BaseType>, figWidth: number, figHeight: number) => {
+    const [mX, mY] = d3.mouse(<d3.ContainerElement>jj[ii]), [tX, tY]: [number, number] = [d3.event.pageX, d3.event.pageY];
+    return [mX > figWidth * 0.8 ? `${tX - 200}px` : `${tX + 10}px`, mY < figHeight * 0.8 ? `${tY}px` : `${tY - 100}px`];
+  }
   displayOneLinePerfData = (performanceLine: { name: string; performance: number; hold: boolean; }[], assetIndex: number,
     performanceHeightIndicator: d3.ScaleLinear<number, number>, svgPerf: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
     perfData: { name: string; dates: string[]; performance: number[]; hold: boolean[]; }[], height: number, vSpacer: number, width: number,
@@ -98,15 +102,15 @@ export class HeatmapComponent implements OnInit {
       .attr('width', width / performanceLine.length)
       .style('fill', (perfi, i) => rwg[i])
       .style('stroke-width', 0)
-      .on('mouseover', (perfi, ii, jj) => this.tooltip
+      .on('mouseover', (perfi, ii, jj) => {
+        const [pX, pY] = this.toolTipPosition(ii, jj, width, (height - vSpacer * numberPerfs));
+        this.tooltip
         .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
         Date: ${perfData[0].dates[ii]}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
-        .style('left', d3.mouse(<d3.ContainerElement>jj[ii])[0] > 0.8 * width ?
-          `${d3.event.pageX - 200}px` : `${d3.event.pageX + 10}px`)
-        .style('top', d3.mouse(<d3.ContainerElement>jj[ii])[1] > 0.8 * height ?
-          `${d3.event.pageY - 100}px` : `${d3.event.pageY - 28}px`)
-        .style('opacity', 1)
-    )
+        .style('left', pX)
+        .style('top', pY)
+        .style('opacity', 1);
+      })
       .on('mouseout', () => this.tooltip.style('opacity', 0))
       .transition().duration(2000)
       .attrTween('x', (perfi, i) => (t) => '' + (width * (i * t + textSpacer) / (performanceLine.length + textSpacer)))
@@ -299,11 +303,14 @@ export class HeatmapComponent implements OnInit {
     const largeC: number[] = [];
     svg.selectAll('circle').attr('r', (d, i, HH) =>
       largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''))
-      .on('mouseover', (d, i, HH) => this.tooltip
+      .on('mouseover', (d, i, HH) => {
+        const [tX, tY] = this.toolTipPosition(i, HH, baseRad, baseRad);
+        this.tooltip
         .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
-        .style('left', `${d3.event.pageX - 50}px`)
-        .style('top', `${d3.event.pageY - 50}px`)
-        .style('opacity', 1)
+        .style('left', tX)
+        .style('top', tY)
+        .style('opacity', 1);
+      }
       )
       .on('mouseout', (d, i) => this.tooltip
         .style('opacity', 0)
@@ -399,7 +406,6 @@ export class HeatmapComponent implements OnInit {
       ydata.performance.forEach((perform, xi) => {
         perfPlotDataAsset.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi] });
       });
-
       this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vSpacer, width,
         textSpacer, numberPerfs);
     });
@@ -526,12 +532,15 @@ export class HeatmapComponent implements OnInit {
         .attr('width', width / managerDataTypes.length - 2)
         .attr('height', height / di.length)
         .style('fill', (dd) => `${colourScale(dd.value)}`)
-        .on('mouseover', (dd) => this.tooltip
+        .on('mouseover', (dd, ii, jj) => {
+          const [tX, tY] = this.toolTipPosition(ii, jj, width, height);
+          this.tooltip
           // tslint:disable-next-line:max-line-length
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
-          .style('left', `${margin.left}px`)
-          .style('top', `${d3.event.pageY - 28}px`)
-          .style('opacity', 1)
+          .style('left', tX)
+          .style('top', tY)
+          .style('opacity', 1);
+        }
         )
         .on('click', (dd, i) => clicker(di, i))
         .on('mouseout', () => this.tooltip.style('opacity', 0));
@@ -560,13 +569,15 @@ export class HeatmapComponent implements OnInit {
               .attr('class', 'mag')
               .attr('y', 4)
               .style('fill', 'rgb(5, 247, 236)')
-              .on('mouseover', (d, idd) =>
+              .on('mouseover', (d, idd, jj) => {
+                const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
                 this.tooltip
-                  .style('left', `${d3.event.pageX}px`)
-                  .style('top', `${d3.event.pageY}px`)
+                  .style('left', tX)
+                  .style('top', tY)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerDataTypes[idd]}<br>${managerData[idd][i].value}`)
+                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerDataTypes[idd]}<br>${managerData[idd][i].value}`);
+              }
               )
               .on('mouseout', () => this.tooltip.style('opacity', 0));
             datamag.transition().duration(1500)
@@ -597,13 +608,15 @@ export class HeatmapComponent implements OnInit {
                 return (t: number) => d3.select(datamagRef[labIndex])
                   .attr('transform', `translate(${dt} , ${1.5 * heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
                   .style('opacity', `${Math.sqrt(t)}`);
-              }).on('mouseover', (d, idd) =>
+              }).on('mouseover', (d, idd, jj) => {
+                const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
                 this.tooltip
-                  .style('left', `${d3.event.pageX}px`)
-                  .style('top', `${d3.event.pageY}px`)
+                  .style('left', tX)
+                  .style('top', tY)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerDataTypes[idd]}<br>${managerData[idd][i].value}`)
+                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerDataTypes[idd]}<br>${managerData[idd][i].value}`);
+              }
               )
               .on('mouseout', () => this.tooltip.style('opacity', 0));
             magnifyBorder
@@ -741,12 +754,15 @@ export class HeatmapComponent implements OnInit {
         }
         painKiller
           .attr('class', 'bordered')
-          .on('mouseover', (d) => this.tooltip
-            // tslint:disable-next-line:max-line-length
-            .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
-            .style('opacity', 0.9)
-            .style('left', `${d3.event.pageX}px`)
-            .style('top', `${d3.event.pageY - 28}px`)
+          .on('mouseover', (d, idd, jj) => {
+            const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
+            this.tooltip
+              // tslint:disable-next-line:max-line-length
+              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+              .style('opacity', 0.9)
+              .style('left', tX)
+              .style('top', tY);
+          }
           )
           .on('mouseout', () => this.tooltip.style('opacity', 0))
           .transition()
@@ -792,12 +808,13 @@ export class HeatmapComponent implements OnInit {
             .attr('width', legendElementWidth)
             .attr('height', legendSize)
             .style('fill', (d, i) => `${colours[i]}`)
-            .on('mouseover', (d) => {
+            .on('mouseover', (d, idd, jj) => {
               this.tooltip.style('opacity', 0.9);
+              const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
               this.tooltip
                 .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d}`)
-                .style('left', `${d3.event.pageX}px`)
-                .style('top', `${d3.event.pageY - 28}px`);
+                .style('left', tX)
+                .style('top', tY);
             })
             .on('mouseout', () => this.tooltip.style('opacity', 0));
           legend_g.append('text')
