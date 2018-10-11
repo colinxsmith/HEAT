@@ -312,14 +312,16 @@ export class HeatmapComponent implements OnInit {
         const [unitX, unitY] = [(mX - cX) / bot, (mY - cY) / bot];
         this.tooltip
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
-          .transition().duration(200)
           .style('left', (-unitX * baseRad * 0.5 + eX) + 'px')
           .style('top', (-unitY * baseRad * 0.5 + eY) + 'px')
-          .style('opacity', 1);
+        .transition().duration(1000)
+          .styleTween('opacity', () =>  (t) =>  `${t * t}`)
+          ;
       }
-      )
+    )
       .on('mouseout', (d, i) => this.tooltip
-        .style('opacity', 0)
+        .transition().duration(1000)
+        .styleTween('opacity', () =>  (t) =>  `${1 - t * t}`)
       )
       ;
     svg.selectAll('circle').transition().duration(1500)
