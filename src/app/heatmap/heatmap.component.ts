@@ -304,30 +304,35 @@ export class HeatmapComponent implements OnInit {
     svg.selectAll('circle').attr('r', (d, i, HH) =>
       largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''))
       .on('mouseover', (d, i, HH) => {
-        const [tX, tY] = this.toolTipPosition(i, HH, baseRad, baseRad);
+        const here = d3.select(HH[i]);
+        const [mX, mY] = d3.mouse(<d3.ContainerElement>HH[i]);
+        const [cX, cY] = [+here.attr('cx'), +here.attr('cy')];
+        const [eX, eY] = [+d3.event.pageX, +d3.event.pageY];
+        const bot = Math.sqrt((mX - cX) * (mX - cX) + (mY - cY) * (mY - cY));
+        const [unitX, unitY] = [(mX - cX) / bot, (mY - cY) / bot];
         this.tooltip
-        .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
-        .style('left', tX)
-        .style('top', tY)
-        .style('opacity', 1);
+          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
+          .style('left', (-unitX * baseRad * 0.5 + eX) + 'px')
+          .style('top', (-unitY * baseRad * 0.5 + eY) + 'px')
+          .transition().duration(1000)
+          .styleTween('opacity', () => (t) => `${t * t}`);
       }
-      )
+    )
       .on('mouseout', (d, i) => this.tooltip
-        .style('opacity', 0)
+        .transition().duration(1000)
+        .styleTween('opacity', () =>  (t) =>  `${1 - t * t}`)
       )
       ;
     svg.selectAll('circle').transition().duration(1500)
-      .tween('', (d, i, kk) => {
-        return (t: number) => {
+      .tween('', (d, i, kk) => (t) => {
           const here = d3.select(kk[i]), newRad = (+here.attr('r').replace('px', '') * (1 - t * t));
           if (largeC[i] >= baseRad * radRat) {
             here.attr('r', largeC[i]);
           } else {
             here.attr('r', newRad);
           }
-        };
-      })
-      ;
+        }
+      );
   }
   perfMap(id: string, perfData: { name: string; dates: string[]; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
