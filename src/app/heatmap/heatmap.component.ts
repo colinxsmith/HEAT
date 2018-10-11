@@ -314,9 +314,8 @@ export class HeatmapComponent implements OnInit {
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
           .style('left', (-unitX * baseRad * 0.5 + eX) + 'px')
           .style('top', (-unitY * baseRad * 0.5 + eY) + 'px')
-        .transition().duration(1000)
-          .styleTween('opacity', () =>  (t) =>  `${t * t}`)
-          ;
+          .transition().duration(1000)
+          .styleTween('opacity', () => (t) => `${t * t}`);
       }
     )
       .on('mouseout', (d, i) => this.tooltip
@@ -325,17 +324,15 @@ export class HeatmapComponent implements OnInit {
       )
       ;
     svg.selectAll('circle').transition().duration(1500)
-      .tween('', (d, i, kk) => {
-        return (t: number) => {
+      .tween('', (d, i, kk) => (t) => {
           const here = d3.select(kk[i]), newRad = (+here.attr('r').replace('px', '') * (1 - t * t));
           if (largeC[i] >= baseRad * radRat) {
             here.attr('r', largeC[i]);
           } else {
             here.attr('r', newRad);
           }
-        };
-      })
-      ;
+        }
+      );
   }
   perfMap(id: string, perfData: { name: string; dates: string[]; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
