@@ -306,10 +306,10 @@ export class HeatmapComponent implements OnInit {
       .on('mouseover', (d, i, HH) => {
         const here = d3.select(HH[i]);
         const [mX, mY] = d3.mouse(<d3.ContainerElement>HH[i]);
-        const [tX, tY] = [+here.attr('cx'), +here.attr('cy')];
+        const [cX, cY] = [+here.attr('cx'), +here.attr('cy')];
         const [eX, eY] = [+d3.event.pageX, +d3.event.pageY];
-        const bot = Math.sqrt((mX - tX) * (mX - tX) + (mY - tY) * (mY - tY));
-        const [unitX, unitY] = [(mX - tX) / bot, (mY - tY) / bot];
+        const bot = Math.sqrt((mX - cX) * (mX - cX) + (mY - cY) * (mY - cY));
+        const [unitX, unitY] = [(mX - cX) / bot, (mY - cY) / bot];
         this.tooltip
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
           .transition().duration(200)
