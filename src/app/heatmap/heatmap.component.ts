@@ -289,7 +289,7 @@ export class HeatmapComponent implements OnInit {
           groupCirc(smallRad * radRat, cx + RAD * Math.sin(angle5 * i), cy - RAD * Math.cos(angle5 * i), depth, maxdepth);
         }
         svg.append('circle')
-          .style('fill', () => cc[i])
+          .style('fill', cc[i])
           .style('stroke', 'black')
           .style('stroke-width', 3)
           .attr('ddd', circData[i])
@@ -299,7 +299,7 @@ export class HeatmapComponent implements OnInit {
       }
 
     };
-    groupCirc(baseRad, 0, 0, 0, 4);
+    groupCirc(baseRad, 0, 0, 0, 3);
     const largeC: number[] = [];
     svg.selectAll('circle')
       .attr('r', (d, i, HH) => largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''))
@@ -314,7 +314,7 @@ export class HeatmapComponent implements OnInit {
         this.tooltip
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${here.attr('ddd')}`)
           .style('left', (-unitX * radH + eX) + 'px')
-          .style('top', (-unitY * radH + eY) + 'px')
+          .style('top',  (-unitY * radH + eY) + 'px')
           .transition().duration(1000)
           .styleTween('opacity', () => (t) => `${t * t}`); })
       .on('mouseout', (d, i) => this.tooltip
