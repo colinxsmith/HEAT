@@ -289,7 +289,7 @@ export class HeatmapComponent implements OnInit {
           groupCirc(smallRad * radRat, cx + RAD * Math.sin(angle5 * i), cy - RAD * Math.cos(angle5 * i), depth, maxdepth);
         }
         svg.append('circle')
-          .style('fill', () => cc[i])
+          .style('fill', cc[i])
           .style('stroke', 'black')
           .style('stroke-width', 3)
           .attr('ddd', circData[i])
@@ -299,30 +299,27 @@ export class HeatmapComponent implements OnInit {
       }
 
     };
-    groupCirc(baseRad, 0, 0, 0, 4);
+    groupCirc(baseRad, 0, 0, 0, 3);
     const largeC: number[] = [];
-    svg.selectAll('circle').attr('r', (d, i, HH) =>
-      largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''))
+    svg.selectAll('circle')
+      .attr('r', (d, i, HH) => largeC[i] = +d3.select(HH[i]).attr('r').replace('px', ''))
       .on('mouseover', (d, i, HH) => {
         const here = d3.select(HH[i]);
+        const radH = +here.attr('r').replace('px', '') / radRat * 0.5;
         const [mX, mY] = d3.mouse(<d3.ContainerElement>HH[i]);
-        const [cX, cY] = [+here.attr('cx'), +here.attr('cy')];
+        const [cX, cY] = [+here.attr('cx').replace('px', ''), +here.attr('cy').replace('px', '')];
         const [eX, eY] = [+d3.event.pageX, +d3.event.pageY];
         const bot = Math.sqrt((mX - cX) * (mX - cX) + (mY - cY) * (mY - cY));
         const [unitX, unitY] = [(mX - cX) / bot, (mY - cY) / bot];
         this.tooltip
-          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d3.select(HH[i]).attr('ddd')}`)
-          .style('left', (-unitX * baseRad * 0.5 + eX) + 'px')
-          .style('top', (-unitY * baseRad * 0.5 + eY) + 'px')
+          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${here.attr('ddd')}`)
+          .style('left', (-unitX * radH + eX) + 'px')
+          .style('top',  (-unitY * radH + eY) + 'px')
           .transition().duration(1000)
-          .styleTween('opacity', () => (t) => `${t * t}`);
-      }
-    )
+          .styleTween('opacity', () => (t) => `${t * t}`); })
       .on('mouseout', (d, i) => this.tooltip
         .transition().duration(1000)
-        .styleTween('opacity', () =>  (t) =>  `${1 - t * t}`)
-      )
-      ;
+        .styleTween('opacity', () => (t) => `${1 - t * t}`));
     svg.selectAll('circle').transition().duration(1500)
       .tween('', (d, i, kk) => (t) => {
           const here = d3.select(kk[i]), newRad = (+here.attr('r').replace('px', '') * (1 - t * t));
@@ -331,8 +328,7 @@ export class HeatmapComponent implements OnInit {
           } else {
             here.attr('r', newRad);
           }
-        }
-      );
+        });
   }
   perfMap(id: string, perfData: { name: string; dates: string[]; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
