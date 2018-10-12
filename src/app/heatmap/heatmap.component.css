@@ -55,8 +55,7 @@ text.axis-y {
 }
 .leafy {
     color: rgba(195, 255, 40, 0.568);
-    background-image: linear-gradient(to top right,rgba(50,255,10,0.9),
-    rgba(20,255,20,0.25));
+    background-image: linear-gradient(to top right,rgba(50,255,10,0.9),rgba(20,255,20,0.25));
     font-size: 36px;
 }
 .HL {
