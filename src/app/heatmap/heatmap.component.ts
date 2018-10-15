@@ -314,21 +314,18 @@ export class HeatmapComponent implements OnInit {
         this.tooltip
           .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${here.attr('ddd')}`)
           .style('left', (-unitX * radH + eX) + 'px')
-          .style('top',  (-unitY * radH + eY) + 'px')
+          .style('top', (-unitY * radH + eY) + 'px')
           .transition().duration(1000)
-          .styleTween('opacity', () => (t) => `${t * t}`); })
+          .styleTween('opacity', () => (t) => `${t * t}`);
+      })
       .on('mouseout', (d, i) => this.tooltip
         .transition().duration(1000)
         .styleTween('opacity', () => (t) => `${1 - t * t}`));
     svg.selectAll('circle').transition().duration(1500)
       .tween('', (d, i, kk) => (t) => {
-          const here = d3.select(kk[i]), newRad = (+here.attr('r').replace('px', '') * (1 - t * t));
-          if (largeC[i] >= baseRad * radRat) {
-            here.attr('r', largeC[i]);
-          } else {
-            here.attr('r', newRad);
-          }
-        });
+        const here = d3.select(kk[i]);
+        here.attr('r', `${largeC[i] >= baseRad * radRat ? largeC[i] : +here.attr('r').replace('px', '') * (1 - t * t)}px`);
+      });
   }
   perfMap(id: string, perfData: { name: string; dates: string[]; performance: number[]; hold: boolean[]; }[]) {
     // Performance data visual display
