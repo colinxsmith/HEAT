@@ -120,7 +120,7 @@ export class HeatmapComponent implements OnInit {
     const openBox = true;
     perfS.append('path') // Open rectangles
       .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
-      .transition().duration(2000)
+      .transition().duration(2000) // .ease(d3.easeBounce)
       .tween('held', (perfi, i, kk) => {
         const here = d3.select(kk[i]);
         if (!openBox) {
@@ -279,8 +279,8 @@ export class HeatmapComponent implements OnInit {
           .style('fill', 'none')
           .style('stroke', 'black')
           .style('stroke-width', 3)
-          .attr('cx', cx)
-          .attr('cy', cy)
+          .attr('cx', `${cx}px`)
+          .attr('cy', `${cy}px`)
           .attr('r', 0);
       }
       const smallRad = RAD;
@@ -292,12 +292,11 @@ export class HeatmapComponent implements OnInit {
           .style('fill', cc[i])
           .style('stroke', 'black')
           .style('stroke-width', 3)
-          .attr('ddd', circData[i])
-          .attr('cx', cx + smallRad * Math.sin(angle5 * i))
-          .attr('cy', cy - smallRad * Math.cos(angle5 * i))
+          .attr('circleDataAttribute', circData[i])
+          .attr('cx', `${cx + smallRad * Math.sin(angle5 * i)}px`)
+          .attr('cy', `${cy - smallRad * Math.cos(angle5 * i)}px`)
           .attr('r', smallRad * radRat);
       }
-
     };
     groupCirc(baseRad, 0, 0, 0, 3);
     const largeC: number[] = [];
@@ -312,9 +311,9 @@ export class HeatmapComponent implements OnInit {
         const bot = Math.sqrt((mX - cX) * (mX - cX) + (mY - cY) * (mY - cY));
         const [unitX, unitY] = [(mX - cX) / bot, (mY - cY) / bot];
         this.tooltip
-          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${here.attr('ddd')}`)
-          .style('left', (-unitX * radH + eX) + 'px')
-          .style('top', (-unitY * radH + eY) + 'px')
+          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${here.attr('circleDataAttribute')}`)
+          .style('left', `${-unitX * radH + eX}px`)
+          .style('top', `${-unitY * radH + eY}px`)
           .transition().duration(1000)
           .styleTween('opacity', () => (t) => `${t * t}`);
       })
@@ -392,8 +391,8 @@ export class HeatmapComponent implements OnInit {
     if (doView) {
       svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
     } else {
-      svgBase.attr('width', width + margin.left + margin.right);
-      svgBase.attr('height', height + margin.top + margin.bottom);
+      svgBase.attr('width', `${width + margin.left + margin.right}`);
+      svgBase.attr('height', `${height + margin.top + margin.bottom}`);
     }
     const svg = svgBase.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
     perfData.forEach((ydata, yi) => {
