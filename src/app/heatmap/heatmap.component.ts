@@ -120,7 +120,7 @@ export class HeatmapComponent implements OnInit {
     const openBox = true;
     perfS.append('path') // Open rectangles
       .attr('class', (perfi) => perfi.hold ? 'perfM' : 'perfS')
-      .transition().duration(2000) // .ease(d3.easeBounce)
+      .transition().duration(2000).ease(d3.easeSin)
       .tween('held', (perfi, i, kk) => {
         const here = d3.select(kk[i]);
         if (!openBox) {
