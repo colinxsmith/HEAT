@@ -6,7 +6,7 @@ import { PrefixNot } from '@angular/compiler';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -14,16 +14,18 @@ import { PrefixNot } from '@angular/compiler';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  plotFigure = ['Heat Map', 'Radar ', '5 Circles', 'Large Map', 'Perf Map'].reverse();
+  plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Heat Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerX: string[] = [];
   managerY: string[] = [];
+  totalsX: {ind: number, value: number}[] = [];
+  totalsY: {ind: number, value: number}[] = [];
   managerPlot: { x: number, y: number, value: number }[] = [];
   numColours = 250;
   buttonName = 'Squares';
   transpose = true;
   squares = true;
-  viewbox = true; // Use viewBox attribute for setting width and height (no good on IE)
+  viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
   chosenData = this.myData.managerDataTypes[0];
   perfData = this.myData.perfMap;
   chosenFigure = this.plotFigure[0];
@@ -187,22 +189,32 @@ export class HeatmapComponent implements OnInit {
     const here = this, xmap = {}, ymap = {};
     this.managerX = [];
     this.managerY = [];
+    this.totalsX = [];
+    this.totalsY = [];
     this.managerPlot = [];
     let nx = 0, ny = 0, ij = 0;
     dataV.forEach((d) => {
       if (!(xmap[d.x] > -1)) {
-        here.managerX.push(d.x);
+        here.managerX.push(d.x); // Office
         xmap[d.x] = nx++;
       }
       if (!(ymap[d.y.replace(/[0-9]/g, '')] > -1)) {
-        here.managerY.push(d.y.replace(/[0-9]/g, ''));
+        here.managerY.push(d.y.replace(/[0-9]/g, '')); // Manager
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
     });
     for (let i = 0; i < nx; ++i) {
+      if (here.totalsY[i] === undefined) {
+        here.totalsY[i] = { value: 0, ind: i };
+      }
       for (let j = 0; j < ny; ++j) {
+        if (here.totalsX[j] === undefined) {
+          here.totalsX[j] = { value: 0, ind: j };
+        }
         if (ij < dataV.length && dataV[ij].x === here.managerX[i]
           && dataV[ij].y.replace(/[0-9]/g, '') === here.managerY[j].replace(/[0-9]/g, '')) {
+          here.totalsY[i].value += dataV[ij].value;
+          here.totalsX[j].value += dataV[ij].value;
           here.managerPlot.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
         } else {
           if (here.pad) { here.managerPlot.push({ x: i + 1, y: j + 1, value: 0 }); }
@@ -669,6 +681,20 @@ export class HeatmapComponent implements OnInit {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
+    this.totalsX.sort((a1, a2) => {
+      if (a2.value > a1.value) {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
+    this.totalsY.sort((a1, a2) => {
+      if (a2.value > a1.value) {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
     let buckets = labelsXY.x.length, legendSize = 50;
     const margin = { top: transpose ? 30 : 60, right: 0, bottom: 10, left: 130 },
       width = 1000 - margin.left - margin.right,
@@ -698,7 +724,7 @@ export class HeatmapComponent implements OnInit {
       YLabels = svg.selectAll('.yLabel')
         .data(labelsXY.y)
         .enter().append('text')
-        .text((d) => d)
+        .text((d, i) => labelsXY.y[this.transpose ? this.totalsY[i].ind : this.totalsX[i].ind])
         .attr('x', 0)
         .attr('y', 0)
         .style('text-anchor', 'end')
@@ -715,19 +741,23 @@ export class HeatmapComponent implements OnInit {
         .attr('class', 'axis-x'),
       tableTranspose = (d: { x: number, y: number, value: number }) => transpose ?
         { y: +d.x, x: +d.y, value: +d.value } :
-        { y: +d.y, x: +d.x, value: +d.value }
-      , totalsX = [], totalsY = [],
+        { y: +d.y, x: +d.x, value: +d.value },
       heatmapChart = (circ: boolean) => {
-        dataXY.forEach((d) => {
+/*        dataXY.forEach((d) => {
           d = tableTranspose(d);
-          if (labelsXY.y[d.y - 1] === 'Total') {
-            totalsY.push(d.value);
-          } else if (labelsXY.x[d.x - 1] === 'Total') {
-            totalsX.push(d.value);
-          } else {
-            heatData.push(d);
+          heatData.push(d);
+        });*/
+        for (let ii = 0; ii < labelsXY.x.length; ii++) {
+          for (let jj = 0; jj < labelsXY.y.length; jj++) {
+            if (this.transpose) {
+              heatData.push({ y: dataXY[ii + labelsXY.y.length + this.totalsY[jj].ind].y, x: jj + 1,
+                value: dataXY[ii * labelsXY.y.length + this.totalsY[jj].ind].value });
+            } else {
+            heatData.push({ x: dataXY[ii * labelsXY.y.length + this.totalsX[jj].ind].x, y: jj + 1,
+              value: dataXY[ii * labelsXY.y.length + this.totalsX[jj].ind].value });
+            }
           }
-        });
+        }
         const colourScale = d3.scaleQuantile<d3.RGBColor>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
@@ -780,18 +810,18 @@ export class HeatmapComponent implements OnInit {
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(0)`);
         const totsy = svg.selectAll('.totalsY')
-          .data(totalsY).enter().append('g').append('text');
+          .data(this.totalsY).enter().append('g').append('text');
         totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
           .attr('y', labelsXY.y.length * gridSize - 6)
           .attr('class', 'totalsY')
-          .text((d) => d);
+          .text((d) => d3.format('0.1f')(d.value));
         const totsx = svg.selectAll('.totalsX')
-          .data(totalsX).enter().append('g').append('text');
+          .data(this.totalsX).enter().append('g').append('text');
         totsx.attr('y', (d, i) => (i + 0.45) * gridSize + 3)
           .attr('x', labelsXY.x.length * gridSize - 25)
           .attr('class', 'totalsX')
-          .text((d) => d);
-        const doLegend = true;
+          .text((d) => d3.format('0.1f')(d.value));
+        const doLegend = false;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
