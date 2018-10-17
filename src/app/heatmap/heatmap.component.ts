@@ -6,7 +6,7 @@ import { PrefixNot } from '@angular/compiler';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -681,20 +681,25 @@ export class HeatmapComponent implements OnInit {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
-    this.totalsX.sort((a1, a2) => {
-      if (a2.value > a1.value) {
-        return 1;
+    if (this.pad) {
+      if (!this.transpose) {
+        this.totalsX.sort((a1, a2) => {
+          if (a2.value > a1.value) {
+            return 1;
+          } else {
+            return -1;
+          }
+        });
       } else {
-        return -1;
+        this.totalsY.sort((a1, a2) => {
+          if (a2.value > a1.value) {
+            return 1;
+          } else {
+            return -1;
+          }
+        });
       }
-    });
-    this.totalsY.sort((a1, a2) => {
-      if (a2.value > a1.value) {
-        return 1;
-      } else {
-        return -1;
-      }
-    });
+    }
     let buckets = labelsXY.x.length, legendSize = 50;
     const margin = { top: transpose ? 30 : 60, right: 0, bottom: 10, left: 130 },
       width = 1000 - margin.left - margin.right,
@@ -743,18 +748,25 @@ export class HeatmapComponent implements OnInit {
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value },
       heatmapChart = (circ: boolean) => {
-/*        dataXY.forEach((d) => {
-          d = tableTranspose(d);
-          heatData.push(d);
-        });*/
-        for (let ii = 0; ii < labelsXY.x.length; ii++) {
-          for (let jj = 0; jj < labelsXY.y.length; jj++) {
-            if (this.transpose) {
-              heatData.push({ y: dataXY[ii + labelsXY.y.length + this.totalsY[jj].ind].y, x: jj + 1,
-                value: dataXY[ii * labelsXY.y.length + this.totalsY[jj].ind].value });
-            } else {
-            heatData.push({ x: dataXY[ii * labelsXY.y.length + this.totalsX[jj].ind].x, y: jj + 1,
-              value: dataXY[ii * labelsXY.y.length + this.totalsX[jj].ind].value });
+        if (!this.pad) {
+          dataXY.forEach((d) => {
+            d = tableTranspose(d);
+            heatData.push(d);
+          });
+        } else {
+          for (let ii = 0; ii < xLabels.length; ii++) {
+            for (let jj = 0; jj < yLabels.length; jj++) {
+              if (this.transpose) {
+                heatData.push({
+                  y: ii + 1, x: jj + 1,
+                  value: dataXY[this.totalsY[ii].ind * yLabels.length + jj].value
+                });
+             } else {
+                heatData.push({
+                  x: ii + 1, y: jj + 1,
+                  value: dataXY[ii * yLabels.length + this.totalsX[jj].ind].value
+                });
+              }
             }
           }
         }
@@ -785,7 +797,7 @@ export class HeatmapComponent implements OnInit {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
             this.tooltip
               // tslint:disable-next-line:max-line-length
-              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${labelsXY.y[d.y - 1]}<br>${d.value}`)
+              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${this.transpose ? xLabels[this.totalsY[d.y - 1].ind] : yLabels[this.totalsX[d.y - 1].ind]}<br>${d.value}`)
               .style('opacity', 0.9)
               .style('left', tX)
               .style('top', tY);
@@ -809,18 +821,18 @@ export class HeatmapComponent implements OnInit {
           .text((d) => `${d.value}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(0)`);
-        const totsy = svg.selectAll('.totalsY')
-          .data(this.totalsY).enter().append('g').append('text');
+/*        const totsy = svg.selectAll('.totalsY')
+          .data(this.transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
         totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
-          .attr('y', labelsXY.y.length * gridSize - 6)
+          .attr('y', labelsXY.y.length * gridSize)
           .attr('class', 'totalsY')
           .text((d) => d3.format('0.1f')(d.value));
         const totsx = svg.selectAll('.totalsX')
-          .data(this.totalsX).enter().append('g').append('text');
+          .data(this.transpose ? this.totalsY : this.totalsX).enter().append('g').append('text');
         totsx.attr('y', (d, i) => (i + 0.45) * gridSize + 3)
-          .attr('x', labelsXY.x.length * gridSize - 25)
+          .attr('x', labelsXY.x.length * gridSize)
           .attr('class', 'totalsX')
-          .text((d) => d3.format('0.1f')(d.value));
+          .text((d) => d3.format('0.1f')(d.value));*/
         const doLegend = false;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
