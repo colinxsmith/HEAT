@@ -247,11 +247,10 @@ export class HeatmapComponent implements OnInit {
             } else {
                kk++;
             }
-            console.log('ik = ' + ik);
           }
           ij++;
         }
-        sofar += ik;
+        sofar = ik;
       }
       this.heatMaps('app-heatmap', this.managerX, this.myData.managerDataTypes, totalKPI, this.colourRangeMaps, this.squares);
     } else if (this.chosenFigure === 'Large Map') {
