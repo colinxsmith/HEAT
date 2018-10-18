@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
 import { PrefixNot } from '@angular/compiler';
+import { invoke } from 'q';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
@@ -232,6 +233,27 @@ export class HeatmapComponent implements OnInit {
       });
       this.buttonName = this.squares ? 'Circles' : 'Squares';
       this.heatMaps('app-heatmap', this.managerX, this.managerY, this.managerPlot, this.colourRangeMaps, this.squares);
+      const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
+      this.totalsX = [];
+      this.totalsY = [];
+      let sofar = 0, ik = 0;
+      for (let ii = 0, ij = 0; ii < this.managerX.length; ii++) { // offices
+        for (let jj = 0; jj < this.myData.managerData.length; jj++) { // KPI
+          totalKPI.push({ x: ii + 1, y: jj + 1, value: 0 });
+          ik = sofar;
+          for (let kk = 0; kk < this.managerY.length; kk++) {
+            if (this.myData.managerData[jj][ik].x === this.managerX[ii] && this.myData.managerData[jj][ik].y === this.managerY[kk]) {
+              totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
+            } else {
+               kk++;
+            }
+            console.log('ik = ' + ik);
+          }
+          ij++;
+        }
+        sofar += ik;
+      }
+      this.heatMaps('app-heatmap', this.managerX, this.myData.managerDataTypes, totalKPI, this.colourRangeMaps, this.squares);
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap('app-heatmap', this.myData.managerDataTypes, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
@@ -672,7 +694,7 @@ export class HeatmapComponent implements OnInit {
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
     colourRange: string[], squares: boolean) {
-    const transpose = this.transpose,
+    const transpose = this.transpose, totalsX = this.totalsX, totalsY = this.totalsY,
       labelsXY = { x: [' '], y: [' '] }, heatData: { x: number, y: number, value: number }[] = [];
     if (transpose) {
       labelsXY.x = yLabels;
@@ -683,7 +705,7 @@ export class HeatmapComponent implements OnInit {
     }
     if (this.pad) {
       if (!this.transpose) {
-        this.totalsX.sort((a1, a2) => {
+        totalsX.sort((a1, a2) => {
           if (a2.value > a1.value) {
             return 1;
           } else {
@@ -691,7 +713,7 @@ export class HeatmapComponent implements OnInit {
           }
         });
       } else {
-        this.totalsY.sort((a1, a2) => {
+        totalsY.sort((a1, a2) => {
           if (a2.value > a1.value) {
             return 1;
           } else {
@@ -702,8 +724,8 @@ export class HeatmapComponent implements OnInit {
     }
     let buckets = labelsXY.x.length, legendSize = 50;
     const margin = { top: transpose ? 30 : 60, right: 0, bottom: 10, left: 130 },
-      width = 1000 - margin.left - margin.right,
-      height = 1000 - margin.top - margin.bottom - legendSize,
+      width = 700 - margin.left - margin.right,
+      height = 700 - margin.top - margin.bottom - legendSize,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
     legendSize = Math.min(legendSize, legendElementWidth);
@@ -729,7 +751,11 @@ export class HeatmapComponent implements OnInit {
       YLabels = svg.selectAll('.yLabel')
         .data(labelsXY.y)
         .enter().append('text')
-        .text((d, i) => labelsXY.y[this.transpose ? this.totalsY[i].ind : this.totalsX[i].ind])
+        .text((d, i) => {
+          return labelsXY.y[this.transpose ? (totalsY.length ? totalsY[i].ind : i)
+           : (totalsX.length ? totalsX[i].ind : i)];
+        }
+        )
         .attr('x', 0)
         .attr('y', 0)
         .style('text-anchor', 'end')
@@ -759,12 +785,12 @@ export class HeatmapComponent implements OnInit {
               if (this.transpose) {
                 heatData.push({
                   y: ii + 1, x: jj + 1,
-                  value: dataXY[this.totalsY[ii].ind * yLabels.length + jj].value
+                  value: dataXY[(totalsY.length ? totalsY[ii].ind : ii) * yLabels.length + jj].value
                 });
              } else {
                 heatData.push({
                   x: ii + 1, y: jj + 1,
-                  value: dataXY[ii * yLabels.length + this.totalsX[jj].ind].value
+                  value: dataXY[ii * yLabels.length + (totalsX.length ? totalsX[jj].ind : jj)].value
                 });
               }
             }
@@ -797,7 +823,7 @@ export class HeatmapComponent implements OnInit {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
             this.tooltip
               // tslint:disable-next-line:max-line-length
-              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${this.transpose ? xLabels[this.totalsY[d.y - 1].ind] : yLabels[this.totalsX[d.y - 1].ind]}<br>${d.value}`)
+              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${this.transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : yLabels[totalsX.length ? totalsX[d.y - 1].ind : d.y - 1]}<br>${d3.format('0.2f')(d.value)}`)
               .style('opacity', 0.9)
               .style('left', tX)
               .style('top', tY);
@@ -818,7 +844,7 @@ export class HeatmapComponent implements OnInit {
           .attr('transform', (d) => `translate(${(d.x - 1) * gridSize}, ${(d.y - 1) * gridSize}) rotate(135)`)
           .attr('dy', 3)
           .attr('class', 'datavals')
-          .text((d) => `${d.value}`)
+          .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(0)`);
 /*        const totsy = svg.selectAll('.totalsY')
