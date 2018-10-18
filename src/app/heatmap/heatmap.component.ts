@@ -24,13 +24,13 @@ export class HeatmapComponent implements OnInit {
   managerPlot: { x: number, y: number, value: number }[] = [];
   numColours = 250;
   buttonName = 'Squares';
-  transpose = true;
+  transpose = false;
   squares = true;
   viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
   chosenData = this.myData.managerDataTypes[0];
   perfData = this.myData.perfMap;
   chosenFigure = this.plotFigure[0];
-  pad = true;
+  pad = false;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourRangeMaps = ['rgb(234,235,236)', 'rgb(245,10,5)'];
   colourRange = ['white', 'rgb(245,200,105)',
@@ -242,11 +242,10 @@ export class HeatmapComponent implements OnInit {
           totalKPI.push({ x: ii + 1, y: jj + 1, value: 0 });
           ik = sofar;
           for (let kk = 0; kk < this.managerY.length; kk++) {
-            if (this.myData.managerData[jj][ik].x === this.managerX[ii] && this.myData.managerData[jj][ik].y === this.managerY[kk]) {
+            if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerX[ii] &&
+                this.myData.managerData[jj][ik].y === this.managerY[kk]) {
               totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
-            } else {
-               kk++;
-            }
+            } 
           }
           ij++;
         }
