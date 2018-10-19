@@ -205,7 +205,7 @@ export class HeatmapComponent implements OnInit {
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
     });
-    const qSwap = (i: number, j: number, a: any[]) => { // swap single entries in an array
+    const qSwap = (i: number, j: number, a: ({ x: string; y: string; value: number; } | string) []) => { // swap single entries in an array
       const aa = a[i];
       a[i] = a[j];
       a[j] = aa;
