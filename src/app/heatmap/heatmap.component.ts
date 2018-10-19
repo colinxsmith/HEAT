@@ -245,7 +245,7 @@ export class HeatmapComponent implements OnInit {
             if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerX[ii] &&
                 this.myData.managerData[jj][ik].y === this.managerY[kk]) {
               totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
-            } 
+            }
           }
           ij++;
         }
