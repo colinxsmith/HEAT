@@ -193,6 +193,7 @@ export class HeatmapComponent implements OnInit {
     this.totalsX = [];
     this.totalsY = [];
     this.managerPlot = [];
+    const managerXord: { v: string, i: number }[] = [];
     let nx = 0, ny = 0, ij = 0;
     dataV.forEach((d) => {
       if (!(xmap[d.x] > -1)) {
@@ -204,6 +205,43 @@ export class HeatmapComponent implements OnInit {
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
     });
+    const qSwap = (i: number, j: number, a: ({ x: string; y: string; value: number; } | string) []) => { // swap single entries in an array
+      const aa = a[i];
+      a[i] = a[j];
+      a[j] = aa;
+    };
+    const flInd = (a: { x: string; y: string; value: number; }[], name: string): number[] => {
+      let back1;
+      for (let ii = 0; ii < a.length; ii++) {
+        if (a[ii].x === name) { back1 = ii; break; } else { back1 = -1; }
+      }
+      let back2;
+      for (let ii = back1; ii < a.length; ii++) {
+        if (a[ii].x !== name) { back2 = ii; break; } else { back2 = -1; }
+      }
+      return [back1, back2];
+    };
+    const rSwap = (i: number, j: number, a: { x: string; y: string; value: number; }[]) => { // swap array ranges
+      const aa = flInd(a, this.managerX[i]), bb = flInd(a, this.managerX[j]);
+      for (let ii = 0; ii < aa[1] - aa[0]; ii++) { // This only works if ranges are the same length
+        qSwap(aa[0] + ii, bb[0] + ii, a);
+      }
+    };
+    this.managerX.forEach((d, i) => managerXord[i] = { i: i, v: d });
+    const marked: boolean[] = [];
+    this.managerX.forEach((d, i) => marked[i] = false);
+    /*
+    managerXord.sort((a, b) => a.v.localeCompare(b.v));
+    for (let i = 0, j, k; i < this.managerX.length; i++) {
+      if (!marked[i]) { // Quick re-order
+        for (j = i, k = managerXord[j].i; k !== i; k = managerXord[j = k].i) {
+          qSwap(k, j, this.managerX);
+          marked[k] = true;
+        }
+        marked[i] = true;
+      }
+    }
+    */
     for (let i = 0; i < nx; ++i) {
       if (here.totalsY[i] === undefined) {
         here.totalsY[i] = { value: 0, ind: i };
@@ -245,7 +283,7 @@ export class HeatmapComponent implements OnInit {
             if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerX[ii] &&
                 this.myData.managerData[jj][ik].y === this.managerY[kk]) {
               totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
-            } 
+            }
           }
           ij++;
         }
@@ -419,7 +457,7 @@ export class HeatmapComponent implements OnInit {
       .attr('offset', '100%')
       .attr('stop-color', 'rgb(255,16,8)')
       .attr('stop-opacity', 1);
-    const doView = true;
+    const doView = this.viewbox;
     if (doView) {
       svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
     } else {
