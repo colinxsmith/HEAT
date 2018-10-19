@@ -213,11 +213,11 @@ export class HeatmapComponent implements OnInit {
     const flInd = (a: { x: string; y: string; value: number; }[], name: string): number[] => {
       let back1;
       for (let ii = 0; ii < a.length; ii++) {
-        if (a[ii].x === name) { back1 = ii; } else { back1 = -1; }
+        if (a[ii].x === name) { back1 = ii; break; } else { back1 = -1; }
       }
       let back2;
       for (let ii = back1; ii < a.length; ii++) {
-        if (a[ii].x !== name) { back2 = ii; } else { back2 = -1; }
+        if (a[ii].x !== name) { back2 = ii; break; } else { back2 = -1; }
       }
       return [back1, back2];
     };
