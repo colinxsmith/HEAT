@@ -7,7 +7,7 @@ import { invoke } from 'q';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -26,10 +26,12 @@ export class HeatmapComponent implements OnInit {
   buttonName = 'Squares';
   transpose = false;
   squares = true;
+  shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
   viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
   chosenData = this.myData.managerDataTypes[0];
   perfData = this.myData.perfMap;
   chosenFigure = this.plotFigure[0];
+  chosenShape = this.shape[0];
   pad = false;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourRangeMaps = ['rgb(234,235,236)', 'rgb(245,10,5)'];
@@ -186,6 +188,10 @@ export class HeatmapComponent implements OnInit {
     this.chosenFigure = daig;
     this.ngOnInit();
   }
+  chooseShape(daig: string) {
+    this.chosenShape = daig;
+    this.ngOnInit();
+  }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
     const here = this, xmap = {}, ymap = {};
     this.managerX = [];
@@ -269,8 +275,6 @@ export class HeatmapComponent implements OnInit {
           this.managerProcess(this.myData.managerData[i]);
         }
       });
-      this.buttonName = this.squares ? 'Circles' : 'Squares';
-      this.heatMaps('app-heatmap', this.managerX, this.managerY, this.managerPlot, this.colourRangeMaps, this.squares);
       const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
       this.totalsX = [];
       this.totalsY = [];
@@ -289,7 +293,8 @@ export class HeatmapComponent implements OnInit {
         }
         sofar = ik;
       }
-      this.heatMaps('app-heatmap', this.managerX, this.myData.managerDataTypes, totalKPI, this.colourRangeMaps, this.squares);
+      this.heatMaps('app-heatmap', this.managerX, this.myData.managerDataTypes, totalKPI, this.colourRangeMaps);
+      this.heatMaps('app-heatmap', this.managerX, this.managerY, this.managerPlot, this.colourRangeMaps);
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap('app-heatmap', this.myData.managerDataTypes, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
@@ -729,7 +734,7 @@ export class HeatmapComponent implements OnInit {
     this.ngOnInit();
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
-    colourRange: string[], squares: boolean) {
+    colourRange: string[]) {
     const transpose = this.transpose, totalsX = this.totalsX, totalsY = this.totalsY,
       labelsXY = { x: [' '], y: [' '] }, heatData: { x: number, y: number, value: number }[] = [];
     if (transpose) {
@@ -759,7 +764,7 @@ export class HeatmapComponent implements OnInit {
       }
     }
     let buckets = labelsXY.x.length, legendSize = 50;
-    const margin = { top: transpose ? 30 : 60, right: 0, bottom: 10, left: 130 },
+    const margin = { top: transpose ? 150 : 60, right: 0, bottom: 10, left: 130 },
       width = 700 - margin.left - margin.right,
       height = 700 - margin.top - margin.bottom - legendSize,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
@@ -809,7 +814,7 @@ export class HeatmapComponent implements OnInit {
       tableTranspose = (d: { x: number, y: number, value: number }) => transpose ?
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value },
-      heatmapChart = (circ: boolean) => {
+      heatmapChart = (shape: string) => {
         if (!this.pad) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
@@ -838,13 +843,14 @@ export class HeatmapComponent implements OnInit {
           .range(colours);
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
+        const slice = 30; // temporary
         let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; }, d3.BaseType, {}>;
-        if (circ) {
+        if (shape === 'Circles') {
           painKiller = gridDistribution.enter().append('circle')
             .attr('cx', width * 0.5)
             .attr('cy', height * 0.5)
             .attr('r', gridSize / 8);
-        } else {
+        } else if (shape === 'Squares') {
           painKiller = gridDistribution.enter().append('rect')
             .attr('x', (d) => Math.min(d.y * gridSize, Math.random() * width))
             .attr('y', (d) => Math.min(d.x * gridSize, Math.random() * height))
@@ -852,6 +858,19 @@ export class HeatmapComponent implements OnInit {
             .attr('ry', 20)
             .attr('width', gridSize)
             .attr('height', gridSize);
+        } else if (shape === 'Doughnuts') {
+          painKiller = gridDistribution.enter().append('path')
+            .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
+          ${Math.min(d.x * gridSize, Math.random() * height)})`)
+            .attr('d', () => d3.arc()
+              ({startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2, innerRadius: Math.sqrt(slice / 360) * gridSize / 2}));
+        } else if (shape === 'Cakes') {
+          painKiller = gridDistribution.enter().append('path')
+          .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
+          ${Math.min(d.x * gridSize, Math.random() * height)})`)
+          .attr('d', () => d3.arc()
+          ({startAngle: slice / 2 * Math.PI / 180, endAngle: (360 - slice / 2) * Math.PI / 180,
+            outerRadius: gridSize / 2, innerRadius: 0}));
         }
         painKiller
           .attr('class', 'bordered')
@@ -872,6 +891,8 @@ export class HeatmapComponent implements OnInit {
           .attr('y', (d) => (d.y - 1) * gridSize)
           .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
+          .attr('transform', (d) => shape === 'Cakes' || shape === 'Doughnuts' ?
+            `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize}) rotate(180)` : 'translate(0,0)')
           .attr('rx', 0)
           .attr('ry', 0)
           .attr('r', gridSize / 2)
@@ -925,7 +946,7 @@ export class HeatmapComponent implements OnInit {
             .attr('y', (labelsXY.y.length + 0.25) * gridSize + legendSize / 2 + 3);
         }
       };
-    heatmapChart(squares ? false : true);
+    heatmapChart(this.chosenShape);
   }
   RadarChart(id: string, data: { axis: string; value: number; }[][], options: {
     w: number; h: number;
