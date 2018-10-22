@@ -7,9 +7,9 @@ import { invoke } from 'q';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of this.myData.managerDataTypes">{{i}}</option></select>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button>',
   // tslint:disable-next-line:max-line-length
-  //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerDataTypes">{{i}}</option></select>',
+  //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerKPIs">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
@@ -17,24 +17,23 @@ export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
   plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Heat Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
-  managerX: string[] = [];
-  managerY: string[] = [];
+  managerOffices: string[] = [];
+  managerKPIs: string[] = [];
   totalsX: {ind: number, value: number}[] = [];
   totalsY: {ind: number, value: number}[] = [];
-  managerPlot: { x: number, y: number, value: number }[] = [];
+  KPI: { x: number, y: number, value: number }[] = [];
   numColours = 250;
   buttonName = 'Squares';
   transpose = false;
-  squares = true;
   shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
   viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
-  chosenData = this.myData.managerDataTypes[0];
+  chosenData = '';
   perfData = this.myData.perfMap;
   chosenFigure = this.plotFigure[0];
   chosenShape = this.shape[0];
   pad = false;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  colourRangeMaps = ['rgb(234,235,236)', 'rgb(245,10,5)'];
+  colourRangeMaps = ['rgb(194,195,196)', 'rgb(245,10,5)'];
   colourRange = ['white', 'rgb(245,200,105)',
     'white', 'rgb(245,100,105)',
     'white', 'rgb(245,100,105)',
@@ -192,25 +191,47 @@ export class HeatmapComponent implements OnInit {
     this.chosenShape = daig;
     this.ngOnInit();
   }
-  managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
-    const here = this, xmap = {}, ymap = {};
-    this.managerX = [];
-    this.managerY = [];
+  managerSummary() {
+    const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
     this.totalsX = [];
     this.totalsY = [];
-    this.managerPlot = [];
+    let sofar = 0, ik = 0;
+    for (let ii = 0, ij = 0; ii < this.managerOffices.length; ii++) { // offices
+      for (let jj = 0; jj < this.myData.managerData.length; jj++) { // KPI
+        totalKPI.push({ x: ii + 1, y: jj + 1, value: 0 });
+        ik = sofar;
+        for (let kk = 0; kk < this.managerKPIs.length; kk++) {
+          if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
+              this.myData.managerData[jj][ik].y === this.managerKPIs[kk]) {
+            totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
+          }
+        }
+        ij++;
+      }
+      sofar = ik;
+    }
+    return totalKPI;
+}
+  managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
+    const here = this, xmap = {}, ymap = {};
+    this.managerOffices = [];
+    this.managerKPIs = [];
+    this.totalsX = [];
+    this.totalsY = [];
+    this.KPI = [];
     const managerXord: { v: string, i: number }[] = [];
     let nx = 0, ny = 0, ij = 0;
-    dataV.forEach((d) => {
+    this.myData.managerData[0].forEach((d) => {
       if (!(xmap[d.x] > -1)) {
-        here.managerX.push(d.x); // Office
+        here.managerOffices.push(d.x); // Office
         xmap[d.x] = nx++;
       }
       if (!(ymap[d.y.replace(/[0-9]/g, '')] > -1)) {
-        here.managerY.push(d.y.replace(/[0-9]/g, '')); // Manager
+        here.managerKPIs.push(d.y.replace(/[0-9]/g, '')); // Manager
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
     });
+    this.heatMaps('app-heatmap', this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps);
     const qSwap = (i: number, j: number, a: ({ x: string; y: string; value: number; } | string) []) => { // swap single entries in an array
       const aa = a[i];
       a[i] = a[j];
@@ -228,20 +249,20 @@ export class HeatmapComponent implements OnInit {
       return [back1, back2];
     };
     const rSwap = (i: number, j: number, a: { x: string; y: string; value: number; }[]) => { // swap array ranges
-      const aa = flInd(a, this.managerX[i]), bb = flInd(a, this.managerX[j]);
+      const aa = flInd(a, this.managerOffices[i]), bb = flInd(a, this.managerOffices[j]);
       for (let ii = 0; ii < aa[1] - aa[0]; ii++) { // This only works if ranges are the same length
         qSwap(aa[0] + ii, bb[0] + ii, a);
       }
     };
-    this.managerX.forEach((d, i) => managerXord[i] = { i: i, v: d });
+    this.managerOffices.forEach((d, i) => managerXord[i] = { i: i, v: d });
     const marked: boolean[] = [];
-    this.managerX.forEach((d, i) => marked[i] = false);
+    this.managerOffices.forEach((d, i) => marked[i] = false);
     /*
     managerXord.sort((a, b) => a.v.localeCompare(b.v));
-    for (let i = 0, j, k; i < this.managerX.length; i++) {
+    for (let i = 0, j, k; i < this.managerOffices.length; i++) {
       if (!marked[i]) { // Quick re-order
         for (j = i, k = managerXord[j].i; k !== i; k = managerXord[j = k].i) {
-          qSwap(k, j, this.managerX);
+          qSwap(k, j, this.managerOffices);
           marked[k] = true;
         }
         marked[i] = true;
@@ -256,47 +277,32 @@ export class HeatmapComponent implements OnInit {
         if (here.totalsX[j] === undefined) {
           here.totalsX[j] = { value: 0, ind: j };
         }
-        if (ij < dataV.length && dataV[ij].x === here.managerX[i]
-          && dataV[ij].y.replace(/[0-9]/g, '') === here.managerY[j].replace(/[0-9]/g, '')) {
+        if (ij < dataV.length && dataV[ij].x === here.managerOffices[i]
+          && dataV[ij].y.replace(/[0-9]/g, '') === here.managerKPIs[j].replace(/[0-9]/g, '')) {
           here.totalsY[i].value += dataV[ij].value;
           here.totalsX[j].value += dataV[ij].value;
-          here.managerPlot.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
+          here.KPI.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
         } else {
-          if (here.pad) { here.managerPlot.push({ x: i + 1, y: j + 1, value: 0 }); }
+          if (here.pad) { here.KPI.push({ x: i + 1, y: j + 1, value: 0 }); }
         }
       }
     }
   }
-  ngOnInit() { // Decide whether large map or smaller heatmap
+  ngOnInit() { // Decide which figure
     d3.selectAll('svg').remove();
     if (this.chosenFigure === 'Heat Map') {
-      this.myData.managerDataTypes.forEach((d, i) => {
+      this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
           this.managerProcess(this.myData.managerData[i]);
+          this.heatMaps('app-heatmap', this.managerOffices, this.managerKPIs, this.KPI, this.colourRangeMaps);
         }
       });
-      const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
-      this.totalsX = [];
-      this.totalsY = [];
-      let sofar = 0, ik = 0;
-      for (let ii = 0, ij = 0; ii < this.managerX.length; ii++) { // offices
-        for (let jj = 0; jj < this.myData.managerData.length; jj++) { // KPI
-          totalKPI.push({ x: ii + 1, y: jj + 1, value: 0 });
-          ik = sofar;
-          for (let kk = 0; kk < this.managerY.length; kk++) {
-            if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerX[ii] &&
-                this.myData.managerData[jj][ik].y === this.managerY[kk]) {
-              totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
-            }
-          }
-          ij++;
-        }
-        sofar = ik;
+      if (this.chosenData === '') {
+        this.managerProcess([]);
       }
-      this.heatMaps('app-heatmap', this.managerX, this.myData.managerDataTypes, totalKPI, this.colourRangeMaps);
-      this.heatMaps('app-heatmap', this.managerX, this.managerY, this.managerPlot, this.colourRangeMaps);
+//      this.heatMaps('app-heatmap', this.managerOffices, this.managerKPIs, this.KPI, this.colourRangeMaps);
     } else if (this.chosenFigure === 'Large Map') {
-      this.largeMap('app-heatmap', this.myData.managerDataTypes, this.myData.managerData, this.colourRange);
+      this.largeMap('app-heatmap', this.myData.managerKPIs, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
       this.perfMap('app-heatmap', this.perfData);
     } else if (this.chosenFigure === '5 Circles') {
@@ -522,11 +528,11 @@ export class HeatmapComponent implements OnInit {
 
 
   }
-  largeMap(id: string, managerDataTypes: string[], managerData: { x: string; y: string; value: number; }[][], colourRange: string[]) {
+  largeMap(id: string, managerKPIs: string[], managerData: { x: string; y: string; value: number; }[][], colourRange: string[]) {
     const margin = { top: 110, right: 10, bottom: 40, left: 90 },
       width = 800 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
-      scaleX = d3.scaleLinear().domain([0, managerDataTypes.length]).range([0, width]),
+      scaleX = d3.scaleLinear().domain([0, managerKPIs.length]).range([0, width]),
       scaleY = d3.scaleLinear().domain([0, managerData[0].length]).range([0, height]),
       svgBase = d3.select(id).append('svg')
         .attr('width', `${width + margin.left + margin.right}`)
@@ -536,7 +542,7 @@ export class HeatmapComponent implements OnInit {
     svgBase.append('rect').attr('width', width).attr('height', height)
       .attr('x', `${margin.left}`).attr('y', `${margin.top}`).attr('class', 'rim');
     const magnify = svgBase.append('g'), XLabels = svgBase.selectAll('.xLabel')
-      .data(managerDataTypes)
+      .data(managerKPIs)
       .enter().append('text')
       .text((d) => d)
       .attr('x', 5)
@@ -601,14 +607,14 @@ export class HeatmapComponent implements OnInit {
         .enter().append('rect')
         .attr('x', (dd) => margin.left + scaleX(ix) + 1)
         .attr('y', (dd, i) => margin.top + scaleY(i))
-        .attr('width', width / managerDataTypes.length - 2)
+        .attr('width', width / managerKPIs.length - 2)
         .attr('height', height / di.length)
         .style('fill', (dd) => `${colourScale(dd.value)}`)
         .on('mouseover', (dd, ii, jj) => {
           const [tX, tY] = this.toolTipPosition(ii, jj, width, height);
           this.tooltip
           // tslint:disable-next-line:max-line-length
-          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${managerDataTypes[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
+          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${managerKPIs[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
           .style('left', tX)
           .style('top', tY)
           .style('opacity', 1);
@@ -648,7 +654,7 @@ export class HeatmapComponent implements OnInit {
                   .style('top', tY)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerDataTypes[idd]}<br>${managerData[idd][i].value}`);
+                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerKPIs[idd]}<br>${managerData[idd][i].value}`);
               }
               )
               .on('mouseout', () => this.tooltip.style('opacity', 0));
@@ -687,7 +693,7 @@ export class HeatmapComponent implements OnInit {
                   .style('top', tY)
                   .style('opacity', 1)
                   // tslint:disable-next-line:max-line-length
-                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerDataTypes[idd]}<br>${managerData[idd][i].value}`);
+                  .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerKPIs[idd]}<br>${managerData[idd][i].value}`);
               }
               )
               .on('mouseout', () => this.tooltip.style('opacity', 0));
@@ -726,11 +732,6 @@ export class HeatmapComponent implements OnInit {
   }
   setTrans() { // Set up data the other way round
     this.transpose = !this.transpose;
-    this.ngOnInit();
-  }
-  setSquares() {
-    this.squares = !this.squares;
-    this.buttonName = this.squares ? 'Circles' : 'Squares';
     this.ngOnInit();
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
@@ -843,7 +844,7 @@ export class HeatmapComponent implements OnInit {
           .range(colours);
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
-        const slice = 30; // temporary
+        const slice = 50; // temporary
         let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; }, d3.BaseType, {}>;
         if (shape === 'Circles') {
           painKiller = gridDistribution.enter().append('circle')
@@ -874,6 +875,13 @@ export class HeatmapComponent implements OnInit {
         }
         painKiller
           .attr('class', 'bordered')
+          .on('click', (d) => {
+            const chosenData = this.transpose ? d.x - 1 : d.y - 1;
+            this.chosenData = this.myData.managerKPIs[chosenData];
+            d3.selectAll('svg').remove();
+            this.managerProcess(this.myData.managerData[chosenData]);
+            this.heatMaps('app-heatmap', this.managerOffices, this.managerKPIs, this.KPI, this.colourRangeMaps);
+          })
           .on('mouseover', (d, idd, jj) => {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
             this.tooltip
