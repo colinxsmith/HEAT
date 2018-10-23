@@ -173,6 +173,15 @@ export class HeatmapComponent implements OnInit {
       });
   }
   constructor() {
+/*    this.myData.managerData.forEach((d, i) => d.sort((a, b) => {
+      if (a.x + a.y > b.x + b.y) {
+        return 1;
+      } else if (a.x + a.y < b.x + b.y) {
+        return -1;
+      } else {
+        return 0;
+      }
+    }));*/
     this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
       d.forEach((dd) => {
         dd.y = dd.y.replace(/[0-9]/g, '');
