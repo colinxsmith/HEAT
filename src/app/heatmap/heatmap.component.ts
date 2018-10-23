@@ -62,7 +62,7 @@ export class HeatmapComponent implements OnInit {
     'white', 'rgb(150,150,255)',
     'white', 'rgb(150,150,255)'
   ];
-  wrap = (text1, width, lineHeight) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
+  wrapFunction = (text1, width, lineHeight) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
     text1.each((kk, i, j) => {
       const text = d3.select(j[i]),
         words = text.text().split(/\s+/).reverse(),
@@ -169,7 +169,7 @@ export class HeatmapComponent implements OnInit {
           .attr('x', 0)
           .attr('y', t * (height - vSpacer * numberPerfs) * assetIndex / numberPerfs + vSpacer * (assetIndex - 1) - 5)
           .attr('dy', 1.5 * t)
-          .call(this.wrap, 70 * t, t);
+          .call(this.wrapFunction, 70 * t, t);
       });
   }
   constructor() {
@@ -231,7 +231,7 @@ export class HeatmapComponent implements OnInit {
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
     });
-    this.heatMaps('app-heatmap', this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps);
+    this.heatMaps('app-heatmap', this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps, true);
     const qSwap = (i: number, j: number, a: ({ x: string; y: string; value: number; } | string) []) => { // swap single entries in an array
       const aa = a[i];
       a[i] = a[j];
@@ -551,7 +551,7 @@ export class HeatmapComponent implements OnInit {
       .style('text-anchor', 'right')
       .attr('transform', (d, i) => `translate(${margin.left + scaleX(i + 0.65)},${margin.top - 3}) rotate(280)`)
       .attr('class', 'axis-x')
-      .call(this.wrap, 60, 0.8);
+      .call(this.wrapFunction, 60, 0.8);
     let pastLabel = '', nL = 1;
     const iOffice: {} = {}; // Find the office numbers
     const YOffice = svgBase.selectAll('.yLabel0')
@@ -735,9 +735,9 @@ export class HeatmapComponent implements OnInit {
     this.ngOnInit();
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
-    colourRange: string[]) {
+    colourRange: string[], lineMap = false) {
     const transpose = this.transpose, totalsX = this.totalsX, totalsY = this.totalsY,
-      labelsXY = { x: [' '], y: [' '] }, heatData: { x: number, y: number, value: number }[] = [];
+      labelsXY = { x: [' '], y: [' '] };
     if (transpose) {
       labelsXY.x = yLabels;
       labelsXY.y = xLabels;
@@ -765,7 +765,7 @@ export class HeatmapComponent implements OnInit {
       }
     }
     let buckets = labelsXY.x.length, legendSize = 50;
-    const margin = { top: transpose ? 150 : 60, right: 0, bottom: 10, left: 130 },
+    const margin = { top: transpose ? 100 : 60, right: 0, bottom: 10, left: 130 },
       width = 700 - margin.left - margin.right,
       height = 700 - margin.top - margin.bottom - legendSize,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
@@ -809,13 +809,16 @@ export class HeatmapComponent implements OnInit {
         .text((d) => d)
         .attr('x', 0)
         .attr('y', 0)
+        .attr('dy', 1)
         .style('text-anchor', 'right')
-        .attr('transform', (d, i) => `translate(${(i + 0.55) * gridSize},-5) rotate(270)`)
-        .attr('class', 'axis-x'),
+        .attr('transform', (d, i) => `translate(${(i) * gridSize - 1},-15) rotate(290)`)
+        .attr('class', 'axis-xh')
+        .call(this.wrapFunction, 60, 0.8),
       tableTranspose = (d: { x: number, y: number, value: number }) => transpose ?
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value },
       heatmapChart = (shape: string) => {
+        const heatData: { x: number, y: number, value: number }[] = [];
         if (!this.pad) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
@@ -838,13 +841,23 @@ export class HeatmapComponent implements OnInit {
             }
           }
         }
-        const colourScale = d3.scaleQuantile<d3.RGBColor>()
+        const colourScales: d3.ScaleQuantile<d3.RGBColor>[] = [], colourScale = d3.scaleQuantile<d3.RGBColor>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);
+          if (lineMap) {
+            for (let jj = 0; jj < yLabels.length; jj++) {
+              let x1 = 1e9, x2 = -1e9;
+              for (let ii = 0; ii < xLabels.length; ii++) {
+                x1 = Math.min(x1, heatData[ii * yLabels.length + jj].value);
+                x2 = Math.max(x2, heatData[ii * yLabels.length + jj].value);
+              }
+              colourScales[jj] = d3.scaleQuantile<d3.RGBColor>().range(colours).domain([x1, x2]);
+            }
+          }
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
-        const slice = 50; // temporary
+        const slice = 100; // temporary
         let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; }, d3.BaseType, {}>;
         if (shape === 'Circles') {
           painKiller = gridDistribution.enter().append('circle')
@@ -876,6 +889,9 @@ export class HeatmapComponent implements OnInit {
         painKiller
           .attr('class', 'bordered')
           .on('click', (d) => {
+            if (!lineMap) {
+              return;
+            }
             const chosenData = this.transpose ? d.x - 1 : d.y - 1;
             this.chosenData = this.myData.managerKPIs[chosenData];
             d3.selectAll('svg').remove();
@@ -904,7 +920,9 @@ export class HeatmapComponent implements OnInit {
           .attr('rx', 0)
           .attr('ry', 0)
           .attr('r', gridSize / 2)
-          .style('fill', (d) => `${colourScale(d.value)}`);
+          .style('fill', (d) => {
+            return lineMap ? `${colourScales[(this.transpose ? d.x : d.y) - 1](d.value)}` : `${colourScale(d.value)}`;
+          });
         gridDistribution.enter().append('text')
           .attr('transform', (d) => `translate(${(d.x - 1) * gridSize}, ${(d.y - 1) * gridSize}) rotate(135)`)
           .attr('dy', 3)
@@ -1064,7 +1082,7 @@ export class HeatmapComponent implements OnInit {
       .attr('x', (d, i) => rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice * i - Math.PI / 2))
       .attr('y', (d, i) => rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice * i - Math.PI / 2))
       .text((d) => d)
-      .call(this.wrap, cfg.wrapWidth, cfg.lineHeight);
+      .call(this.wrapFunction, cfg.wrapWidth, cfg.lineHeight);
 
     const radarLine = d3.lineRadial()
       .curve(d3.curveLinearClosed)

@@ -12,8 +12,8 @@ circle.bordered {
 }
 path.bordered {
     stroke: black;
-    stroke-width: 1px;
-    fill: rgb(35, 255, 35);
+    stroke-width: 0px;
+    fill: rgba(22, 211, 186, 0.582);
 }
 
 text.legend {
@@ -47,6 +47,12 @@ text.totalsX {
 
 text.axis-x {
     font-size: 11px;
+    font-weight: bold;
+    font-family: Calibri, sans-serif;
+    fill: #00b;
+}
+text.axis-xh {
+    font-size: 9px;
     font-weight: bold;
     font-family: Calibri, sans-serif;
     fill: #00b;
