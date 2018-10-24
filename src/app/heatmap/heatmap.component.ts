@@ -173,22 +173,22 @@ export class HeatmapComponent implements OnInit {
       });
   }
   constructor() {
-/*    this.myData.managerData.forEach((d, i) => d.sort((a, b) => {
-      if (a.x + a.y > b.x + b.y) {
-        return 1;
-      } else if (a.x + a.y < b.x + b.y) {
-        return -1;
-      } else {
-        return 0;
-      }
-    }));*/
-//    this.myData.managerData.forEach((d, i) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
-this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
+    /*    this.myData.managerData.forEach((d, i) => d.sort((a, b) => {
+          if (a.x + a.y > b.x + b.y) {
+            return 1;
+          } else if (a.x + a.y < b.x + b.y) {
+            return -1;
+          } else {
+            return 0;
+          }
+        }));*/
+ //   this.myData.managerData.forEach((d, i) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
+    this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
       d.forEach((dd) => {
         dd.y = dd.y.replace(/[0-9]/g, '');
       });
     });
-   }
+  }
   chooseData(daig: string) {
     this.chosenData = daig;
     this.ngOnInit();
@@ -229,7 +229,7 @@ this.myData.managerData.forEach((d) => { // Remove the numbers from the office g
     this.totalsY = [];
     this.KPI = [];
 //    const managerXord: { v: string, i: number }[] = [];
-    let nx = 0, ny = 0, ij = 0;
+    let nx = 0, ny = 0;
     this.myData.managerData[0].forEach((d) => {
       if (!(xmap[d.x] > -1)) {
         here.managerOffices.push(d.x); // Office
@@ -240,6 +240,7 @@ this.myData.managerData.forEach((d) => { // Remove the numbers from the office g
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
     });
+    this.managerGroups.sort((a, b) => a.localeCompare(b));
     this.heatMaps('app-heatmap', this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps, true);
     const qSwap = (i: number, j: number, a: ({ x: string; y: string; value: number; } | string) []) => { // swap single entries in an array
       const aa = a[i];
@@ -279,6 +280,26 @@ this.myData.managerData.forEach((d) => { // Remove the numbers from the office g
       }
     }
     */
+   let ij = 0;
+   for (let i = 0; i < nx && dataV.length; ++i) {
+    if (here.totalsY[i] === undefined) {
+      here.totalsY[i] = { value: 0, ind: i };
+    }
+    for (let j = 0; j < ny; ++j) {
+      if (here.totalsX[j] === undefined) {
+        here.totalsX[j] = { value: 0, ind: j };
+      }
+      if (ij < dataV.length && dataV[ij].x === here.managerOffices[i]
+        && dataV[ij].y.replace(/[0-9]/g, '') === here.managerGroups[j].replace(/[0-9]/g, '')) {
+        here.totalsY[i].value += dataV[ij].value; // Get total for each manager
+        here.totalsX[j].value += dataV[ij].value; // Get total for each office
+        here.KPI.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
+      } else {
+        if (here.pad) { here.KPI.push({ x: i + 1, y: j + 1, value: 0 }); }
+      }
+    }
+  }
+
     for (let i = 0; i < nx; ++i) {
       if (here.totalsY[i] === undefined) {
         here.totalsY[i] = { value: 0, ind: i };
@@ -297,7 +318,7 @@ this.myData.managerData.forEach((d) => { // Remove the numbers from the office g
         }
       }
     }
-  }
+}
   ngOnInit() { // Decide which figure
     d3.selectAll('svg').remove();
     if (this.chosenFigure === 'Heat Map') {
