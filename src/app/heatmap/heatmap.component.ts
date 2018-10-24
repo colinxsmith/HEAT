@@ -182,7 +182,7 @@ export class HeatmapComponent implements OnInit {
             return 0;
           }
         }));*/
- //   this.myData.managerData.forEach((d, i) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
+    this.myData.managerData.forEach((d, i) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
     this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
       d.forEach((dd) => {
         dd.y = dd.y.replace(/[0-9]/g, '');
