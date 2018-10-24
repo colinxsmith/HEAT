@@ -177,8 +177,9 @@ export class HeatmapComponent implements OnInit {
       d.forEach((dd) => {
         dd.y = dd.y.replace(/[0-9]/g, '');
       });
+//      d.sort((a, b) => a.x.localeCompare(b.x + b.y));
     });
-  }
+   }
   chooseData(daig: string) {
     this.chosenData = daig;
     this.ngOnInit();
@@ -219,7 +220,7 @@ export class HeatmapComponent implements OnInit {
     this.totalsX = [];
     this.totalsY = [];
     this.KPI = [];
-    const managerXord: { v: string, i: number }[] = [];
+//    const managerXord: { v: string, i: number }[] = [];
     let nx = 0, ny = 0, ij = 0;
     this.myData.managerData[0].forEach((d) => {
       if (!(xmap[d.x] > -1)) {
@@ -254,10 +255,11 @@ export class HeatmapComponent implements OnInit {
         qSwap(aa[0] + ii, bb[0] + ii, a);
       }
     };
+    /*
     this.managerOffices.forEach((d, i) => managerXord[i] = { i: i, v: d });
     const marked: boolean[] = [];
     this.managerOffices.forEach((d, i) => marked[i] = false);
-    /*
+
     managerXord.sort((a, b) => a.v.localeCompare(b.v));
     for (let i = 0, j, k; i < this.managerOffices.length; i++) {
       if (!marked[i]) { // Quick re-order
