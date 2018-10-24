@@ -18,7 +18,7 @@ export class HeatmapComponent implements OnInit {
   plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Heat Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerOffices: string[] = [];
-  managerKPIs: string[] = [];
+  managerGroups: string[] = [];
   totalsX: {ind: number, value: number}[] = [];
   totalsY: {ind: number, value: number}[] = [];
   KPI: { x: number, y: number, value: number }[] = [];
@@ -182,11 +182,11 @@ export class HeatmapComponent implements OnInit {
         return 0;
       }
     }));*/
-    this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
+//    this.myData.managerData.forEach((d, i) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
+this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
       d.forEach((dd) => {
         dd.y = dd.y.replace(/[0-9]/g, '');
       });
-//      d.sort((a, b) => a.x.localeCompare(b.x + b.y));
     });
    }
   chooseData(daig: string) {
@@ -205,27 +205,26 @@ export class HeatmapComponent implements OnInit {
     const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
     this.totalsX = [];
     this.totalsY = [];
-    let sofar = 0, ik = 0;
     for (let ii = 0, ij = 0; ii < this.managerOffices.length; ii++) { // offices
       for (let jj = 0; jj < this.myData.managerData.length; jj++) { // KPI
         totalKPI.push({ x: ii + 1, y: jj + 1, value: 0 });
-        ik = sofar;
-        for (let kk = 0; kk < this.managerKPIs.length; kk++) {
-          if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
-              this.myData.managerData[jj][ik].y === this.managerKPIs[kk]) {
-            totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
+        for (let ik = 0; ik < this.myData.managerData[jj].length; ik++) {
+          for (let kk = 0; kk < this.managerGroups.length; kk++) {
+            if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
+              this.myData.managerData[jj][ik].y === this.managerGroups[kk]) {
+              totalKPI[ij].value += this.myData.managerData[jj][ik].value;
+            }
           }
         }
         ij++;
       }
-      sofar = ik;
     }
     return totalKPI;
 }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
     const here = this, xmap = {}, ymap = {};
     this.managerOffices = [];
-    this.managerKPIs = [];
+    this.managerGroups = [];
     this.totalsX = [];
     this.totalsY = [];
     this.KPI = [];
@@ -237,7 +236,7 @@ export class HeatmapComponent implements OnInit {
         xmap[d.x] = nx++;
       }
       if (!(ymap[d.y.replace(/[0-9]/g, '')] > -1)) {
-        here.managerKPIs.push(d.y.replace(/[0-9]/g, '')); // Manager
+        here.managerGroups.push(d.y.replace(/[0-9]/g, '')); // Manager
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
     });
@@ -289,9 +288,9 @@ export class HeatmapComponent implements OnInit {
           here.totalsX[j] = { value: 0, ind: j };
         }
         if (ij < dataV.length && dataV[ij].x === here.managerOffices[i]
-          && dataV[ij].y.replace(/[0-9]/g, '') === here.managerKPIs[j].replace(/[0-9]/g, '')) {
-          here.totalsY[i].value += dataV[ij].value;
-          here.totalsX[j].value += dataV[ij].value;
+          && dataV[ij].y.replace(/[0-9]/g, '') === here.managerGroups[j].replace(/[0-9]/g, '')) {
+          here.totalsY[i].value += dataV[ij].value; // Get total for each manager
+          here.totalsX[j].value += dataV[ij].value; // Get total for each office
           here.KPI.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
         } else {
           if (here.pad) { here.KPI.push({ x: i + 1, y: j + 1, value: 0 }); }
@@ -305,13 +304,13 @@ export class HeatmapComponent implements OnInit {
       this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
           this.managerProcess(this.myData.managerData[i]);
-          this.heatMaps('app-heatmap', this.managerOffices, this.managerKPIs, this.KPI, this.colourRangeMaps);
+          this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups, this.KPI, this.colourRangeMaps);
         }
       });
       if (this.chosenData === '') {
         this.managerProcess([]);
       }
-//      this.heatMaps('app-heatmap', this.managerOffices, this.managerKPIs, this.KPI, this.colourRangeMaps);
+//      this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups, this.KPI, this.colourRangeMaps);
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap('app-heatmap', this.myData.managerKPIs, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
@@ -747,7 +746,7 @@ export class HeatmapComponent implements OnInit {
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
     colourRange: string[], lineMap = false) {
-    const transpose = this.transpose, totalsX = this.totalsX, totalsY = this.totalsY,
+    const transpose = this.transpose, totalsX = !lineMap ? this.totalsX : [], totalsY = !lineMap ? this.totalsY : [],
       labelsXY = { x: [' '], y: [' '] };
     if (transpose) {
       labelsXY.x = yLabels;
@@ -907,7 +906,7 @@ export class HeatmapComponent implements OnInit {
             this.chosenData = this.myData.managerKPIs[chosenData];
             d3.selectAll('svg').remove();
             this.managerProcess(this.myData.managerData[chosenData]);
-            this.heatMaps('app-heatmap', this.managerOffices, this.managerKPIs, this.KPI, this.colourRangeMaps);
+            this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups, this.KPI, this.colourRangeMaps);
           })
           .on('mouseover', (d, idd, jj) => {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
