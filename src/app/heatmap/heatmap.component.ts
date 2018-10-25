@@ -33,34 +33,34 @@ export class HeatmapComponent implements OnInit {
   chosenShape = this.shape[0];
   pad = false;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  colourRangeMaps = ['rgba(245,10,5,0)', 'rgba(245,10,5,1)'];
-  colourRange = ['rgba(245,200,105,0)', 'rgb(245,200,105)',
-    'rgba(245,100,105,0)', 'rgba(245,100,105,1)',
-    'rgba(245,100,105,0)', 'rgba(245,100,105,1)',
-    'rgba(105,245,100,0)', 'rgba(105,245,100,1)',
-    'rgba(105,245,100,0)', 'rgba(105,245,100,1)',
-    'rgba(105,245,100,0)', 'rgba(105,245,100,1)',
-    'rgba(175,170,245,0)', 'rgba(175,170,245,1)',
-    'rgba(175,170,245,0)', 'rgba(175,170,245,1)',
-    'rgba(175,170,245,0)', 'rgba(175,10,245,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,0,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,0,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,0,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,0,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,0,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,255,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,255,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,255,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,255,1)',
-    'rgba(255,255,255,0)', 'rgba(0,0,255,1)',
-    'rgba(255,255,255,0)', 'rgba(0,255,0,1)',
-    'rgba(255,255,255,0)', 'rgba(0,255,0,1)',
-    'rgba(255,255,255,0)', 'rgba(0,255,0,1)',
-    'rgba(255,255,255,0)', 'rgba(0,255,0,1)',
-    'rgba(255,255,255,0)', 'rgba(0,255,0,1)',
-    'rgba(255,255,255,0)', 'rgba(150,150,255,1)',
-    'rgba(255,255,255,0)', 'rgba(150,150,255,1)',
-    'rgba(255,255,255,0)', 'rgba(150,150,255,1)'
+  colourRangeMaps = ['rgba(245,10,5,0.2)', 'rgba(245,10,5,1)'];
+  colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
+    'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
+    'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
+    'rgba(105,245,100,0.2)', 'rgba(105,245,100,1)',
+    'rgba(105,245,100,0.2)', 'rgba(105,245,100,1)',
+    'rgba(105,245,100,0.2)', 'rgba(105,245,100,1)',
+    'rgba(175,170,245,0.2)', 'rgba(175,170,245,1)',
+    'rgba(175,170,245,0.2)', 'rgba(175,170,245,1)',
+    'rgba(175,170,245,0.2)', 'rgba(175,10,245,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,255,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,255,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,255,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,255,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,0,255,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,255,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,255,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,255,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,255,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(0,255,0,1)',
+    'rgba(255,255,255,0.2)', 'rgba(150,150,255,1)',
+    'rgba(255,255,255,0.2)', 'rgba(150,150,255,1)',
+    'rgba(255,255,255,0.2)', 'rgba(150,150,255,1)'
   ];
   wrapFunction = (text1, width, lineHeight) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
     text1.each((kk, i, j) => {
@@ -801,7 +801,8 @@ export class HeatmapComponent implements OnInit {
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value },
       heatmapChart = (shape: string) => {
-        const heatData: { x: number, y: number, value: number }[] = [];
+        const nutScale = d3.scaleSqrt().domain([0, 1]).range([0, 1]), slice = 90,
+          heatData: { x: number, y: number, value: number }[] = [];
         if (!this.pad) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
@@ -840,7 +841,6 @@ export class HeatmapComponent implements OnInit {
           }
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
-        const slice = 100; // temporary
         let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; }, d3.BaseType, {}>;
         if (shape === 'Circles') {
           painKiller = gridDistribution.enter().append('circle')
@@ -860,7 +860,7 @@ export class HeatmapComponent implements OnInit {
             .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
           ${Math.min(d.x * gridSize, Math.random() * height)})`)
             .attr('d', () => d3.arc()
-              ({startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2, innerRadius: Math.sqrt(slice / 360) * gridSize / 2}));
+              ({startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2, innerRadius: nutScale(slice / 360) * gridSize / 2}));
         } else if (shape === 'Cakes') {
           painKiller = gridDistribution.enter().append('path')
           .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
