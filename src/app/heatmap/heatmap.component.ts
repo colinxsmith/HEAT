@@ -173,12 +173,12 @@ export class HeatmapComponent implements OnInit {
       });
   }
   constructor() {
-    this.myData.managerData.forEach((d, i) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
-    this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
+    this.myData.managerData.forEach((d) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
+/*    this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
       d.forEach((dd) => {
         dd.y = dd.y.replace(/[0-9]/g, '');
       });
-    });
+    }); */
   }
   chooseData(daig: string) {
     this.chosenData = daig;
@@ -203,7 +203,7 @@ export class HeatmapComponent implements OnInit {
         for (let ik = 0; ik < this.myData.managerData[jj].length; ik++) {
           for (let kk = 0; kk < this.managerGroups.length; kk++) {
             if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
-              this.myData.managerData[jj][ik].y === this.managerGroups[kk]) {
+              this.myData.managerData[jj][ik].y.replace(/[0-9]/g, '') === this.managerGroups[kk].replace(/[0-9]/g, '')) {
               totalKPI[ij].value += this.myData.managerData[jj][ik].value;
             }
           }
@@ -221,7 +221,7 @@ export class HeatmapComponent implements OnInit {
         ik = sofar;
         for (let kk = 0; kk < this.managerGroups.length; kk++) {
           if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
-            this.myData.managerData[jj][ik].y === this.managerGroups[kk]) {
+            this.myData.managerData[jj][ik].y.replace(/[0-9]/g, '') === this.managerGroups[kk].replace(/[0-9]/g, '')) {
             totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
           }
         }
@@ -272,24 +272,7 @@ export class HeatmapComponent implements OnInit {
     }
   }
 
-    for (let i = 0; i < nx; ++i) {
-      if (here.totalsY[i] === undefined) {
-        here.totalsY[i] = { value: 0, ind: i };
-      }
-      for (let j = 0; j < ny; ++j) {
-        if (here.totalsX[j] === undefined) {
-          here.totalsX[j] = { value: 0, ind: j };
-        }
-        if (ij < dataV.length && dataV[ij].x === here.managerOffices[i]
-          && dataV[ij].y.replace(/[0-9]/g, '') === here.managerGroups[j].replace(/[0-9]/g, '')) {
-          here.totalsY[i].value += dataV[ij].value; // Get total for each manager
-          here.totalsX[j].value += dataV[ij].value; // Get total for each office
-          here.KPI.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
-        } else {
-          if (here.pad) { here.KPI.push({ x: i + 1, y: j + 1, value: 0 }); }
-        }
-      }
-    }
+
 }
   ngOnInit() { // Decide which figure
     d3.selectAll('svg').remove();
@@ -532,8 +515,7 @@ export class HeatmapComponent implements OnInit {
 
   }
   largeMap(id: string, managerKPIs: string[], managerData: { x: string; y: string; value: number; }[][], colourRange: string[]) {
-    managerData.forEach((d, i) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
-        const margin = { top: 110, right: 10, bottom: 40, left: 90 },
+    const margin = { top: 110, right: 10, bottom: 40, left: 90 },
       width = 800 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear().domain([0, managerKPIs.length]).range([0, width]),
