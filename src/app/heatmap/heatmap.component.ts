@@ -173,15 +173,6 @@ export class HeatmapComponent implements OnInit {
       });
   }
   constructor() {
-    /*    this.myData.managerData.forEach((d, i) => d.sort((a, b) => {
-          if (a.x + a.y > b.x + b.y) {
-            return 1;
-          } else if (a.x + a.y < b.x + b.y) {
-            return -1;
-          } else {
-            return 0;
-          }
-        }));*/
     this.myData.managerData.forEach((d, i) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
     this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
       d.forEach((dd) => {
@@ -203,6 +194,7 @@ export class HeatmapComponent implements OnInit {
   }
   managerSummary() {
     const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
+/*  Better to avoid the ik loop as below
     this.totalsX = [];
     this.totalsY = [];
     for (let ii = 0, ij = 0; ii < this.managerOffices.length; ii++) { // offices
@@ -218,6 +210,24 @@ export class HeatmapComponent implements OnInit {
         }
         ij++;
       }
+    }
+    */
+    this.totalsX = [];
+    this.totalsY = [];
+    let sofar = 0, ik = 0;
+    for (let ii = 0, ij = 0; ii < this.managerOffices.length; ii++) { // offices
+      for (let jj = 0; jj < this.myData.managerData.length; jj++) { // KPI
+        totalKPI.push({ x: ii + 1, y: jj + 1, value: 0 });
+        ik = sofar;
+        for (let kk = 0; kk < this.managerGroups.length; kk++) {
+          if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
+            this.myData.managerData[jj][ik].y === this.managerGroups[kk]) {
+            totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
+          }
+        }
+        ij++;
+      }
+      sofar = ik;
     }
     return totalKPI;
 }
@@ -242,50 +252,12 @@ export class HeatmapComponent implements OnInit {
     });
     this.managerGroups.sort((a, b) => a.localeCompare(b));
     this.heatMaps('app-heatmap', this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps, true);
-    const qSwap = (i: number, j: number, a: ({ x: string; y: string; value: number; } | string) []) => { // swap single entries in an array
-      const aa = a[i];
-      a[i] = a[j];
-      a[j] = aa;
-    };
-    const flInd = (a: { x: string; y: string; value: number; }[], name: string): number[] => {
-      let back1;
-      for (let ii = 0; ii < a.length; ii++) {
-        if (a[ii].x === name) { back1 = ii; break; } else { back1 = -1; }
+    let ij = 0;
+    for (let i = 0; i < nx && dataV.length; ++i) {
+      if (here.totalsY[i] === undefined) {
+        here.totalsY[i] = { value: 0, ind: i };
       }
-      let back2;
-      for (let ii = back1; ii < a.length; ii++) {
-        if (a[ii].x !== name) { back2 = ii; break; } else { back2 = -1; }
-      }
-      return [back1, back2];
-    };
-    const rSwap = (i: number, j: number, a: { x: string; y: string; value: number; }[]) => { // swap array ranges
-      const aa = flInd(a, this.managerOffices[i]), bb = flInd(a, this.managerOffices[j]);
-      for (let ii = 0; ii < aa[1] - aa[0]; ii++) { // This only works if ranges are the same length
-        qSwap(aa[0] + ii, bb[0] + ii, a);
-      }
-    };
-    /*
-    this.managerOffices.forEach((d, i) => managerXord[i] = { i: i, v: d });
-    const marked: boolean[] = [];
-    this.managerOffices.forEach((d, i) => marked[i] = false);
-
-    managerXord.sort((a, b) => a.v.localeCompare(b.v));
-    for (let i = 0, j, k; i < this.managerOffices.length; i++) {
-      if (!marked[i]) { // Quick re-order
-        for (j = i, k = managerXord[j].i; k !== i; k = managerXord[j = k].i) {
-          qSwap(k, j, this.managerOffices);
-          marked[k] = true;
-        }
-        marked[i] = true;
-      }
-    }
-    */
-   let ij = 0;
-   for (let i = 0; i < nx && dataV.length; ++i) {
-    if (here.totalsY[i] === undefined) {
-      here.totalsY[i] = { value: 0, ind: i };
-    }
-    for (let j = 0; j < ny; ++j) {
+      for (let j = 0; j < ny; ++j) {
       if (here.totalsX[j] === undefined) {
         here.totalsX[j] = { value: 0, ind: j };
       }
@@ -560,7 +532,8 @@ export class HeatmapComponent implements OnInit {
 
   }
   largeMap(id: string, managerKPIs: string[], managerData: { x: string; y: string; value: number; }[][], colourRange: string[]) {
-    const margin = { top: 110, right: 10, bottom: 40, left: 90 },
+    managerData.forEach((d, i) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
+        const margin = { top: 110, right: 10, bottom: 40, left: 90 },
       width = 800 - margin.left - margin.right,
       height = 1500 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear().domain([0, managerKPIs.length]).range([0, width]),
@@ -602,9 +575,9 @@ export class HeatmapComponent implements OnInit {
         return back;
       })
       .attr('x', -20 * Math.cos(Math.PI / 180 * 40))
-      .attr('y', -20 * Math.sin(Math.PI / 180 * 40))
+      .attr('y', -11 * Math.sin(Math.PI / 180 * 40))
       .style('text-anchor', 'end')
-      .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-40)`)
+      .attr('transform', (d, i) => `translate(${margin.left}, ${margin.top + scaleY(i + 1)}) rotate(-30)`)
       .attr('class', 'axis-y');
     const YOfficeGroups = svgBase.selectAll('.yLabel1')
       .data(managerData[0])
@@ -776,7 +749,7 @@ export class HeatmapComponent implements OnInit {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
-    if (this.pad) {
+    if (this.pad) { // Sorting only works if there are no gaps in the data
       if (!this.transpose) {
         totalsX.sort((a1, a2) => {
           if (a2.value > a1.value) {
@@ -795,16 +768,13 @@ export class HeatmapComponent implements OnInit {
         });
       }
     }
-    let buckets = labelsXY.x.length, legendSize = 50;
-    const margin = { top: transpose ? 100 : 60, right: 0, bottom: 10, left: 130 },
+    let legendSize = 50;
+    const margin = { top: transpose ? 100 : 60, right: 0, bottom: 10, left: 130 }, buckets = 10,
       width = 700 - margin.left - margin.right,
       height = 700 - margin.top - margin.bottom - legendSize,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
     legendSize = Math.min(legendSize, legendElementWidth);
-    if (labelsXY.x[buckets - 1] === 'Total') {
-      buckets--;
-    }
     const coloursd = d3.scaleLinear<d3.RGBColor>()
       .domain([0, buckets - 1])
       .range([d3.rgb(colourRange[0]), d3.rgb(colourRange[1])]), colours: d3.RGBColor[] = [],
