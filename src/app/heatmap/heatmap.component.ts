@@ -238,7 +238,6 @@ export class HeatmapComponent implements OnInit {
     this.totalsX = [];
     this.totalsY = [];
     this.KPI = [];
-//    const managerXord: { v: string, i: number }[] = [];
     let nx = 0, ny = 0;
     this.myData.managerData[0].forEach((d) => {
       if (!(xmap[d.x] > -1)) {
@@ -271,8 +270,6 @@ export class HeatmapComponent implements OnInit {
       }
     }
   }
-
-
 }
   ngOnInit() { // Decide which figure
     d3.selectAll('svg').remove();
@@ -286,7 +283,6 @@ export class HeatmapComponent implements OnInit {
       if (this.chosenData === '') {
         this.managerProcess([]);
       }
-//      this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups, this.KPI, this.colourRangeMaps);
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap('app-heatmap', this.myData.managerKPIs, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
@@ -722,7 +718,8 @@ export class HeatmapComponent implements OnInit {
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
     colourRange: string[], lineMap = false) {
-    const transpose = this.transpose, totalsX = !lineMap ? this.totalsX : [], totalsY = !lineMap ? this.totalsY : [],
+    const dataHere = lineMap ? 'total' : this.chosenData,
+    transpose = this.transpose, totalsX = !lineMap ? this.totalsX : [], totalsY = !lineMap ? this.totalsY : [],
       labelsXY = { x: [' '], y: [' '] };
     if (transpose) {
       labelsXY.x = yLabels;
@@ -885,7 +882,7 @@ export class HeatmapComponent implements OnInit {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
             this.tooltip
               // tslint:disable-next-line:max-line-length
-              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${this.transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : yLabels[totalsX.length ? totalsX[d.y - 1].ind : d.y - 1]}<br>${d3.format('0.2f')(d.value)}`)
+              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${labelsXY.x[d.x - 1]}<br>${this.transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : yLabels[totalsX.length ? totalsX[d.y - 1].ind : d.y - 1]}<br>${dataHere}<br>${d3.format('0.2f')(d.value)}`)
               .style('opacity', 0.9)
               .style('left', tX)
               .style('top', tY);
