@@ -240,11 +240,11 @@ export class HeatmapComponent implements OnInit {
     this.KPI = [];
     let nx = 0, ny = 0;
     this.myData.managerData[0].forEach((d) => {
-      if (!(xmap[d.x] > -1)) {
+      if (xmap[d.x] === undefined) {
         here.managerOffices.push(d.x); // Office
         xmap[d.x] = nx++;
       }
-      if (!(ymap[d.y.replace(/[0-9]/g, '')] > -1)) {
+      if (ymap[d.y.replace(/[0-9]/g, '')] === undefined) {
         here.managerGroups.push(d.y.replace(/[0-9]/g, '')); // Manager
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
@@ -886,8 +886,7 @@ export class HeatmapComponent implements OnInit {
               .style('opacity', 0.9)
               .style('left', tX)
               .style('top', tY);
-          }
-          )
+          })
           .on('mouseout', () => this.tooltip.style('opacity', 0))
           .transition()
           .duration(1000)
