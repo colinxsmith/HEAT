@@ -1,6 +1,6 @@
 {
   "name": "heat",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -40,7 +40,7 @@
     "codelyzer": "^4.5.0",
     "d3": "^5.7.0",
     "font-awesome": "^4.7.0",
-    "jasmine-core": "^3.2.1",
+    "jasmine-core": "^3.3.0",
     "jasmine-spec-reporter": "^4.2.1",
     "karma": "^3.1.1",
     "karma-chrome-launcher": "^2.2.0",
