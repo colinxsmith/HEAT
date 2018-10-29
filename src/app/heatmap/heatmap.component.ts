@@ -728,7 +728,7 @@ export class HeatmapComponent implements OnInit {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
-    if (this.pad) { // Sorting only works if there are no gaps in the data
+    if (true) { // Sorting only works if there are no gaps in the data
       if (!this.transpose) {
         totalsX.sort((a1, a2) => {
           if (a2.value > a1.value) {
@@ -800,24 +800,41 @@ export class HeatmapComponent implements OnInit {
       heatmapChart = (shape: string) => {
         const nutScale = d3.scaleSqrt().domain([0, 1]).range([0, 1]), slice = 90,
           heatData: { x: number, y: number, value: number }[] = [];
-        if (!this.pad) {
+        const oXinv = [], oYinv = [];
+        xLabels.forEach((d, i) => oXinv[i] = i);
+        yLabels.forEach((d, i) => oYinv[i] = i);
+        if (totalsX.length > 0 && totalsY.length > 0) {
+          totalsX.forEach((d, i) => oXinv[d.ind] = i);
+          totalsY.forEach((d, i) => oYinv[d.ind] = i);
+        }
+        if (false) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
             heatData.push(d);
           });
         } else {
-          for (let ii = 0; ii < xLabels.length; ii++) {
-            for (let jj = 0; jj < yLabels.length; jj++) {
-              if (this.transpose) {
-                heatData.push({
-                  y: ii + 1, x: jj + 1,
-                  value: dataXY[(totalsY.length ? totalsY[ii].ind : ii) * yLabels.length + jj].value
-                });
-             } else {
-                heatData.push({
-                  x: ii + 1, y: jj + 1,
-                  value: dataXY[ii * yLabels.length + (totalsX.length ? totalsX[jj].ind : jj)].value
-                });
+          if (this.transpose) {
+            for (let ii = 0, i, ij = 0; ii < xLabels.length; ii++) {
+              for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
+                i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
+                if (jj === dataXY[ij].y - 1) {
+                  heatData.push({
+                    x: jj + 1, y: i + 1,
+                    value: dataXY[ij++].value
+                  });
+                }
+              }
+            }
+          } else {
+            for (let ii = 0, j, ij = 0; ii < xLabels.length; ii++) {
+              for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
+                j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
+                if (ii === dataXY[ij].x - 1) {
+                  heatData.push({
+                    x: ii + 1, y: j + 1,
+                    value: dataXY[ij++].value
+                  });
+                }
               }
             }
           }
@@ -826,9 +843,9 @@ export class HeatmapComponent implements OnInit {
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);
-          if (lineMap) {
-            for (let jj = 0; jj < yLabels.length; jj++) {
-              let x1 = 1e9, x2 = -1e9;
+        if (lineMap) {
+          for (let jj = 0; jj < yLabels.length; jj++) {
+            let x1 = 1e9, x2 = -1e9;
               for (let ii = 0; ii < xLabels.length; ii++) {
                 x1 = Math.min(x1, heatData[ii * yLabels.length + jj].value);
                 x2 = Math.max(x2, heatData[ii * yLabels.length + jj].value);
