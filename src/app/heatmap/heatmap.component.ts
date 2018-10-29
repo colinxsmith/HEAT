@@ -919,12 +919,12 @@ export class HeatmapComponent implements OnInit {
             .data(this.transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
           totsy.attr('class', 'totalsY')
             .attr('transform', (d, i) => `translate(${(i + 0.45) * gridSize},${labelsXY.y.length * gridSize}) rotate(30)`)
-            .text((d) => d3.format('0.1f')(d.value));
+            .text((d) => d3.format('0.2f')(d.value));
           const totsx = svg.selectAll('.totalsX')
             .data(this.transpose ? this.totalsY : this.totalsX).enter().append('g').append('text');
           totsx.attr('transform', (d, i) => `translate(${labelsXY.x.length * gridSize + 10},${(i + 0.45) * gridSize + 3}) rotate(30)`)
             .attr('class', 'totalsX')
-            .text((d) => d3.format('0.1f')(d.value));
+            .text((d) => d3.format('0.2f')(d.value));
         }
         const doLegend = false;
         if (doLegend) {
