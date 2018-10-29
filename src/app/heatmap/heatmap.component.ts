@@ -886,8 +886,7 @@ export class HeatmapComponent implements OnInit {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
             this.tooltip
               // tslint:disable-next-line:max-line-length
-              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${this.transpose ? yLabels[totalsX.length ? totalsX[d.x - 1].ind : d.x - 1] : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1]}<br>${this.transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : yLabels[totalsX.length ? totalsX[d.y - 1].ind : d.y - 1]}
-              <br>${dataHere}<br>${d3.format('0.2f')(d.value)}`)
+              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${this.transpose ? yLabels[totalsX.length ? totalsX[d.x - 1].ind : d.x - 1] : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1]}<br>${this.transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : yLabels[totalsX.length ? totalsX[d.y - 1].ind : d.y - 1]}<br>${dataHere}<br>${d3.format('0.2f')(d.value)}`)
               .style('opacity', 0.9)
               .style('left', tX)
               .style('top', tY);
