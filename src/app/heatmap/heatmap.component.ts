@@ -728,27 +728,25 @@ export class HeatmapComponent implements OnInit {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
-    if (true) { // Sorting only works if there are no gaps in the data
-      if (!this.transpose) {
-        totalsX.sort((a1, a2) => {
-          if (a2.value > a1.value) {
-            return 1;
-          } else {
-            return -1;
-          }
-        });
-      } else {
-        totalsY.sort((a1, a2) => {
-          if (a2.value > a1.value) {
-            return 1;
-          } else {
-            return -1;
-          }
-        });
-      }
+    if (!this.transpose) {
+      totalsX.sort((a1, a2) => {
+        if (a2.value > a1.value) {
+          return 1;
+        } else {
+          return -1;
+        }
+      });
+    } else {
+      totalsY.sort((a1, a2) => {
+        if (a2.value > a1.value) {
+          return 1;
+        } else {
+          return -1;
+        }
+      });
     }
     let legendSize = 50;
-    const margin = { top: transpose ? 100 : 60, right: 0, bottom: 10, left: 130 }, buckets = 10,
+    const margin = { top: transpose ? 100 : 60, right: 50, bottom: 10, left: 130 }, buckets = 10,
       width = 700 - margin.left - margin.right,
       height = 700 - margin.top - margin.bottom - legendSize,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
@@ -807,7 +805,7 @@ export class HeatmapComponent implements OnInit {
           totalsX.forEach((d, i) => oXinv[d.ind] = i);
           totalsY.forEach((d, i) => oYinv[d.ind] = i);
         }
-        if (false) {
+        if (totalsX.length === 0 && totalsY.length === 0) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
             heatData.push(d);
@@ -926,18 +924,16 @@ export class HeatmapComponent implements OnInit {
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(0)`);
-/*        const totsy = svg.selectAll('.totalsY')
+        const totsy = svg.selectAll('.totalsY')
           .data(this.transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
-        totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
-          .attr('y', labelsXY.y.length * gridSize)
-          .attr('class', 'totalsY')
+        totsy.attr('class', 'totalsY')
+          .attr('transform', (d, i) => `translate(${(i + 0.45) * gridSize},${labelsXY.y.length * gridSize}) rotate(30)`)
           .text((d) => d3.format('0.1f')(d.value));
         const totsx = svg.selectAll('.totalsX')
           .data(this.transpose ? this.totalsY : this.totalsX).enter().append('g').append('text');
-        totsx.attr('y', (d, i) => (i + 0.45) * gridSize + 3)
-          .attr('x', labelsXY.x.length * gridSize)
+        totsx.attr('transform', (d, i) => `translate(${labelsXY.x.length * gridSize + 10},${(i + 0.45) * gridSize + 3}) rotate(30)`)
           .attr('class', 'totalsX')
-          .text((d) => d3.format('0.1f')(d.value));*/
+          .text((d) => d3.format('0.1f')(d.value));
         const doLegend = false;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
