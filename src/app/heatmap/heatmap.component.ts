@@ -194,24 +194,6 @@ export class HeatmapComponent implements OnInit {
   }
   managerSummary() {
     const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
-/*  Better to avoid the ik loop as below
-    this.totalsX = [];
-    this.totalsY = [];
-    for (let ii = 0, ij = 0; ii < this.managerOffices.length; ii++) { // offices
-      for (let jj = 0; jj < this.myData.managerData.length; jj++) { // KPI
-        totalKPI.push({ x: ii + 1, y: jj + 1, value: 0 });
-        for (let ik = 0; ik < this.myData.managerData[jj].length; ik++) {
-          for (let kk = 0; kk < this.managerGroups.length; kk++) {
-            if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
-              this.myData.managerData[jj][ik].y.replace(/[0-9]/g, '') === this.managerGroups[kk].replace(/[0-9]/g, '')) {
-              totalKPI[ij].value += this.myData.managerData[jj][ik].value;
-            }
-          }
-        }
-        ij++;
-      }
-    }
-    */
     this.totalsX = [];
     this.totalsY = [];
     let sofar = 0, ik = 0;
@@ -728,7 +710,7 @@ export class HeatmapComponent implements OnInit {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
-    if (!this.transpose) {
+//    if (!this.transpose) {
       totalsX.sort((a1, a2) => {
         if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
           return 1;
@@ -736,7 +718,7 @@ export class HeatmapComponent implements OnInit {
           return -1;
         }
       });
-    } else {
+//    } else {
       totalsY.sort((a1, a2) => {
         if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
           return 1;
@@ -744,7 +726,7 @@ export class HeatmapComponent implements OnInit {
           return -1;
         }
       });
-    }
+//    }
     let legendSize = 50;
     const margin = { top: transpose ? 100 : 60, right: 50, bottom: 10, left: 130 }, buckets = 10,
       width = 700 - margin.left - margin.right,
@@ -784,7 +766,10 @@ export class HeatmapComponent implements OnInit {
       XLabels = svg.selectAll('.xLabel')
         .data(labelsXY.x)
         .enter().append('text')
-        .text((d) => d)
+        .text((d, i) => {
+          return labelsXY.x[!this.transpose ? (totalsY.length ? totalsY[i].ind : i)
+           : (totalsX.length ? totalsX[i].ind : i)];
+        })
         .attr('x', 0)
         .attr('y', 0)
         .attr('dy', 1)
@@ -812,24 +797,26 @@ export class HeatmapComponent implements OnInit {
           });
         } else {
           if (this.transpose) {
-            for (let ii = 0, i, ij = 0; ii < xLabels.length; ii++) {
+            for (let ii = 0, i,j, ij = 0; ii < xLabels.length; ii++) {
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
                 i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
+                j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
                 if (jj === dataXY[ij].y - 1) {
                   heatData.push({
-                    x: jj + 1, y: i + 1,
+                    x: j + 1, y: i + 1,
                     value: dataXY[ij++].value
                   });
                 }
               }
             }
           } else {
-            for (let ii = 0, j, ij = 0; ii < xLabels.length; ii++) {
+            for (let ii = 0, i,j, ij = 0; ii < xLabels.length; ii++) {
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
                 j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
+                i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
                 if (ii === dataXY[ij].x - 1) {
                   heatData.push({
-                    x: ii + 1, y: j + 1,
+                    x: i + 1, y: j + 1,
                     value: dataXY[ij++].value
                   });
                 }
