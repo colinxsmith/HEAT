@@ -34,7 +34,7 @@ text.totalsY {
     font-weight: bold;
     font-family: Calibri, sans-serif;
     text-anchor: middle;
-    fill: red;
+    fill: rgb(51, 163, 228);
 }
 
 text.totalsX {

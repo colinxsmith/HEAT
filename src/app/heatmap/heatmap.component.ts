@@ -194,24 +194,6 @@ export class HeatmapComponent implements OnInit {
   }
   managerSummary() {
     const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
-/*  Better to avoid the ik loop as below
-    this.totalsX = [];
-    this.totalsY = [];
-    for (let ii = 0, ij = 0; ii < this.managerOffices.length; ii++) { // offices
-      for (let jj = 0; jj < this.myData.managerData.length; jj++) { // KPI
-        totalKPI.push({ x: ii + 1, y: jj + 1, value: 0 });
-        for (let ik = 0; ik < this.myData.managerData[jj].length; ik++) {
-          for (let kk = 0; kk < this.managerGroups.length; kk++) {
-            if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
-              this.myData.managerData[jj][ik].y.replace(/[0-9]/g, '') === this.managerGroups[kk].replace(/[0-9]/g, '')) {
-              totalKPI[ij].value += this.myData.managerData[jj][ik].value;
-            }
-          }
-        }
-        ij++;
-      }
-    }
-    */
     this.totalsX = [];
     this.totalsY = [];
     let sofar = 0, ik = 0;
@@ -240,11 +222,11 @@ export class HeatmapComponent implements OnInit {
     this.KPI = [];
     let nx = 0, ny = 0;
     this.myData.managerData[0].forEach((d) => {
-      if (!(xmap[d.x] > -1)) {
+      if (xmap[d.x] === undefined) {
         here.managerOffices.push(d.x); // Office
         xmap[d.x] = nx++;
       }
-      if (!(ymap[d.y.replace(/[0-9]/g, '')] > -1)) {
+      if (ymap[d.y.replace(/[0-9]/g, '')] === undefined) {
         here.managerGroups.push(d.y.replace(/[0-9]/g, '')); // Manager
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
@@ -728,27 +710,27 @@ export class HeatmapComponent implements OnInit {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
-    if (this.pad) { // Sorting only works if there are no gaps in the data
-      if (!this.transpose) {
-        totalsX.sort((a1, a2) => {
-          if (a2.value > a1.value) {
-            return 1;
-          } else {
-            return -1;
-          }
-        });
+    // Sort both axes according to totals
+    totalsX.sort((a1, a2) => {
+      if (a2.value > a1.value) {
+        return 1;
+      } else if (a2.value === a1.value) {
+        return 0;
       } else {
-        totalsY.sort((a1, a2) => {
-          if (a2.value > a1.value) {
-            return 1;
-          } else {
-            return -1;
-          }
-        });
+        return -1;
       }
-    }
+    });
+    totalsY.sort((a1, a2) => {
+      if (a2.value > a1.value) {
+        return 1;
+      } else if (a2.value === a1.value) {
+        return 0;
+      } else {
+        return -1;
+      }
+    });
     let legendSize = 50;
-    const margin = { top: transpose ? 100 : 60, right: 0, bottom: 10, left: 130 }, buckets = 10,
+    const margin = { top: transpose ? 100 : 60, right: 50, bottom: 10, left: 130 }, buckets = 10,
       width = 700 - margin.left - margin.right,
       height = 700 - margin.top - margin.bottom - legendSize,
       gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
@@ -786,7 +768,10 @@ export class HeatmapComponent implements OnInit {
       XLabels = svg.selectAll('.xLabel')
         .data(labelsXY.x)
         .enter().append('text')
-        .text((d) => d)
+        .text((d, i) => {
+          return labelsXY.x[!this.transpose ? (totalsY.length ? totalsY[i].ind : i)
+           : (totalsX.length ? totalsX[i].ind : i)];
+        })
         .attr('x', 0)
         .attr('y', 0)
         .attr('dy', 1)
@@ -800,24 +785,43 @@ export class HeatmapComponent implements OnInit {
       heatmapChart = (shape: string) => {
         const nutScale = d3.scaleSqrt().domain([0, 1]).range([0, 1]), slice = 90,
           heatData: { x: number, y: number, value: number }[] = [];
-        if (!this.pad) {
+        const oXinv = [], oYinv = [];
+        xLabels.forEach((d, i) => oXinv[i] = i);
+        yLabels.forEach((d, i) => oYinv[i] = i);
+        if (totalsX.length > 0 && totalsY.length > 0) {
+          totalsX.forEach((d, i) => oXinv[d.ind] = i);
+          totalsY.forEach((d, i) => oYinv[d.ind] = i);
+        }
+        if (totalsX.length === 0 && totalsY.length === 0) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
             heatData.push(d);
           });
         } else {
-          for (let ii = 0; ii < xLabels.length; ii++) {
-            for (let jj = 0; jj < yLabels.length; jj++) {
-              if (this.transpose) {
-                heatData.push({
-                  y: ii + 1, x: jj + 1,
-                  value: dataXY[(totalsY.length ? totalsY[ii].ind : ii) * yLabels.length + jj].value
-                });
-             } else {
-                heatData.push({
-                  x: ii + 1, y: jj + 1,
-                  value: dataXY[ii * yLabels.length + (totalsX.length ? totalsX[jj].ind : jj)].value
-                });
+          if (this.transpose) {
+            for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
+              for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
+                i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
+                j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
+                if (jj === dataXY[ij].y - 1) {
+                  heatData.push({
+                    x: j + 1, y: i + 1,
+                    value: dataXY[ij++].value
+                  });
+                }
+              }
+            }
+          } else {
+            for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
+              for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
+                j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
+                i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
+                if (ii === dataXY[ij].x - 1) {
+                  heatData.push({
+                    x: i + 1, y: j + 1,
+                    value: dataXY[ij++].value
+                  });
+                }
               }
             }
           }
@@ -826,9 +830,9 @@ export class HeatmapComponent implements OnInit {
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);
-          if (lineMap) {
-            for (let jj = 0; jj < yLabels.length; jj++) {
-              let x1 = 1e9, x2 = -1e9;
+        if (lineMap) {
+          for (let jj = 0; jj < yLabels.length; jj++) {
+            let x1 = 1e9, x2 = -1e9;
               for (let ii = 0; ii < xLabels.length; ii++) {
                 x1 = Math.min(x1, heatData[ii * yLabels.length + jj].value);
                 x2 = Math.max(x2, heatData[ii * yLabels.length + jj].value);
@@ -886,8 +890,7 @@ export class HeatmapComponent implements OnInit {
               .style('opacity', 0.9)
               .style('left', tX)
               .style('top', tY);
-          }
-          )
+          })
           .on('mouseout', () => this.tooltip.style('opacity', 0))
           .transition()
           .duration(1000)
@@ -910,18 +913,19 @@ export class HeatmapComponent implements OnInit {
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(0)`);
-/*        const totsy = svg.selectAll('.totalsY')
-          .data(this.transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
-        totsy.attr('x', (d, i) => (i + 0.45) * gridSize)
-          .attr('y', labelsXY.y.length * gridSize)
-          .attr('class', 'totalsY')
-          .text((d) => d3.format('0.1f')(d.value));
-        const totsx = svg.selectAll('.totalsX')
-          .data(this.transpose ? this.totalsY : this.totalsX).enter().append('g').append('text');
-        totsx.attr('y', (d, i) => (i + 0.45) * gridSize + 3)
-          .attr('x', labelsXY.x.length * gridSize)
-          .attr('class', 'totalsX')
-          .text((d) => d3.format('0.1f')(d.value));*/
+        const totalsOnMap = true;
+        if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
+          const totsy = svg.selectAll('.totalsY')
+            .data(this.transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
+          totsy.attr('class', 'totalsY')
+            .attr('transform', (d, i) => `translate(${(i + 0.45) * gridSize},${labelsXY.y.length * gridSize}) rotate(30)`)
+            .text((d) => d3.format('0.2f')(d.value));
+          const totsx = svg.selectAll('.totalsX')
+            .data(this.transpose ? this.totalsY : this.totalsX).enter().append('g').append('text');
+          totsx.attr('transform', (d, i) => `translate(${labelsXY.x.length * gridSize + 10},${(i + 0.45) * gridSize + 3}) rotate(30)`)
+            .attr('class', 'totalsX')
+            .text((d) => d3.format('0.2f')(d.value));
+        }
         const doLegend = false;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
