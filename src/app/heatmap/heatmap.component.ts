@@ -730,7 +730,7 @@ export class HeatmapComponent implements OnInit {
     }
     if (!this.transpose) {
       totalsX.sort((a1, a2) => {
-        if (a2.value > a1.value) {
+        if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
           return 1;
         } else {
           return -1;
@@ -738,7 +738,7 @@ export class HeatmapComponent implements OnInit {
       });
     } else {
       totalsY.sort((a1, a2) => {
-        if (a2.value > a1.value) {
+        if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
           return 1;
         } else {
           return -1;
@@ -924,16 +924,19 @@ export class HeatmapComponent implements OnInit {
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(0)`);
-        const totsy = svg.selectAll('.totalsY')
-          .data(this.transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
-        totsy.attr('class', 'totalsY')
-          .attr('transform', (d, i) => `translate(${(i + 0.45) * gridSize},${labelsXY.y.length * gridSize}) rotate(30)`)
-          .text((d) => d3.format('0.1f')(d.value));
-        const totsx = svg.selectAll('.totalsX')
-          .data(this.transpose ? this.totalsY : this.totalsX).enter().append('g').append('text');
-        totsx.attr('transform', (d, i) => `translate(${labelsXY.x.length * gridSize + 10},${(i + 0.45) * gridSize + 3}) rotate(30)`)
-          .attr('class', 'totalsX')
-          .text((d) => d3.format('0.1f')(d.value));
+        const totalsOnMap = true;
+        if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
+          const totsy = svg.selectAll('.totalsY')
+            .data(this.transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
+          totsy.attr('class', 'totalsY')
+            .attr('transform', (d, i) => `translate(${(i + 0.45) * gridSize},${labelsXY.y.length * gridSize}) rotate(30)`)
+            .text((d) => d3.format('0.1f')(d.value));
+          const totsx = svg.selectAll('.totalsX')
+            .data(this.transpose ? this.totalsY : this.totalsX).enter().append('g').append('text');
+          totsx.attr('transform', (d, i) => `translate(${labelsXY.x.length * gridSize + 10},${(i + 0.45) * gridSize + 3}) rotate(30)`)
+            .attr('class', 'totalsX')
+            .text((d) => d3.format('0.1f')(d.value));
+        }
         const doLegend = false;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
