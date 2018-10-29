@@ -710,23 +710,21 @@ export class HeatmapComponent implements OnInit {
       labelsXY.x = xLabels;
       labelsXY.y = yLabels;
     }
-//    if (!this.transpose) {
-      totalsX.sort((a1, a2) => {
-        if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
-          return 1;
-        } else {
-          return -1;
-        }
-      });
-//    } else {
-      totalsY.sort((a1, a2) => {
-        if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
-          return 1;
-        } else {
-          return -1;
-        }
-      });
-//    }
+    // Sort both axes according to totals
+    totalsX.sort((a1, a2) => {
+      if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
+        return 1;
+      } else {
+        return -1;
+      }
+    });
+    totalsY.sort((a1, a2) => {
+      if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
+        return 1;
+      } else {
+        return -1;
+      }
+    });
     let legendSize = 50;
     const margin = { top: transpose ? 100 : 60, right: 50, bottom: 10, left: 130 }, buckets = 10,
       width = 700 - margin.left - margin.right,
@@ -797,7 +795,7 @@ export class HeatmapComponent implements OnInit {
           });
         } else {
           if (this.transpose) {
-            for (let ii = 0, i,j, ij = 0; ii < xLabels.length; ii++) {
+            for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
                 i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
                 j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
@@ -810,7 +808,7 @@ export class HeatmapComponent implements OnInit {
               }
             }
           } else {
-            for (let ii = 0, i,j, ij = 0; ii < xLabels.length; ii++) {
+            for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
                 j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
                 i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
