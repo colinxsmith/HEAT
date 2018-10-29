@@ -712,15 +712,19 @@ export class HeatmapComponent implements OnInit {
     }
     // Sort both axes according to totals
     totalsX.sort((a1, a2) => {
-      if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
+      if (a2.value > a1.value) {
         return 1;
+      } else if (a2.value === a1.value) {
+        return 0;
       } else {
         return -1;
       }
     });
     totalsY.sort((a1, a2) => {
-      if (a2.value >= a1.value) { // >= means no change of order if all are equal, > reverses order in this case
+      if (a2.value > a1.value) {
         return 1;
+      } else if (a2.value === a1.value) {
+        return 0;
       } else {
         return -1;
       }
