@@ -751,14 +751,17 @@ export class HeatmapComponent implements OnInit {
       svgBase.attr('width', width + margin.left + margin.right);
       svgBase.attr('height', height + margin.top + margin.bottom + legendSize);
     }
-    const box = svgBase.append('rect')
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom + legendSize)
-      .style('stroke', 'black')
-      .style('fill', 'none')
-      .style('stroke-width', 1);
+    const doBox = false;
+    if (doBox) {
+      const box = svgBase.append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom + legendSize)
+        .style('stroke', 'black')
+        .style('fill', 'none')
+        .style('stroke-width', 1);
+    }
     const svg = svgBase
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
