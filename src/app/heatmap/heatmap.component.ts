@@ -730,7 +730,7 @@ export class HeatmapComponent implements OnInit {
       }
     });
     let legendSize = 40;
-    const margin = { top: transpose ? 100 : 100, right: 10, bottom: 10, left: transpose ? 100 : 200 }, buckets = labelsXY.x.length;
+    const margin = { top: transpose ? 100 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 }, buckets = labelsXY.x.length;
       let width = 1200 - margin.left - margin.right,
       height = transpose ? 900 : 1400 - margin.top - margin.bottom - legendSize;
       const gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
@@ -889,7 +889,7 @@ export class HeatmapComponent implements OnInit {
             if (!lineMap) {
               return;
             }
-            const chosenData = this.transpose ? d.x - 1 : d.y - 1;
+            const chosenData = (this.transpose ? d.x : d.y) - 1;
             this.chosenData = this.myData.managerKPIs[chosenData];
             d3.selectAll('svg').remove();
             this.managerProcess(this.myData.managerData[chosenData]);
