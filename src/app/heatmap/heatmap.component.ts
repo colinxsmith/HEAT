@@ -945,7 +945,7 @@ export class HeatmapComponent implements OnInit {
               cakeGradient.append('stop').
                 attr('offset', '0%').attr('class', 'top').style('stop-color', `${colourScale(d.value)}`);
               cakeGradient.append('stop')
-                .attr('offset', '100%').attr('class', 'bottom');
+                .attr('offset', '100%').attr('class', 'bottom').style('stop-color', `${colourScale(d.value)}`);
               return `url(#${uName})`;
             });
         }
