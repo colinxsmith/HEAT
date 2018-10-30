@@ -33,7 +33,7 @@ export class HeatmapComponent implements OnInit {
   chosenShape = this.shape[0];
   pad = false;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  colourRangeMaps = ['rgba(245,10,5,0.2)', 'rgba(245,10,5,1)'];
+  colourRangeMaps = ['rgb(245,145,145)', 'rgb(245,10,5)'];
   colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
