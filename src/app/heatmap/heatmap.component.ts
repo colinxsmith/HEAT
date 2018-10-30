@@ -920,15 +920,8 @@ export class HeatmapComponent implements OnInit {
             return lineMap ? `${colourScales[(this.transpose ? d.x : d.y) - 1](d.value)}` : `${colourScale(d.value)}`;
           });
         if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
-          const shapeFiller = slice, cakeGradient = svg.append('linearGradient')
-            .attr('id', 'cakeGrad')
-            .attr('x1', '0%')
-            .attr('y1', '100%')
-            .attr('x2', '0%')
-            .attr('y2', '0%');
-          cakeGradient.append('stop').attr('offset', '0%').attr('class', 'top');
-          cakeGradient.append('stop').attr('offset', '100%').attr('class', 'bottom');
-          gridDistribution.enter().append('path')
+          const shapeFiller = slice;
+                    gridDistribution.enter().append('path')
             .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize}) rotate(180)`)
             .attr('d', () => shape === 'Cakes' ?
               d3.arc()
@@ -942,7 +935,19 @@ export class HeatmapComponent implements OnInit {
                   innerRadius: 0, outerRadius: nutScale(shapeFiller / 360) * gridSize / 2
                 })
             )
-            .style('fill', 'url(#cakeGrad)');
+            .style('fill', (d, i) => {
+              const uName = 'cakeGrad' + i, cakeGradient = svg.append('linearGradient')
+                .attr('id', uName)
+                .attr('x1', '0%')
+                .attr('y1', '100%')
+                .attr('x2', '0%')
+                .attr('y2', '0%');
+              cakeGradient.append('stop').
+                attr('offset', '0%').attr('class', 'top').style('stop-color', `${colourScale(d.value)}`);
+              cakeGradient.append('stop')
+                .attr('offset', '100%').attr('class', 'bottom');
+              return `url(#${uName})`;
+            });
         }
         gridDistribution.enter().append('text')
           .attr('transform', (d) => `translate(${(d.x - 1) * gridSize}, ${(d.y - 1) * gridSize}) rotate(135)`)
