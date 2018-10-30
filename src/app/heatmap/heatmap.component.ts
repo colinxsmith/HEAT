@@ -493,9 +493,9 @@ export class HeatmapComponent implements OnInit {
 
   }
   largeMap(id: string, managerKPIs: string[], managerData: { x: string; y: string; value: number; }[][], colourRange: string[]) {
-    const margin = { top: 110, right: 10, bottom: 40, left: 90 },
-      width = 800 - margin.left - margin.right,
-      height = 1500 - margin.top - margin.bottom,
+    const margin = { top: 110, right: 10, bottom: 40, left: 100 },
+      width = 2000 - margin.left - margin.right,
+      height = 3000 - margin.top - margin.bottom,
       scaleX = d3.scaleLinear().domain([0, managerKPIs.length]).range([0, width]),
       scaleY = d3.scaleLinear().domain([0, managerData[0].length]).range([0, height]),
       svgBase = d3.select(id).append('svg')
@@ -730,7 +730,7 @@ export class HeatmapComponent implements OnInit {
       }
     });
     let legendSize = 40;
-    const margin = { top: transpose ? 100 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 }, buckets = labelsXY.x.length;
+    const margin = { top: transpose ? 120 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 }, buckets = labelsXY.x.length;
       let width = 1200 - margin.left - margin.right,
       height = transpose ? 900 : 1400 - margin.top - margin.bottom - legendSize;
       const gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
@@ -796,7 +796,7 @@ export class HeatmapComponent implements OnInit {
         { y: +d.x, x: +d.y, value: +d.value } :
         { y: +d.y, x: +d.x, value: +d.value },
       heatmapChart = (shape: string) => {
-        const nutScale = d3.scaleSqrt().domain([0, 1]).range([0, 1]), slice = 90,
+        const nutScale = d3.scaleSqrt().domain([0, 1]).range([0, 1]), slice = 85,
           heatData: { x: number, y: number, value: number }[] = [];
         const oXinv = [], oYinv = [];
         xLabels.forEach((d, i) => oXinv[i] = i);
@@ -919,13 +919,38 @@ export class HeatmapComponent implements OnInit {
           .style('fill', (d) => {
             return lineMap ? `${colourScales[(this.transpose ? d.x : d.y) - 1](d.value)}` : `${colourScale(d.value)}`;
           });
+        if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
+          const shapeFiller = slice, cakeGradient = svg.append('linearGradient')
+            .attr('id', 'cakeGrad')
+            .attr('x1', '0%')
+            .attr('y1', '100%')
+            .attr('x2', '0%')
+            .attr('y2', '0%');
+          cakeGradient.append('stop').attr('offset', '0%').attr('class', 'top');
+          cakeGradient.append('stop').attr('offset', '100%').attr('class', 'bottom');
+          gridDistribution.enter().append('path')
+            .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize}) rotate(180)`)
+            .attr('d', () => shape === 'Cakes' ?
+              d3.arc()
+                ({
+                  startAngle: shapeFiller / 2 * Math.PI / 180, endAngle: - shapeFiller / 2 * Math.PI / 180,
+                  outerRadius: gridSize / 2, innerRadius: 0
+                }) :
+              d3.arc()
+                ({
+                  startAngle: 0, endAngle: Math.PI * 2,
+                  innerRadius: 0, outerRadius: nutScale(shapeFiller / 360) * gridSize / 2
+                })
+            )
+            .style('fill', 'url(#cakeGrad)');
+        }
         gridDistribution.enter().append('text')
           .attr('transform', (d) => `translate(${(d.x - 1) * gridSize}, ${(d.y - 1) * gridSize}) rotate(135)`)
           .attr('dy', 3)
           .attr('class', 'datavals')
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
-          .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-30)`);
+          .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-45)`);
         const totalsOnMap = true;
         if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
           const totsy = svg.selectAll('.totalsY')

@@ -148,3 +148,12 @@ text.topdates {
     fill:rgb(84,83,79);
     stroke-width: 10px;
 }
+stop.top {
+    stop-color: rgb(82, 73, 73);
+    stop-opacity: 1;
+}
+
+stop.bottom {
+    stop-color: rgb(82, 73, 73);
+    stop-opacity: 0.15;
+}
