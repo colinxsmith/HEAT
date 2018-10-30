@@ -729,12 +729,14 @@ export class HeatmapComponent implements OnInit {
         return -1;
       }
     });
-    let legendSize = 50;
-    const margin = { top: transpose ? 100 : 60, right: 50, bottom: 10, left: 130 }, buckets = 10,
-      width = 700 - margin.left - margin.right,
-      height = 700 - margin.top - margin.bottom - legendSize,
-      gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
+    let legendSize = 40;
+    const margin = { top: transpose ? 100 : 100, right: 10, bottom: 10, left: transpose ? 100 : 200 }, buckets = labelsXY.x.length;
+      let width = 1200 - margin.left - margin.right,
+      height = transpose ? 900 : 1400 - margin.top - margin.bottom - legendSize;
+      const gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
+      width = gridSize * labelsXY.x.length;
+      height = gridSize * labelsXY.y.length;
     legendSize = Math.min(legendSize, legendElementWidth);
     const coloursd = d3.scaleLinear<d3.RGBColor>()
       .domain([0, buckets - 1])
@@ -749,6 +751,14 @@ export class HeatmapComponent implements OnInit {
       svgBase.attr('width', width + margin.left + margin.right);
       svgBase.attr('height', height + margin.top + margin.bottom + legendSize);
     }
+    const box = svgBase.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom + legendSize)
+      .style('stroke', 'black')
+      .style('fill', 'none')
+      .style('stroke-width', 1);
     const svg = svgBase
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
@@ -926,7 +936,7 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'totalsX')
             .text((d) => d3.format('0.2f')(d.value));
         }
-        const doLegend = false;
+        const doLegend = true && !lineMap;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
@@ -936,9 +946,9 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'legend');
           legend_g.append('rect')
             .attr('x', (d, i) => legendElementWidth * i)
-            .attr('y', (labelsXY.y.length + 0.25) * gridSize)
+            .attr('y', (labelsXY.y.length + 0.5) * gridSize)
             .attr('width', legendElementWidth)
-            .attr('height', legendSize)
+            .attr('height', legendSize / 2)
             .style('fill', (d, i) => `${colours[i]}`)
             .on('mouseover', (d, idd, jj) => {
               this.tooltip.style('opacity', 0.9);
@@ -953,7 +963,7 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'legend')
             .text((d) => '\uf07e ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
             .attr('x', (d, i) => legendElementWidth * (i + 0.25))
-            .attr('y', (labelsXY.y.length + 0.25) * gridSize + legendSize / 2 + 3);
+            .attr('y', (labelsXY.y.length + 0.5) * gridSize + legendSize / 4 + 3);
         }
       };
     heatmapChart(lineMap ? 'Squares' : this.chosenShape);

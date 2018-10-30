@@ -17,20 +17,20 @@ path.bordered {
 }
 
 text.legend {
-    font-size: 7px;
+    font-size: 9px;
     font-family: fontawesome;
     fill: rgb(8, 211, 8);
 }
 
 text.datavals {
-    font-size: 5px;
+    font-size: 10px;
     font-family: Calibri, sans-serif;
     text-anchor: middle;
     opacity: 0.9;
 }
 
 text.totalsY {
-    font-size: 10px;
+    font-size: 20px;
     font-weight: bold;
     font-family: Calibri, sans-serif;
     text-anchor: middle;
@@ -38,7 +38,7 @@ text.totalsY {
 }
 
 text.totalsX {
-    font-size: 14px;
+    font-size: 20px;
     font-weight: bold;
     font-family: Calibri, sans-serif;
     text-anchor: middle;
@@ -52,13 +52,13 @@ text.axis-x {
     fill: #00b;
 }
 text.axis-xh {
-    font-size: 9px;
+    font-size: 15px;
     font-weight: bold;
     font-family: Calibri, sans-serif;
     fill: #00b;
 }
 text.axis-y {
-    font-size: 10px;
+    font-size: 15px;
     font-weight: bold;
     font-family: Calibri, sans-serif;
     fill: #00b;
