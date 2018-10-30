@@ -925,7 +925,7 @@ export class HeatmapComponent implements OnInit {
           .attr('class', 'datavals')
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
-          .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(0)`);
+          .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-30)`);
         const totalsOnMap = true;
         if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
           const totsy = svg.selectAll('.totalsY')
