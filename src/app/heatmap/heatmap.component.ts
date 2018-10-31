@@ -19,8 +19,8 @@ export class HeatmapComponent implements OnInit {
   tooltip = AppComponent.toolTipStatic;
   managerOffices: string[] = [];
   managerGroups: string[] = [];
-  totalsX: {ind: number, value: number}[] = [];
-  totalsY: {ind: number, value: number}[] = [];
+  totalsX: { ind: number, value: number }[] = [];
+  totalsY: { ind: number, value: number }[] = [];
   KPI: { x: number, y: number, value: number }[] = [];
   numColours = 250;
   buttonName = 'Squares';
@@ -109,11 +109,11 @@ export class HeatmapComponent implements OnInit {
       .on('mouseover', (perfi, ii, jj) => {
         const [pX, pY] = this.toolTipPosition(ii, jj, width, (height - vSpacer * numberPerfs));
         this.tooltip
-        .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
+          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon><br>
         Date: ${perfData[0].dates[ii]}<br>${perfi.hold ? 'held<br>' : ''}Performance: ${perfi.performance}`)
-        .style('left', pX)
-        .style('top', pY)
-        .style('opacity', 1);
+          .style('left', pX)
+          .style('top', pY)
+          .style('opacity', 1);
       })
       .on('mouseout', () => this.tooltip.style('opacity', 0))
       .transition().duration(2000)
@@ -174,11 +174,11 @@ export class HeatmapComponent implements OnInit {
   }
   constructor() {
     this.myData.managerData.forEach((d) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
-/*    this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
-      d.forEach((dd) => {
-        dd.y = dd.y.replace(/[0-9]/g, '');
-      });
-    }); */
+    /*    this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
+          d.forEach((dd) => {
+            dd.y = dd.y.replace(/[0-9]/g, '');
+          });
+        }); */
   }
   chooseData(daig: string) {
     this.chosenData = daig;
@@ -212,7 +212,7 @@ export class HeatmapComponent implements OnInit {
       sofar = ik;
     }
     return totalKPI;
-}
+  }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
     const here = this, xmap = {}, ymap = {};
     this.managerOffices = [];
@@ -239,20 +239,20 @@ export class HeatmapComponent implements OnInit {
         here.totalsY[i] = { value: 0, ind: i };
       }
       for (let j = 0; j < ny; ++j) {
-      if (here.totalsX[j] === undefined) {
-        here.totalsX[j] = { value: 0, ind: j };
-      }
-      if (ij < dataV.length && dataV[ij].x === here.managerOffices[i]
-        && dataV[ij].y.replace(/[0-9]/g, '') === here.managerGroups[j].replace(/[0-9]/g, '')) {
-        here.totalsY[i].value += dataV[ij].value; // Get total for each manager
-        here.totalsX[j].value += dataV[ij].value; // Get total for each office
-        here.KPI.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
-      } else {
-        if (here.pad) { here.KPI.push({ x: i + 1, y: j + 1, value: 0 }); }
+        if (here.totalsX[j] === undefined) {
+          here.totalsX[j] = { value: 0, ind: j };
+        }
+        if (ij < dataV.length && dataV[ij].x === here.managerOffices[i]
+          && dataV[ij].y.replace(/[0-9]/g, '') === here.managerGroups[j].replace(/[0-9]/g, '')) {
+          here.totalsY[i].value += dataV[ij].value; // Get total for each manager
+          here.totalsX[j].value += dataV[ij].value; // Get total for each office
+          here.KPI.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
+        } else {
+          if (here.pad) { here.KPI.push({ x: i + 1, y: j + 1, value: 0 }); }
+        }
       }
     }
   }
-}
   ngOnInit() { // Decide which figure
     d3.selectAll('svg').remove();
     if (this.chosenFigure === 'Heat Map') {
@@ -577,11 +577,11 @@ export class HeatmapComponent implements OnInit {
         .on('mouseover', (dd, ii, jj) => {
           const [tX, tY] = this.toolTipPosition(ii, jj, width, height);
           this.tooltip
-          // tslint:disable-next-line:max-line-length
-          .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${managerKPIs[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
-          .style('left', tX)
-          .style('top', tY)
-          .style('opacity', 1);
+            // tslint:disable-next-line:max-line-length
+            .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${dd.x} Office<br>${managerKPIs[ix]}<br>${dd.y + iOffice[dd.x]} Team<br>${dd.value}`)
+            .style('left', tX)
+            .style('top', tY)
+            .style('opacity', 1);
         }
         )
         .on('click', (dd, i) => clicker(di, i))
@@ -701,7 +701,7 @@ export class HeatmapComponent implements OnInit {
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
     colourRange: string[], lineMap = false) {
     const dataHere = lineMap ? 'total' : this.chosenData,
-    transpose = this.transpose, totalsX = !lineMap ? this.totalsX : [], totalsY = !lineMap ? this.totalsY : [],
+      transpose = this.transpose, totalsX = !lineMap ? this.totalsX : [], totalsY = !lineMap ? this.totalsY : [],
       labelsXY = { x: [' '], y: [' '] };
     if (transpose) {
       labelsXY.x = yLabels;
@@ -734,10 +734,10 @@ export class HeatmapComponent implements OnInit {
       buckets = Math.min(xLabels.length, yLabels.length);
     let width = 1200 - margin.left - margin.right,
       height = transpose ? 900 : 1400 - margin.top - margin.bottom - legendSize;
-      const gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
+    const gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
-      width = gridSize * labelsXY.x.length;
-      height = gridSize * labelsXY.y.length;
+    width = gridSize * labelsXY.x.length;
+    height = gridSize * labelsXY.y.length;
     legendSize = Math.min(legendSize, legendElementWidth);
     const coloursd = d3.scaleLinear<d3.RGBColor>()
       .domain([0, buckets - 1])
@@ -771,7 +771,7 @@ export class HeatmapComponent implements OnInit {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.y[this.transpose ? (totalsY.length ? totalsY[i].ind : i)
-           : (totalsX.length ? totalsX[i].ind : i)];
+            : (totalsX.length ? totalsX[i].ind : i)];
         }
         )
         .attr('x', 0)
@@ -784,7 +784,7 @@ export class HeatmapComponent implements OnInit {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.x[!this.transpose ? (totalsY.length ? totalsY[i].ind : i)
-           : (totalsX.length ? totalsX[i].ind : i)];
+            : (totalsX.length ? totalsX[i].ind : i)];
         })
         .attr('x', 0)
         .attr('y', 0)
@@ -847,13 +847,13 @@ export class HeatmapComponent implements OnInit {
         if (lineMap) {
           for (let jj = 0; jj < yLabels.length; jj++) {
             let x1 = 1e9, x2 = -1e9;
-              for (let ii = 0; ii < xLabels.length; ii++) {
-                x1 = Math.min(x1, heatData[ii * yLabels.length + jj].value);
-                x2 = Math.max(x2, heatData[ii * yLabels.length + jj].value);
-              }
-              colourScales[jj] = d3.scaleQuantile<d3.RGBColor>().range(colours).domain([x1, x2]);
+            for (let ii = 0; ii < xLabels.length; ii++) {
+              x1 = Math.min(x1, heatData[ii * yLabels.length + jj].value);
+              x2 = Math.max(x2, heatData[ii * yLabels.length + jj].value);
             }
+            colourScales[jj] = d3.scaleQuantile<d3.RGBColor>().range(colours).domain([x1, x2]);
           }
+        }
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
         let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; }, d3.BaseType, {}>;
@@ -875,10 +875,10 @@ export class HeatmapComponent implements OnInit {
             .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
           ${Math.min(d.x * gridSize, Math.random() * height)})`)
             .attr('d', () => d3.arc()
-              ({startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2, innerRadius: nutScale(slice / 360) * gridSize / 2}));
+              ({ startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2, innerRadius: nutScale(slice / 360) * gridSize / 2 }));
         } else if (shape === 'Cakes') {
           painKiller = gridDistribution.enter().append('path')
-          .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
+            .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
           ${Math.min(d.x * gridSize, Math.random() * height)})`)
             .attr('d', () => d3.arc()
               ({
@@ -925,37 +925,37 @@ export class HeatmapComponent implements OnInit {
         if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
           const shapeFiller = slice;
           gridDistribution.enter().append('path')
-          .attr('transform', (d) => `translate(${Math.random() * 10 * gridSize},${Math.random() * 10 * gridSize})
+            .attr('transform', (d) => `translate(${Math.random() * 10 * gridSize},${Math.random() * 10 * gridSize})
           rotate(${-90})`)
-          .attr('d', () => shape === 'Cakes' ?
-            d3.arc()
-              ({
-                startAngle: 0, endAngle: 0,
-                outerRadius: gridSize / 2, innerRadius: 0
-              }) :
-            d3.arc()
-              ({
-                startAngle: 0, endAngle: Math.PI * 2,
-                innerRadius: 0, outerRadius: 0
-              })
-          )
-          .style('fill', 'green')
-          .transition().duration(1000)
-          .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize})
+            .attr('d', () => shape === 'Cakes' ?
+              d3.arc()
+                ({
+                  startAngle: 0, endAngle: 0,
+                  outerRadius: gridSize / 2, innerRadius: 0
+                }) :
+              d3.arc()
+                ({
+                  startAngle: 0, endAngle: Math.PI * 2,
+                  innerRadius: 0, outerRadius: 0
+                })
+            )
+            .style('fill', 'green')
+            .transition().duration(1000)
+            .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize})
           rotate(${90})`)
-          .attr('d', () => shape === 'Cakes' ?
-            d3.arc()
-              ({
-                startAngle: 0, endAngle: shapeFiller * Math.PI / 180,
-                outerRadius: gridSize / 2, innerRadius: 0
-              }) :
-            d3.arc()
-              ({
-                startAngle: 0, endAngle: Math.PI * 2,
-                innerRadius: 0, outerRadius: nutScale(shapeFiller / 360) * gridSize / 2
-              })
-          )
-        .style('fill', (d, i) => {
+            .attr('d', () => shape === 'Cakes' ?
+              d3.arc()
+                ({
+                  startAngle: 0, endAngle: shapeFiller * Math.PI / 180,
+                  outerRadius: gridSize / 2, innerRadius: 0
+                }) :
+              d3.arc()
+                ({
+                  startAngle: 0, endAngle: Math.PI * 2,
+                  innerRadius: 0, outerRadius: nutScale(shapeFiller / 360) * gridSize / 2
+                })
+            )
+            .style('fill', (d, i) => {
               const uName = `cakeCol${i}`, cakeGradient = svg.append('linearGradient')
                 .attr('id', uName)
                 .attr('x2', '0%')
