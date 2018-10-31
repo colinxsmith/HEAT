@@ -925,21 +925,37 @@ export class HeatmapComponent implements OnInit {
         if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
           const shapeFiller = slice;
           gridDistribution.enter().append('path')
-            .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize})
-            rotate(${90})`)
-            .attr('d', () => shape === 'Cakes' ?
-              d3.arc()
-                ({
-                  startAngle: 0, endAngle: shapeFiller * Math.PI / 180,
-                  outerRadius: gridSize / 2, innerRadius: 0
-                }) :
-              d3.arc()
-                ({
-                  startAngle: 0, endAngle: Math.PI * 2,
-                  innerRadius: 0, outerRadius: nutScale(shapeFiller / 360) * gridSize / 2
-                })
-            )
-            .style('fill', (d, i) => {
+          .attr('transform', (d) => `translate(${Math.random() * 10 * gridSize},${Math.random() * 10 * gridSize})
+          rotate(${-90})`)
+          .attr('d', () => shape === 'Cakes' ?
+            d3.arc()
+              ({
+                startAngle: 0, endAngle: 0,
+                outerRadius: gridSize / 2, innerRadius: 0
+              }) :
+            d3.arc()
+              ({
+                startAngle: 0, endAngle: Math.PI * 2,
+                innerRadius: 0, outerRadius: 0
+              })
+          )
+          .style('fill', 'green')
+          .transition().duration(1000)
+          .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize})
+          rotate(${90})`)
+          .attr('d', () => shape === 'Cakes' ?
+            d3.arc()
+              ({
+                startAngle: 0, endAngle: shapeFiller * Math.PI / 180,
+                outerRadius: gridSize / 2, innerRadius: 0
+              }) :
+            d3.arc()
+              ({
+                startAngle: 0, endAngle: Math.PI * 2,
+                innerRadius: 0, outerRadius: nutScale(shapeFiller / 360) * gridSize / 2
+              })
+          )
+        .style('fill', (d, i) => {
               const uName = `cakeCol${i}`, cakeGradient = svg.append('linearGradient')
                 .attr('id', uName)
                 .attr('x2', '0%')
