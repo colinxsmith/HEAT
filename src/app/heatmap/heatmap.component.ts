@@ -880,9 +880,11 @@ export class HeatmapComponent implements OnInit {
           painKiller = gridDistribution.enter().append('path')
           .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
           ${Math.min(d.x * gridSize, Math.random() * height)})`)
-          .attr('d', () => d3.arc()
-          ({startAngle: slice / 2 * Math.PI / 180, endAngle: (360 - slice / 2) * Math.PI / 180,
-            outerRadius: gridSize / 2, innerRadius: 0}));
+            .attr('d', () => d3.arc()
+              ({
+                startAngle: slice * Math.PI / 180, endAngle: 2 * Math.PI,
+                outerRadius: gridSize / 2, innerRadius: 0
+              }));
         }
         painKiller
           .attr('class', 'bordered')
@@ -913,7 +915,7 @@ export class HeatmapComponent implements OnInit {
           .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
           .attr('cy', (d) => (d.y - 1 + 0.45) * gridSize)
           .attr('transform', (d) => shape === 'Cakes' || shape === 'Doughnuts' ?
-            `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize}) rotate(180)` : 'translate(0,0)')
+            `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize}) rotate(${90})` : 'translate(0,0)')
           .attr('rx', 0)
           .attr('ry', 0)
           .attr('r', gridSize / 2)
@@ -923,11 +925,12 @@ export class HeatmapComponent implements OnInit {
         if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
           const shapeFiller = slice;
           gridDistribution.enter().append('path')
-            .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize}) rotate(180)`)
+            .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize})
+            rotate(${90})`)
             .attr('d', () => shape === 'Cakes' ?
               d3.arc()
                 ({
-                  startAngle: shapeFiller / 2 * Math.PI / 180, endAngle: - shapeFiller / 2 * Math.PI / 180,
+                  startAngle: 0, endAngle: shapeFiller * Math.PI / 180,
                   outerRadius: gridSize / 2, innerRadius: 0
                 }) :
               d3.arc()
@@ -939,10 +942,10 @@ export class HeatmapComponent implements OnInit {
             .style('fill', (d, i) => {
               const uName = `cakeCol${i}`, cakeGradient = svg.append('linearGradient')
                 .attr('id', uName)
-                .attr('x1', '0%')
-                .attr('y1', '100%')
                 .attr('x2', '0%')
-                .attr('y2', '0%');
+                .attr('y2', '50%')
+                .attr('x1', '50%')
+                .attr('y1', '0%');
               cakeGradient.append('stop').
                 attr('offset', '0%').attr('class', 'top').style('stop-color', `${colourScale(d.value)}`);
               cakeGradient.append('stop')
