@@ -730,8 +730,9 @@ export class HeatmapComponent implements OnInit {
       }
     });
     let legendSize = 40;
-    const margin = { top: transpose ? 120 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 }, buckets = labelsXY.x.length;
-      let width = 1200 - margin.left - margin.right,
+    const margin = { top: transpose ? 120 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 },
+      buckets = Math.min(xLabels.length, yLabels.length);
+    let width = 1200 - margin.left - margin.right,
       height = transpose ? 900 : 1400 - margin.top - margin.bottom - legendSize;
       const gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
@@ -921,7 +922,7 @@ export class HeatmapComponent implements OnInit {
           });
         if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
           const shapeFiller = slice;
-                    gridDistribution.enter().append('path')
+          gridDistribution.enter().append('path')
             .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize}) rotate(180)`)
             .attr('d', () => shape === 'Cakes' ?
               d3.arc()
@@ -936,7 +937,7 @@ export class HeatmapComponent implements OnInit {
                 })
             )
             .style('fill', (d, i) => {
-              const uName = 'cakeGrad' + i, cakeGradient = svg.append('linearGradient')
+              const uName = `cakeCol${i}`, cakeGradient = svg.append('linearGradient')
                 .attr('id', uName)
                 .attr('x1', '0%')
                 .attr('y1', '100%')
@@ -987,7 +988,8 @@ export class HeatmapComponent implements OnInit {
               this.tooltip.style('opacity', 0.9);
               const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
               this.tooltip
-                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${d}`)
+                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa>
+                </app-icon>${(Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100)}`)
                 .style('left', tX)
                 .style('top', tY);
             })
