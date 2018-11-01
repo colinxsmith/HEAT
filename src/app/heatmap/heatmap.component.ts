@@ -94,8 +94,10 @@ export class HeatmapComponent implements OnInit {
     const decorate: number[] = [];
     performanceLine.forEach((d, i) => decorate[i] = d.performance);
     const redwhitegreen1 = d3.scaleLinear<d3.RGBColor>().domain([d3.extent(decorate)[0], 0])
+    .interpolate(d3.interpolateRgb.gamma(2.2))
       .range([d3.rgb('#ff000d'), d3.rgb('#dddddd')]);
     const redwhitegreen2 = d3.scaleLinear<d3.RGBColor>().domain([0, d3.extent(decorate)[1]])
+    .interpolate(d3.interpolateRgb.gamma(2.2))
       .range([d3.rgb('#dddddd'), d3.rgb('#01ff07')]);
     const rwg = [];
     console.log(d3.extent(decorate));
@@ -310,6 +312,7 @@ export class HeatmapComponent implements OnInit {
     }
     const svg = svgBase.append('g').attr('transform', `translate(${margin.left + width / 2},${margin.top + height / 2})`),
       colours = d3.scaleLinear<d3.RGBColor>()
+      .interpolate(d3.interpolateRgb.gamma(5.2))
         .domain([0, nCirc])
         .range([d3.rgb(255, 0, 0), d3.rgb(0, 255, 0)]),
       baseRad = Math.min(width, height) * 0.5;
@@ -555,14 +558,15 @@ export class HeatmapComponent implements OnInit {
     const colouredRectangles: d3.Selection<d3.BaseType, { x: string, y: string, value: number }, d3.BaseType, {}>[] = [];
     managerData.forEach((di, ix) => {
       const ixx = (ix % (colourRange.length / 2)) * 2;
-      const coloursd = d3.scaleLinear<d3.RGBColor, d3.RGBColor>()
+      const coloursd = d3.scaleLinear<d3.RGBColor, string>()
+        .interpolate(d3.interpolateRgb.gamma(2.2))
         .domain([0, this.numColours])
         .range([d3.rgb(colourRange[ixx]), d3.rgb(colourRange[ixx + 1])]),
-        colours: d3.RGBColor[] = [];
+        colours: string[] = [];
       for (let i = 0; i < this.numColours; ++i) {
         colours[i] = coloursd(i);
       }
-      const colourScale = d3.scaleQuantile<d3.RGBColor>()
+      const colourScale = d3.scaleQuantile<string>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
         d3.max(di, (d: { x: string, y: string, value: number }) => d.value)])
         .range(colours);
@@ -740,8 +744,9 @@ export class HeatmapComponent implements OnInit {
     height = gridSize * labelsXY.y.length;
     legendSize = Math.min(legendSize, legendElementWidth);
     const coloursd = d3.scaleLinear<d3.RGBColor>()
+    .interpolate(d3.interpolateRgb.gamma(2.2))
       .domain([0, buckets - 1])
-      .range([d3.rgb(colourRange[0]), d3.rgb(colourRange[1])]), colours: d3.RGBColor[] = [],
+      .range([d3.rgb(colourRange[0]), d3.rgb(colourRange[1])]), colours: string[] = [],
       svgBase = d3.select(id).append('svg');
     for (let i = 0; i < buckets; i++) {
       colours[i] = coloursd(i);
@@ -840,7 +845,7 @@ export class HeatmapComponent implements OnInit {
             }
           }
         }
-        const colourScales: d3.ScaleQuantile<d3.RGBColor>[] = [], colourScale = d3.scaleQuantile<d3.RGBColor>()
+        const colourScales: d3.ScaleQuantile<string>[] = [], colourScale = d3.scaleQuantile<string>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
           .range(colours);
@@ -851,7 +856,7 @@ export class HeatmapComponent implements OnInit {
               x1 = Math.min(x1, heatData[ii * yLabels.length + jj].value);
               x2 = Math.max(x2, heatData[ii * yLabels.length + jj].value);
             }
-            colourScales[jj] = d3.scaleQuantile<d3.RGBColor>().range(colours).domain([x1, x2]);
+            colourScales[jj] = d3.scaleQuantile<string>().range(colours).domain([x1, x2]);
           }
         }
         const gridDistribution = svg.selectAll('.values')
