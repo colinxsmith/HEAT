@@ -95,10 +95,10 @@ export class HeatmapComponent implements OnInit {
     const decorate: number[] = [];
     performanceLine.forEach((d, i) => decorate[i] = d.performance);
     const redwhitegreen1 = d3.scaleLinear<d3.RGBColor>().domain([d3.extent(decorate)[0], 0])
-    .interpolate(d3.interpolateRgb.gamma(2.2))
+      .interpolate(d3.interpolateRgb.gamma(2.2))
       .range([d3.rgb('#ff000d'), d3.rgb('#dddddd')]);
     const redwhitegreen2 = d3.scaleLinear<d3.RGBColor>().domain([0, d3.extent(decorate)[1]])
-    .interpolate(d3.interpolateRgb.gamma(2.2))
+      .interpolate(d3.interpolateRgb.gamma(2.2))
       .range([d3.rgb('#dddddd'), d3.rgb('#01ff07')]);
     const rwg = [];
     console.log(d3.extent(decorate));
@@ -334,7 +334,7 @@ export class HeatmapComponent implements OnInit {
           .attr('y', 20)
           .attr('transform', (d, i) => `translate(${margin.left + 30 + width / buckets * i},${margin.top + 30}) rotate(90)`)
           .style('stroke', 'blue')
-          .style('font-size', `${0.7*width / buckets}px`)
+          .style('font-size', `${0.7 * width / buckets}px`)
           .style('font-family', 'fontawesome')
           .text((d, i) => `${d}`);
       };
@@ -378,7 +378,7 @@ export class HeatmapComponent implements OnInit {
     }
     const svg = svgBase.append('g').attr('transform', `translate(${margin.left + width / 2},${margin.top + height / 2})`),
       colours = d3.scaleLinear<d3.RGBColor>()
-      .interpolate(d3.interpolateRgb.gamma(5.2))
+        .interpolate(d3.interpolateRgb.gamma(5.2))
         .domain([0, nCirc])
         .range([d3.rgb(255, 0, 0), d3.rgb(0, 255, 0)]),
       baseRad = Math.min(width, height) * 0.5;
@@ -810,7 +810,7 @@ export class HeatmapComponent implements OnInit {
     height = gridSize * labelsXY.y.length;
     legendSize = Math.min(legendSize, legendElementWidth);
     const coloursd = d3.scaleLinear<d3.RGBColor>()
-    .interpolate(d3.interpolateRgb.gamma(2.2))
+      .interpolate(d3.interpolateRgb.gamma(2.2))
       .domain([0, buckets])
       .range([d3.rgb(colourRange[0]), d3.rgb(colourRange[1])]), colours: string[] = [],
       svgBase = d3.select(id).append('svg');
