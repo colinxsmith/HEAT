@@ -257,7 +257,7 @@ export class HeatmapComponent implements OnInit {
     }
   }
   ngOnInit() { // Decide which figure
-    d3.selectAll('svg').remove();
+    d3.select('app-heatmap').selectAll('svg').remove();
     d3.select('app-heatmap').select('div').remove();
     if (this.chosenFigure === 'Heat Map') {
       this.myData.managerKPIs.forEach((d, i) => {
@@ -276,7 +276,9 @@ export class HeatmapComponent implements OnInit {
     } else if (this.chosenFigure === '5 Circles') {
       this.fiveCircles('app-heatmap', this.myData.fiveCircles);
     } else if (this.chosenFigure === 'Colour Setup') {
-      this.colourpick = d3.select('app-heatmap').append('div').style('color', 'brown').text('Colour range picker and gamma: ')
+      this.colourpick = d3.select('app-heatmap').append('div')
+        .style('color', 'brown')
+        .text('Colour range picker and gamma: ')
         .selectAll('text');
       const margin = {
         top: 20,
@@ -304,26 +306,20 @@ export class HeatmapComponent implements OnInit {
         .style('color', 'orange')
         .attr('type', 'text')
         .attr('value', (d) => d.replace('px', ''))
-        .on('change', (d, i, obb) => {
-          colourrange[i] = (<HTMLInputElement>(obb[i])).value;
-          temp.style('fill', colourrange[0]);
-          temp.style('stroke', colourrange[1]);
-          temp.style('stroke-width', colourrange[2]);
+        .on('change', (d, i, j) => {
+          colourrange[i] = (<HTMLInputElement>(j[i])).value;
           page();
         });
       const page = () => {
         svg.selectAll('text').remove();
         svg.selectAll('rect').remove();
-        svg.selectAll('dist').remove();
-        console.log(colourrange);
         const coloursd = d3.scaleLinear<d3.RGBColor>().domain([0, buckets])
           .interpolate(d3.interpolateRgb.gamma(+(colourrange[2])))
           .range([d3.rgb(colourrange[0]), d3.rgb(colourrange[1])]);
         for (let i = 0; i < buckets; ++i) {
           colours[i] = coloursd(buckets / (buckets - 1) * i);
         }
-        console.log(colours);
-        const colourDist = svg.selectAll('.dist')
+        const colourDist = svg.selectAll('dist')
           .data(colours);
         const cdg = colourDist.enter();
         cdg.append('rect')
@@ -339,10 +335,10 @@ export class HeatmapComponent implements OnInit {
           .attr('transform', (d, i) => `translate(${margin.left + 30 + 45 * i},${margin.top + 30}) rotate(90)`)
           .style('stroke', 'blue')
           .style('font-size', '20px')
+          .style('font-family', 'fontawesome')
           .text((d, i) => `${d}`);
       };
       page();
-
     } else if (this.chosenFigure === 'Radar') {
       const margin = {
         top: 100,
