@@ -15,7 +15,8 @@ import { invoke } from 'q';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Heat Map'].reverse();
+  colourpick: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+  plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Heat Map', 'Colour Setup'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerOffices: string[] = [];
   managerGroups: string[] = [];
@@ -257,6 +258,7 @@ export class HeatmapComponent implements OnInit {
   }
   ngOnInit() { // Decide which figure
     d3.selectAll('svg').remove();
+    d3.select('app-heatmap').select('div').remove();
     if (this.chosenFigure === 'Heat Map') {
       this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
@@ -273,6 +275,75 @@ export class HeatmapComponent implements OnInit {
       this.perfMap('app-heatmap', this.perfData);
     } else if (this.chosenFigure === '5 Circles') {
       this.fiveCircles('app-heatmap', this.myData.fiveCircles);
+    } else if (this.chosenFigure === 'Colour Setup') {
+      this.colourpick = d3.select('app-heatmap').append('div').style('color', 'brown').text('Colour range picker and gamma: ')
+        .selectAll('text');
+      const margin = {
+        top: 20,
+        right: 130,
+        bottom: 100,
+        left: 0
+      },
+        width = 900 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom,
+        temp = d3.select('app-heatmap').append('g').attr('class', 'heatcolours'),
+        buckets = 20,
+        colourrange: string[] = [],
+        colours: string[] = [],
+        svg = d3.select('app-heatmap').append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom);
+      svg.attr('transform', `translate(${margin.left},${margin.top + 50}) rotate(-3)`);
+      colourrange[0] = temp.style('fill');
+      colourrange[1] = temp.style('stroke');
+      colourrange[2] = temp.style('stroke-width').replace('px', '');
+      temp.remove();
+      this.colourpick.data(colourrange)
+        .enter()
+        .append('input')
+        .style('color', 'orange')
+        .attr('type', 'text')
+        .attr('value', (d) => d.replace('px', ''))
+        .on('change', (d, i, obb) => {
+          const h = <HTMLInputElement>(obb[i]);
+          colourrange[i] = h.value;
+          temp.style('fill', colourrange[0]);
+          temp.style('stroke', colourrange[1]);
+          temp.style('stroke-width', colourrange[2]);
+          page();
+        });
+      const page = () => {
+        svg.selectAll('text').remove();
+        svg.selectAll('rect').remove();
+        svg.selectAll('dist').remove();
+        console.log(colourrange);
+        const coloursd = d3.scaleLinear<d3.RGBColor>().domain([0, buckets])
+          .interpolate(d3.interpolateRgb.gamma(+(colourrange[2])))
+          .range([d3.rgb(colourrange[0]), d3.rgb(colourrange[1])]);
+        for (let i = 0; i < buckets; ++i) {
+          colours[i] = coloursd(buckets / (buckets - 1) * i);
+        }
+        console.log(colours);
+        const colourDist = svg.selectAll('.dist')
+          .data(colours);
+        const cdg = colourDist.enter();
+        cdg.append('rect')
+          .attr('x', (d, i) => 45 * i)
+          .attr('y', 0)
+          .attr('width', 45)
+          .attr('height', 45)
+          .style('stroke', 'black')
+          .style('stroke-width', '1px')
+          .style('fill', (d) => d);
+        cdg.append('text')
+          .attr('y', 20)
+          .attr('transform', (d, i) => `translate(${margin.left + 30 + 45 * i},${margin.top + 30}) rotate(90)`)
+          .style('stroke', 'blue')
+          .style('font-size', '20px')
+          .text((d, i) => `${d}`);
+      };
+      page();
+
     } else if (this.chosenFigure === 'Radar') {
       const margin = {
         top: 100,
@@ -318,7 +389,7 @@ export class HeatmapComponent implements OnInit {
       baseRad = Math.min(width, height) * 0.5;
     const cc = [];
     for (let i = 0; i < nCirc; ++i) {
-      cc[i] = colours(i);
+      cc[i] = colours(i * nCirc / (nCirc - 1));
     }
     const groupCirc = (RAD: number, cx: number, cy: number, depth: number, maxdepth: number) => {
       depth++;
@@ -564,7 +635,7 @@ export class HeatmapComponent implements OnInit {
         .range([d3.rgb(colourRange[ixx]), d3.rgb(colourRange[ixx + 1])]),
         colours: string[] = [];
       for (let i = 0; i < this.numColours; ++i) {
-        colours[i] = coloursd(i);
+        colours[i] = coloursd(i * (this.numColours) / (this.numColours - 1));
       }
       const colourScale = d3.scaleQuantile<string>()
         .domain([d3.min(di, (d: { x: string, y: string, value: number }) => d.value),
@@ -745,11 +816,11 @@ export class HeatmapComponent implements OnInit {
     legendSize = Math.min(legendSize, legendElementWidth);
     const coloursd = d3.scaleLinear<d3.RGBColor>()
     .interpolate(d3.interpolateRgb.gamma(2.2))
-      .domain([0, buckets - 1])
+      .domain([0, buckets])
       .range([d3.rgb(colourRange[0]), d3.rgb(colourRange[1])]), colours: string[] = [],
       svgBase = d3.select(id).append('svg');
     for (let i = 0; i < buckets; i++) {
-      colours[i] = coloursd(i);
+      colours[i] = coloursd(i * buckets / (buckets - 1));
     }
     if (this.viewbox) {
       svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`);
