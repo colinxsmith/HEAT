@@ -289,7 +289,7 @@ export class HeatmapComponent implements OnInit {
         width = 900 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom,
         temp = d3.select('app-heatmap').append('g').attr('class', 'heatcolours'),
-        buckets = 20,
+        buckets = 50,
         colourrange: string[] = [],
         colours: string[] = [],
         svg = d3.select('app-heatmap').append('svg')
@@ -323,18 +323,18 @@ export class HeatmapComponent implements OnInit {
           .data(colours);
         const cdg = colourDist.enter();
         cdg.append('rect')
-          .attr('x', (d, i) => 45 * i)
+          .attr('x', (d, i) => width / buckets * i)
           .attr('y', 0)
-          .attr('width', 45)
+          .attr('width', width / buckets)
           .attr('height', 45)
           .style('stroke', 'black')
           .style('stroke-width', '1px')
           .style('fill', (d) => d);
         cdg.append('text')
           .attr('y', 20)
-          .attr('transform', (d, i) => `translate(${margin.left + 30 + 45 * i},${margin.top + 30}) rotate(90)`)
+          .attr('transform', (d, i) => `translate(${margin.left + 30 + width / buckets * i},${margin.top + 30}) rotate(90)`)
           .style('stroke', 'blue')
-          .style('font-size', '20px')
+          .style('font-size', `${0.7*width / buckets}px`)
           .style('font-family', 'fontawesome')
           .text((d, i) => `${d}`);
       };
