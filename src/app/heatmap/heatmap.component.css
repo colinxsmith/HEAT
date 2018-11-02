@@ -158,9 +158,9 @@ stop.bottom {
     stop-opacity: 0.10;
 }
 g.heatcolours {
-    stroke: rgba(255, 0, 0, 0.9);
+    stroke: rgba(255, 0, 0, 0.99);
     /*high*/
-    fill: rgba(0, 255, 0, 0.95);
+    fill: rgba(255, 255, 255, 0);
     /*low*/
     stroke-width: 1.4;
   }
