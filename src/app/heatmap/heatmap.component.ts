@@ -16,7 +16,7 @@ import { invoke } from 'q';
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
   colourpick: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
-  plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Heat Map', 'Colour Setup'].reverse();
+  plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerOffices: string[] = [];
   managerGroups: string[] = [];
@@ -305,8 +305,7 @@ export class HeatmapComponent implements OnInit {
         .attr('type', 'text')
         .attr('value', (d) => d.replace('px', ''))
         .on('change', (d, i, obb) => {
-          const h = <HTMLInputElement>(obb[i]);
-          colourrange[i] = h.value;
+          colourrange[i] = (<HTMLInputElement>(obb[i])).value;
           temp.style('fill', colourrange[0]);
           temp.style('stroke', colourrange[1]);
           temp.style('stroke-width', colourrange[2]);
