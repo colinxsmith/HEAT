@@ -258,7 +258,7 @@ export class HeatmapComponent implements OnInit {
   }
   ngOnInit() { // Decide which figure
     d3.select('app-heatmap').selectAll('svg').remove();
-    d3.select('app-heatmap').select('div').remove();
+    d3.select('app-heatmap').selectAll('div').remove();
     if (this.chosenFigure === 'Heat Map') {
       this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
