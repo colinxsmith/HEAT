@@ -842,7 +842,7 @@ export class HeatmapComponent implements OnInit {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.y[this.transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (totalsX.length ? totalsX[i].ind : i)];
+            : (totalsX.length ? '' /*totalsX[i].ind*/ : i)];
         }
         )
         .attr('x', 0)
@@ -855,7 +855,7 @@ export class HeatmapComponent implements OnInit {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.x[!this.transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (totalsX.length ? totalsX[i].ind : i)];
+            : (totalsX.length ? '' /* totalsX[i].ind*/ : i)];
         })
         .attr('x', 0)
         .attr('y', 0)
@@ -874,8 +874,8 @@ export class HeatmapComponent implements OnInit {
         xLabels.forEach((d, i) => oXinv[i] = i);
         yLabels.forEach((d, i) => oYinv[i] = i);
         if (totalsX.length > 0 && totalsY.length > 0) {
-          totalsX.forEach((d, i) => oXinv[d.ind] = i);
-          totalsY.forEach((d, i) => oYinv[d.ind] = i);
+          totalsY.forEach((d, i) => oXinv[d.ind] = i);
+          totalsX.forEach((d, i) => oYinv[d.ind] = i);
         }
         if (totalsX.length === 0 && totalsY.length === 0) {
           dataXY.forEach((d) => {
@@ -886,29 +886,47 @@ export class HeatmapComponent implements OnInit {
         } else {
           if (this.transpose) {
             for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
+              const tempY: {
+                x: number;
+                y: number;
+                value: number;
+                group: string;
+              }[] = [];
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
-                i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
-                j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
+                i = totalsY.length ? oXinv[dataXY[ij].x - 1] : ii;
+                j = totalsX.length ? oYinv[dataXY[ij].y - 1] : jj;
                 if (jj === dataXY[ij].y - 1) {
-                  heatData.push({
-                    x: j + 1, y: i + 1,
-                    value: dataXY[ij++].value,
-                    group: yLabels[j]
+                  tempY.push({
+                    x: i + 1, y: j + 1,
+                    group: yLabels[j],
+                    value: dataXY[ij++].value
                   });
                 }
+              }
+              tempY.sort((a1, a2) => {
+                if (a2.value > a1.value) {
+                  return 1;
+                } else if (a2.value === a1.value) {
+                  return 0;
+                } else {
+                  return -1;
+                }
+              });
+              for (let jj = 0; jj < tempY.length; jj++) {
+                heatData.push({ y: tempY[jj].x, x: jj + 1, value: tempY[jj].value, group: tempY[jj].group });
               }
             }
           } else {
             for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
-              const tempY:  {
+              const tempY: {
                 x: number;
                 y: number;
                 value: number;
                 group: string;
             }[] = [];
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
-                j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
-                i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
+                j = totalsX.length ? oYinv[dataXY[ij].y - 1] : jj;
+                i = totalsY.length ? oXinv[dataXY[ij].x - 1] : ii;
                 if (ii === dataXY[ij].x - 1) {
                   tempY.push({
                     x: i + 1, y: j + 1,
@@ -928,7 +946,7 @@ export class HeatmapComponent implements OnInit {
               });
               //          }
               //          for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
-              for (let jj = 0; jj < yLabels.length && jj < tempY.length && ij < dataXY.length; jj++) {
+              for (let jj = 0; jj < yLabels.length && jj < tempY.length; jj++) {
                 heatData.push({x: tempY[jj].x, y: jj + 1, value: tempY[jj].value, group: tempY[jj].group});
               }
           }
@@ -1070,7 +1088,7 @@ export class HeatmapComponent implements OnInit {
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-45)`);
-        const totalsOnMap = true;
+        const totalsOnMap = false;
         if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
           const totsy = svg.selectAll('.totalsY')
             .data(this.transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
@@ -1083,7 +1101,7 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'totalsX')
             .text((d) => d3.format('0.2f')(d.value));
         }
-        const doLegend = true && !lineMap;
+        const doLegend = false && !lineMap;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
