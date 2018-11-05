@@ -1114,7 +1114,7 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'totalsX')
             .text((d) => d3.format('0.2f')(d.value));
         }
-        const doLegend = true && !lineMap;
+        const doLegend = false && !lineMap;
         if (doLegend) {
           const scaleC: number[] = [];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
