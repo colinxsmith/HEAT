@@ -230,7 +230,7 @@ export class HeatmapComponent implements OnInit {
         xmap[d.x] = nx++;
       }
       if (ymap[d.y.replace(/[0-9]/g, '')] === undefined) {
-        here.managerGroups.push(d.y.replace(/[0-9]/g, '')); // Manager
+        here.managerGroups.push(d.y.replace(/[0-9]/g, '')); // Manager group
         ymap[d.y.replace(/[0-9]/g, '')] = ny++;
       }
     });
@@ -781,7 +781,7 @@ export class HeatmapComponent implements OnInit {
       labelsXY.y = yLabels;
     }
     // Sort both axes according to totals
-    totalsX.sort((a1, a2) => {
+/*    totalsX.sort((a1, a2) => { // Managers' group data
       if (a2.value > a1.value) {
         return 1;
       } else if (a2.value === a1.value) {
@@ -789,9 +789,9 @@ export class HeatmapComponent implements OnInit {
       } else {
         return -1;
       }
-    });
+    }); */
     totalsY.sort((a1, a2) => {
-      if (a2.value > a1.value) {
+      if (a2.value > a1.value) { // Offices' data
         return 1;
       } else if (a2.value === a1.value) {
         return 0;
@@ -842,7 +842,7 @@ export class HeatmapComponent implements OnInit {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.y[this.transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (totalsX.length ? totalsX[i].ind : i)];
+            : (totalsX.length ? '' /*totalsX[i].ind*/ : i)];
         }
         )
         .attr('x', 0)
@@ -855,7 +855,7 @@ export class HeatmapComponent implements OnInit {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.x[!this.transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (totalsX.length ? totalsX[i].ind : i)];
+            : (totalsX.length ? '' /* totalsX[i].ind*/ : i)];
         })
         .attr('x', 0)
         .attr('y', 0)
@@ -869,51 +869,92 @@ export class HeatmapComponent implements OnInit {
         { y: +d.y, x: +d.x, value: +d.value },
       heatmapChart = (shape: string) => {
         const nutScale = d3.scaleSqrt().domain([0, 1]).range([0, 1]), slice = 85,
-          heatData: { x: number, y: number, value: number }[] = [];
+          heatData: { x: number, y: number, value: number, group: string }[] = [];
         const oXinv = [], oYinv = [];
         xLabels.forEach((d, i) => oXinv[i] = i);
         yLabels.forEach((d, i) => oYinv[i] = i);
         if (totalsX.length > 0 && totalsY.length > 0) {
-          totalsX.forEach((d, i) => oXinv[d.ind] = i);
-          totalsY.forEach((d, i) => oYinv[d.ind] = i);
+          totalsY.forEach((d, i) => oXinv[d.ind] = i);
+          totalsX.forEach((d, i) => oYinv[d.ind] = i);
         }
         if (totalsX.length === 0 && totalsY.length === 0) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
-            heatData.push(d);
+            const dd = {x: d.x, y: d.y, value: d.value, group: this.transpose ? yLabels[d.x - 1] : yLabels[d.y - 1]};
+            heatData.push(dd);
           });
         } else {
           if (this.transpose) {
             for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
+              const tempY: {
+                x: number;
+                y: number;
+                value: number;
+                group: string;
+              }[] = [];
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
-                i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
-                j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
+                i = totalsY.length ? oXinv[dataXY[ij].x - 1] : ii;
+                j = totalsX.length ? oYinv[dataXY[ij].y - 1] : jj;
                 if (jj === dataXY[ij].y - 1) {
-                  heatData.push({
-                    x: j + 1, y: i + 1,
+                  tempY.push({
+                    x: i + 1, y: j + 1,
+                    group: yLabels[j],
                     value: dataXY[ij++].value
                   });
                 }
+              }
+              tempY.sort((a1, a2) => {
+                if (a2.value > a1.value) {
+                  return 1;
+                } else if (a2.value === a1.value) {
+                  return 0;
+                } else {
+                  return -1;
+                }
+              });
+              for (let jj = 0; jj < tempY.length; jj++) {
+                heatData.push({ y: tempY[jj].x, x: jj + 1, value: tempY[jj].value, group: tempY[jj].group });
               }
             }
           } else {
             for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
+              const tempY: {
+                x: number;
+                y: number;
+                value: number;
+                group: string;
+            }[] = [];
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
-                j = totalsX.length ? oXinv[dataXY[ij].y - 1] : jj;
-                i = totalsY.length ? oYinv[dataXY[ij].x - 1] : ii;
+                j = totalsX.length ? oYinv[dataXY[ij].y - 1] : jj;
+                i = totalsY.length ? oXinv[dataXY[ij].x - 1] : ii;
                 if (ii === dataXY[ij].x - 1) {
-                  heatData.push({
+                  tempY.push({
                     x: i + 1, y: j + 1,
+                    group: yLabels[j],
                     value: dataXY[ij++].value
                   });
                 }
               }
-            }
+              tempY.sort((a1, a2) => {
+                if (a2.value > a1.value) {
+                  return 1;
+                } else if (a2.value === a1.value) {
+                  return 0;
+                } else {
+                  return -1;
+                }
+              });
+              //          }
+              //          for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
+              for (let jj = 0; jj < yLabels.length && jj < tempY.length; jj++) {
+                heatData.push({x: tempY[jj].x, y: jj + 1, value: tempY[jj].value, group: tempY[jj].group});
+              }
           }
         }
+      }
         const colourScales: d3.ScaleQuantile<string>[] = [], colourScale = d3.scaleQuantile<string>()
-          .domain([d3.min(heatData, (d: { x: number, y: number, value: number }) => d.value),
-          d3.max(heatData, (d: { x: number, y: number, value: number }) => d.value)])
+          .domain([d3.min(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
+          d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value)])
           .range(colours);
         if (lineMap) {
           for (let jj = 0; jj < yLabels.length; jj++) {
@@ -927,7 +968,7 @@ export class HeatmapComponent implements OnInit {
         }
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
-        let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; }, d3.BaseType, {}>;
+        let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; group: string}, d3.BaseType, {}>;
         if (shape === 'Circles') {
           painKiller = gridDistribution.enter().append('circle')
             .attr('cx', width * 0.5)
@@ -973,7 +1014,7 @@ export class HeatmapComponent implements OnInit {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
             this.tooltip
               // tslint:disable-next-line:max-line-length
-              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${this.transpose ? yLabels[totalsX.length ? totalsX[d.x - 1].ind : d.x - 1] : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1]}<br>${this.transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : yLabels[totalsX.length ? totalsX[d.y - 1].ind : d.y - 1]}<br>${dataHere}<br>${d3.format('0.2f')(d.value)}`)
+              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${this.transpose ? d.group : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1]}<br>${this.transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1]  : d.group}<br>${dataHere}<br>${d3.format('0.2f')(d.value)}`)
               .style('opacity', 0.9)
               .style('left', tX)
               .style('top', tY);
@@ -1047,7 +1088,7 @@ export class HeatmapComponent implements OnInit {
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-45)`);
-        const totalsOnMap = true;
+        const totalsOnMap = false;
         if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
           const totsy = svg.selectAll('.totalsY')
             .data(this.transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
@@ -1060,7 +1101,7 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'totalsX')
             .text((d) => d3.format('0.2f')(d.value));
         }
-        const doLegend = true && !lineMap;
+        const doLegend = false && !lineMap;
         if (doLegend) {
           const scaleC = [colourScale.domain()[0]];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
