@@ -2,7 +2,7 @@ import { Component, OnInit, ViewEncapsulation, SystemJsNgModuleLoader } from '@a
 import * as d3 from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
-import { PrefixNot } from '@angular/compiler';
+import { PrefixNot, ParseTreeResult } from '@angular/compiler';
 import { invoke } from 'q';
 @Component({
   selector: 'app-heatmap',
@@ -263,7 +263,7 @@ export class HeatmapComponent implements OnInit {
       this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
           this.managerProcess(this.myData.managerData[i]);
-          this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups, this.KPI, this.colourRangeMaps);
+          this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups, this.KPI, this.colourRangeMaps, false, true);
         }
       });
       if (this.chosenData === '') {
@@ -769,7 +769,7 @@ export class HeatmapComponent implements OnInit {
     this.ngOnInit();
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
-    colourRange: string[], lineMap = false) {
+    colourRange: string[], lineMap = false, sortEach = false) { // "Proper heatmap" if lineMap and sortEach are both false
     const dataHere = lineMap ? 'total' : this.chosenData,
       transpose = this.transpose, totalsX = !lineMap ? this.totalsX : [], totalsY = !lineMap ? this.totalsY : [],
       labelsXY = { x: [' '], y: [' '] };
@@ -790,7 +790,7 @@ export class HeatmapComponent implements OnInit {
         return -1;
       }
     }); */
-    totalsY.sort((a1, a2) => {
+/*    totalsY.sort((a1, a2) => {
       if (a2.value > a1.value) { // Offices' data
         return 1;
       } else if (a2.value === a1.value) {
@@ -798,7 +798,7 @@ export class HeatmapComponent implements OnInit {
       } else {
         return -1;
       }
-    });
+    });*/
     let legendSize = 40;
     const margin = { top: transpose ? 120 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 },
       buckets = Math.min(xLabels.length, yLabels.length);
@@ -842,7 +842,7 @@ export class HeatmapComponent implements OnInit {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.y[this.transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (totalsX.length ? '' /*totalsX[i].ind*/ : i)];
+            : (totalsX.length ? sortEach ? '' : totalsX[i].ind : i)];
         }
         )
         .attr('x', 0)
@@ -855,7 +855,7 @@ export class HeatmapComponent implements OnInit {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.x[!this.transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (totalsX.length ? '' /* totalsX[i].ind*/ : i)];
+            : (totalsX.length ? sortEach ? '' : totalsX[i].ind : i)];
         })
         .attr('x', 0)
         .attr('y', 0)
@@ -903,17 +903,19 @@ export class HeatmapComponent implements OnInit {
                   });
                 }
               }
-              tempY.sort((a1, a2) => {
-                if (a2.value > a1.value) {
-                  return 1;
-                } else if (a2.value === a1.value) {
-                  return 0;
-                } else {
-                  return -1;
-                }
-              });
+              if (sortEach) {
+                tempY.sort((a1, a2) => {
+                  if (a2.value > a1.value) {
+                    return 1;
+                  } else if (a2.value === a1.value) {
+                    return 0;
+                  } else {
+                    return -1;
+                  }
+                });
+              }
               for (let jj = 0; jj < tempY.length; jj++) {
-                heatData.push({ y: tempY[jj].x, x: jj + 1, value: tempY[jj].value, group: tempY[jj].group });
+                heatData.push({ y: tempY[jj].x, x: sortEach ? jj + 1 : tempY[jj].y, value: tempY[jj].value, group: tempY[jj].group });
               }
             }
           } else {
@@ -935,19 +937,21 @@ export class HeatmapComponent implements OnInit {
                   });
                 }
               }
-              tempY.sort((a1, a2) => {
-                if (a2.value > a1.value) {
-                  return 1;
-                } else if (a2.value === a1.value) {
-                  return 0;
-                } else {
-                  return -1;
-                }
-              });
+              if (sortEach) {
+                tempY.sort((a1, a2) => {
+                  if (a2.value > a1.value) {
+                    return 1;
+                  } else if (a2.value === a1.value) {
+                    return 0;
+                  } else {
+                    return -1;
+                  }
+                });
+              }
               //          }
               //          for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
               for (let jj = 0; jj < yLabels.length && jj < tempY.length; jj++) {
-                heatData.push({x: tempY[jj].x, y: jj + 1, value: tempY[jj].value, group: tempY[jj].group});
+                heatData.push({x: tempY[jj].x, y: sortEach ? jj + 1 : tempY[jj].y, value: tempY[jj].value, group: tempY[jj].group});
               }
           }
         }
@@ -1008,7 +1012,7 @@ export class HeatmapComponent implements OnInit {
             this.chosenData = this.myData.managerKPIs[chosenData];
             d3.selectAll('svg').remove();
             this.managerProcess(this.myData.managerData[chosenData]);
-            this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups, this.KPI, this.colourRangeMaps);
+            this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups, this.KPI, this.colourRangeMaps, false, true);
           })
           .on('mouseover', (d, idd, jj) => {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
@@ -1114,20 +1118,20 @@ export class HeatmapComponent implements OnInit {
             .attr('y', (labelsXY.y.length + 0.5) * gridSize)
             .attr('width', legendElementWidth)
             .attr('height', legendSize / 2)
-            .style('fill', (d, i) => `${colours[i]}`)
+            .style('fill', (d, i) => `${colourScale(d)}`)
             .on('mouseover', (d, idd, jj) => {
               this.tooltip.style('opacity', 0.9);
               const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
               this.tooltip
                 .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa>
-                </app-icon>${(Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100)}`)
+                </app-icon>${d3.format('0.2f')(d)}`)
                 .style('left', tX)
                 .style('top', tY);
             })
             .on('mouseout', () => this.tooltip.style('opacity', 0));
           legend_g.append('text')
             .attr('class', 'legend')
-            .text((d) => '\uf07e ' + /* '≥ '*/ + (Math.abs(d) > 1 ? Math.round(d) : Math.round(d * 100) / 100))
+            .text((d) => '\uf07e ' + /* '≥ '*/ + d3.format('0.2f')(d))
             .attr('x', (d, i) => legendElementWidth * (i + 0.25))
             .attr('y', (labelsXY.y.length + 0.5) * gridSize + legendSize / 4 + 3);
         }
