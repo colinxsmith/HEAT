@@ -318,8 +318,13 @@ export class HeatmapComponent implements OnInit {
         for (let i = 0; i < buckets; ++i) {
           colours[i] = coloursd(buckets / (buckets - 1) * i);
         }
+        const colourScale = d3.scaleQuantile<string>().range(colours).domain([0, buckets]);
+        const scaleC: number[] = [colourScale.domain()[0]];
+        colourScale.quantiles().forEach((d) => scaleC.push(d));
+        // Using colourScale and scaleC gives a similar result
+        console.log(scaleC);
         const colourDist = svg.selectAll('dist')
-          .data(colours);
+          .data(scaleC);
         const cdg = colourDist.enter();
         cdg.append('rect')
           .attr('x', (d, i) => width / buckets * i)
@@ -328,7 +333,7 @@ export class HeatmapComponent implements OnInit {
           .attr('height', 45)
           .style('stroke', 'black')
           .style('stroke-width', '1px')
-          .style('fill', (d) => d);
+          .style('fill', (d) => colourScale(d));
         cdg.append('text')
           .attr('y', 20)
           .attr('transform', (d, i) => `translate(${margin.left + 27 + width / buckets * i},
@@ -336,7 +341,7 @@ export class HeatmapComponent implements OnInit {
           .style('stroke', 'blue')
           .style('font-size', `${0.7 * width / buckets}px`)
           .style('font-family', 'fontawesome')
-          .text((d, i) => `${d}`);
+          .text((d, i) => `${colourScale(d)}`);
       };
       page();
     } else if (this.chosenFigure === 'Radar') {
