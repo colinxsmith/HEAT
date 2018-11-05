@@ -2,8 +2,6 @@ import { Component, OnInit, ViewEncapsulation, SystemJsNgModuleLoader } from '@a
 import * as d3 from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
-import { PrefixNot, ParseTreeResult } from '@angular/compiler';
-import { invoke } from 'q';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
