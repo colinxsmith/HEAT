@@ -968,7 +968,7 @@ export class HeatmapComponent implements OnInit {
           if (colourScale.domain()[0] === colourScale.domain()[1]) {
             colourScale.domain([d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
               d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value) + 1]);
-          }
+        }
         if (lineMap) {
           for (let jj = 0; jj < yLabels.length; jj++) {
             let x1 = 1e9, x2 = -1e9;
@@ -977,6 +977,10 @@ export class HeatmapComponent implements OnInit {
               x2 = Math.max(x2, heatData[ii * yLabels.length + jj].value);
             }
             colourScales[jj] = d3.scaleQuantile<string>().range(colours).domain([x1, x2]);
+            if (colourScales[jj].domain()[0] === colourScales[jj].domain()[1]) {
+              colourScales[jj].domain([d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
+              d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value) + 1]);
+            }
           }
         }
         const gridDistribution = svg.selectAll('.values')
