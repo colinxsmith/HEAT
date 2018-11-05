@@ -965,6 +965,10 @@ export class HeatmapComponent implements OnInit {
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value)])
           .range(colours);
+          if (colourScale.domain()[0] === colourScale.domain()[1]) {
+            colourScale.domain([d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
+              d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value) + 1]);
+          }
         if (lineMap) {
           for (let jj = 0; jj < yLabels.length; jj++) {
             let x1 = 1e9, x2 = -1e9;
