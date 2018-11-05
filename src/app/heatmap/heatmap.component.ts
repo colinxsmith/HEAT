@@ -32,7 +32,7 @@ export class HeatmapComponent implements OnInit {
   chosenShape = this.shape[0];
   pad = false;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  colourRangeMaps = ['rgb(245,145,145)', 'rgb(245,10,5)'];
+  colourRangeMaps = ['rgba(245,10,5,0.1)', 'rgb(245,10,5)'];
   colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
@@ -376,7 +376,7 @@ export class HeatmapComponent implements OnInit {
     }
     const svg = svgBase.append('g').attr('transform', `translate(${margin.left + width / 2},${margin.top + height / 2})`),
       colours = d3.scaleLinear<d3.RGBColor>()
-        .interpolate(d3.interpolateRgb.gamma(5.2))
+        .interpolate(d3.interpolateRgb.gamma(0.5))
         .domain([0, nCirc])
         .range([d3.rgb(255, 0, 0), d3.rgb(0, 255, 0)]),
       baseRad = Math.min(width, height) * 0.5;
@@ -1103,9 +1103,9 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'totalsX')
             .text((d) => d3.format('0.2f')(d.value));
         }
-        const doLegend = false && !lineMap;
+        const doLegend = true && !lineMap;
         if (doLegend) {
-          const scaleC = [colourScale.domain()[0]];
+          const scaleC: number[] = [];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
           const legend = svg.selectAll('.legend')
             .data(scaleC);
