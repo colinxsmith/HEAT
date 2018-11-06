@@ -328,8 +328,8 @@ export class HeatmapComponent implements OnInit {
           .data(scaleC);
         const cdg = colourDist.enter();
         cdg.append('rect')
-          .attr('x', (d, i) => width / buckets * i)
-          .attr('y', (d, i) => 10 * Math.sin(i / Math.PI))
+          .attr('x', (d) => width / buckets * d)
+          .attr('y', (d) => 10 * Math.sin(d / Math.PI))
           .attr('width', width / buckets)
           .attr('height', 45)
           .style('stroke', 'black')
@@ -337,12 +337,12 @@ export class HeatmapComponent implements OnInit {
           .style('fill', (d) => colourScale(d));
         cdg.append('text')
           .attr('y', 20)
-          .attr('transform', (d, i) => `translate(${margin.left + 27 + width / buckets * i},
-            ${margin.top + 30 + 10 * Math.sin(i / Math.PI)}) rotate(93)`)
+          .attr('transform', (d) => `translate(${margin.left + 27 + width / buckets * d},
+            ${margin.top + 30 + 10 * Math.sin(d / Math.PI)}) rotate(93)`)
           .style('stroke', 'blue')
           .style('font-size', `${0.7 * width / buckets}px`)
           .style('font-family', 'fontawesome')
-          .text((d, i) => `${colourScale(d)}`);
+          .text((d) => `${colourScale(d)}`);
       };
       page();
     } else if (this.chosenFigure === 'Radar') {
