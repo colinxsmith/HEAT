@@ -329,7 +329,7 @@ export class HeatmapComponent implements OnInit {
         const cdg = colourDist.enter();
         cdg.append('rect')
           .attr('x', (d, i) => width / buckets * i)
-          .attr('y', (d, i) => 10 * Math.sin(i / 2 / Math.PI))
+          .attr('y', (d, i) => 10 * Math.sin(i / Math.PI))
           .attr('width', width / buckets)
           .attr('height', 45)
           .style('stroke', 'black')
@@ -338,7 +338,7 @@ export class HeatmapComponent implements OnInit {
         cdg.append('text')
           .attr('y', 20)
           .attr('transform', (d, i) => `translate(${margin.left + 27 + width / buckets * i},
-            ${margin.top + 30 + 10 * Math.sin(i / 2 / Math.PI)}) rotate(93)`)
+            ${margin.top + 30 + 10 * Math.sin(i / Math.PI)}) rotate(93)`)
           .style('stroke', 'blue')
           .style('font-size', `${0.7 * width / buckets}px`)
           .style('font-family', 'fontawesome')
