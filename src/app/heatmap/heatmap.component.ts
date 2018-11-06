@@ -797,7 +797,7 @@ export class HeatmapComponent implements OnInit {
         return -1;
       }
     }); */
-    totalsY.sort((a1, a2) => {
+/*    totalsY.sort((a1, a2) => {
       if (a2.value > a1.value) { // Offices' data
         return 1;
       } else if (a2.value === a1.value) {
@@ -805,7 +805,7 @@ export class HeatmapComponent implements OnInit {
       } else {
         return -1;
       }
-    });
+    });*/
     let legendSize = 40;
     const margin = { top: transpose ? 120 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 },
       buckets = Math.min(xLabels.length, yLabels.length);
@@ -1107,7 +1107,7 @@ export class HeatmapComponent implements OnInit {
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-45)`);
-        const totalsOnMap = true;
+        const totalsOnMap = false;
         if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
           const totsy = svg.selectAll('.totalsY')
             .data(transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
@@ -1120,7 +1120,7 @@ export class HeatmapComponent implements OnInit {
             .attr('class', 'totalsX')
             .text((d) => !transpose && sortEach ? '' : d3.format('0.2f')(d.value));
         }
-        const doLegend = true && !lineMap;
+        const doLegend = false && !lineMap;
         if (doLegend) {
           const scaleC: number[] = [];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
