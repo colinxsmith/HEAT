@@ -523,7 +523,7 @@ export class HeatmapComponent implements OnInit {
       ydata.performance.forEach((perform, xi) => {
         perfPlotDataAsset.push({ name: ydata.name, hold: ydata.hold[xi], performance: ydata.performance[xi] });
       });
-      this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, this.perfData, height, vSpacer, width,
+      this.displayOneLinePerfData(perfPlotDataAsset, yi, perfInd, svg, perfData, height, vSpacer, width,
         textSpacer, numberPerfs);
     });
     svg.append('rect')
@@ -797,7 +797,7 @@ export class HeatmapComponent implements OnInit {
         return -1;
       }
     }); */
-/*    totalsY.sort((a1, a2) => {
+    totalsY.sort((a1, a2) => {
       if (a2.value > a1.value) { // Offices' data
         return 1;
       } else if (a2.value === a1.value) {
@@ -805,7 +805,7 @@ export class HeatmapComponent implements OnInit {
       } else {
         return -1;
       }
-    });*/
+    });
     let legendSize = 40;
     const margin = { top: transpose ? 120 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 },
       buckets = Math.min(xLabels.length, yLabels.length);
@@ -1026,7 +1026,7 @@ export class HeatmapComponent implements OnInit {
             const chosenData = (transpose ? d.x : d.y) - 1;
             this.chosenData = this.myData.managerKPIs[chosenData];
             d3.selectAll('svg').remove();
-            this.heatMaps('app-heatmap', xLabels, yLabels, this.managerProcess(this.myData.managerData[chosenData]), colourRange,
+            this.heatMaps('app-heatmap', xLabels, this.managerGroups, this.managerProcess(this.myData.managerData[chosenData]), colourRange,
               transpose, false, true);
           })
           .on('mouseover', (d, idd, jj) => {
@@ -1107,20 +1107,20 @@ export class HeatmapComponent implements OnInit {
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-45)`);
-        const totalsOnMap = false;
+        const totalsOnMap = true;
         if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
           const totsy = svg.selectAll('.totalsY')
             .data(transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
           totsy.attr('class', 'totalsY')
             .attr('transform', (d, i) => `translate(${(i + 0.45) * gridSize},${labelsXY.y.length * gridSize}) rotate(30)`)
-            .text((d) => d3.format('0.2f')(d.value));
+            .text((d) => transpose && sortEach ? '' : d3.format('0.2f')(d.value));
           const totsx = svg.selectAll('.totalsX')
             .data(transpose ? this.totalsY : this.totalsX).enter().append('g').append('text');
           totsx.attr('transform', (d, i) => `translate(${labelsXY.x.length * gridSize + 10},${(i + 0.45) * gridSize + 3}) rotate(30)`)
             .attr('class', 'totalsX')
-            .text((d) => d3.format('0.2f')(d.value));
+            .text((d) => !transpose && sortEach ? '' : d3.format('0.2f')(d.value));
         }
-        const doLegend = false && !lineMap;
+        const doLegend = true && !lineMap;
         if (doLegend) {
           const scaleC: number[] = [];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
