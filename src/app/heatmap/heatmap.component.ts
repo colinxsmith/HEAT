@@ -316,7 +316,6 @@ export class HeatmapComponent implements OnInit {
         const scaleC: number[] = [colourScale.domain()[0]];
         colourScale.quantiles().forEach((d) => scaleC.push(d));
         // Using colourScale(scaleC[i]) gives the same  result as using just colours[i]
-        console.log(scaleC);
         const colourDist = svg.selectAll('dist')
           .data(scaleC);
         const cdg = colourDist.enter();
