@@ -293,12 +293,12 @@ export class HeatmapComponent implements OnInit {
           .attr('height', height + margin.top + margin.bottom)
           .append('g');
       svg.attr('transform', `translate(${margin.left},${margin.top + 50}) rotate(-3)`);
-      d3.select('app-heatmap').selectAll('div').selectAll('david').data(this.colourSetupRange)
+      d3.select('app-heatmap').selectAll('div').selectAll('david').data(this.colourSetupRange) // div for colour picker
         .enter()
         .append('input')
         .style('color', 'orange')
         .attr('type', 'text')
-        .attr('value', (d) => d.replace('px', ''))
+        .attr('value', (d) => d)
         .on('change', (d, i, j) => {
           this.colourSetupRange[i] = (<HTMLInputElement>(j[i])).value;
           page();
