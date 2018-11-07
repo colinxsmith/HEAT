@@ -157,10 +157,3 @@ stop.bottom {
     stop-color: rgb(82, 73, 73);
     stop-opacity: 0.10;
 }
-g.heatcolours {
-    stroke: rgba(245,10,5,1);
-    /*high*/
-    fill: white;
-    /*low*/
-    stroke-width: 1.4;
-  }

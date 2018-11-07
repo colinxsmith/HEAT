@@ -13,7 +13,7 @@ import { AppComponent } from '../app.component';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  colourpick: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+  colourSetupRange = ['white', 'rgb(225,10,10)', '1.4'];
   plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerOffices: string[] = [];
@@ -275,10 +275,9 @@ export class HeatmapComponent implements OnInit {
     } else if (this.chosenFigure === '5 Circles') {
       this.fiveCircles('app-heatmap', this.myData.fiveCircles);
     } else if (this.chosenFigure === 'Colour Setup') {
-      this.colourpick = d3.select('app-heatmap').append('div')
+      d3.select('app-heatmap').append('div')
         .style('color', 'brown')
-        .text('Colour range picker and gamma: ')
-        .selectAll('text');
+        .text('Colour range picker and gamma: ');
       const margin = {
         top: 20,
         right: 130,
@@ -287,35 +286,29 @@ export class HeatmapComponent implements OnInit {
       },
         width = 900 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom,
-        temp = d3.select('app-heatmap').append('g').attr('class', 'heatcolours'),
         buckets = 50,
-        colourrange: string[] = [],
         colours: string[] = [],
         svg = d3.select('app-heatmap').append('svg')
           .attr('width', width + margin.left + margin.right)
           .attr('height', height + margin.top + margin.bottom)
           .append('g');
       svg.attr('transform', `translate(${margin.left},${margin.top + 50}) rotate(-3)`);
-      colourrange[0] = temp.style('fill');
-      colourrange[1] = temp.style('stroke');
-      colourrange[2] = temp.style('stroke-width').replace('px', '');
-      temp.remove();
-      this.colourpick.data(colourrange)
+      d3.select('app-heatmap').selectAll('div').selectAll('david').data(this.colourSetupRange)
         .enter()
         .append('input')
         .style('color', 'orange')
         .attr('type', 'text')
         .attr('value', (d) => d.replace('px', ''))
         .on('change', (d, i, j) => {
-          colourrange[i] = (<HTMLInputElement>(j[i])).value;
+          this.colourSetupRange[i] = (<HTMLInputElement>(j[i])).value;
           page();
         });
       const page = () => {
         svg.selectAll('text').remove();
         svg.selectAll('rect').remove();
         const coloursd = d3.scaleLinear<d3.RGBColor>().domain([0, buckets])
-          .interpolate(d3.interpolateRgb.gamma(+(colourrange[2])))
-          .range([d3.rgb(colourrange[0]), d3.rgb(colourrange[1])]);
+          .interpolate(d3.interpolateRgb.gamma(+(this.colourSetupRange[2])))
+          .range([d3.rgb(this.colourSetupRange[0]), d3.rgb(this.colourSetupRange[1])]);
         for (let i = 0; i < buckets; ++i) {
           colours[i] = coloursd(buckets / (buckets - 1) * i);
         }
