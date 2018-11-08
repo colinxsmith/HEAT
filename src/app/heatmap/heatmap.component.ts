@@ -32,6 +32,7 @@ export class HeatmapComponent implements OnInit {
   pad = false;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   colourRangeMaps = ['rgba(245,10,5,0.1)', 'rgb(245,10,5)'];
+  gamma = 1;
   colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
@@ -60,7 +61,7 @@ export class HeatmapComponent implements OnInit {
     'rgba(255,255,255,0.2)', 'rgba(150,150,255,1)',
     'rgba(255,255,255,0.2)', 'rgba(150,150,255,1)'
   ];
-  wrapFunction = (text1, width, lineHeight) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
+  wrapFunction = (text1, width: number, lineHeight: number) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
     text1.each((kk, i, j) => {
       const text = d3.select(j[i]),
         words = text.text().split(/\s+/).reverse(),
@@ -232,7 +233,7 @@ export class HeatmapComponent implements OnInit {
     });
     this.managerGroups.sort((a, b) => a.localeCompare(b));
     this.heatMaps('app-heatmap', this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps,
-    this.transposeHeatMap, true);
+      this.transposeHeatMap, true, false, this.gamma);
     let ij = 0;
     for (let i = 0; i < nx && dataV.length; ++i) {
       if (here.totalsY[i] === undefined) {
@@ -258,11 +259,39 @@ export class HeatmapComponent implements OnInit {
     d3.select('app-heatmap').selectAll('svg').remove();
     d3.select('app-heatmap').selectAll('div').remove();
     if (this.chosenFigure === 'Heat Map') {
+      d3.select('app-heatmap').append('div').append('g') // div for colour picker
+        .style('color', 'black')
+        .text('Colour range: ')
+        .selectAll()
+          .data(this.colourRangeMaps)
+          .enter()
+          .append('input')
+          .style('color', 'blue')
+          .attr('type', 'text')
+          .attr('value', (d) => d)
+          .on('change', (d, i, j) => {
+            this.colourRangeMaps[i] = (<HTMLInputElement>(j[i])).value;
+            this.ngOnInit();
+        });
+        d3.select('app-heatmap').select('div').append('g')
+        .style('color', 'black')
+        .text('gamma: ')
+          .selectAll()
+          .data([this.gamma])
+          .enter()
+          .append('input')
+          .attr('style', 'color: blue')
+          .attr('type', 'text')
+          .attr('value', (d) => d)
+          .on('change', (d, i, j) => {
+            this.gamma = +(<HTMLInputElement>(j[i])).value;
+            this.ngOnInit();
+        });
       this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
           this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups,
           this.managerProcess(this.myData.managerData[i]), this.colourRangeMaps,
-          this.transposeHeatMap, false, true);
+          this.transposeHeatMap, false, true, this.gamma);
         }
       });
       if (this.chosenData === '') {
@@ -275,9 +304,20 @@ export class HeatmapComponent implements OnInit {
     } else if (this.chosenFigure === '5 Circles') {
       this.fiveCircles('app-heatmap', this.myData.fiveCircles);
     } else if (this.chosenFigure === 'Colour Setup') {
-      d3.select('app-heatmap').append('div')
+      d3.select('app-heatmap').append('div') // div for colour picker
         .style('color', 'brown')
-        .text('Colour range picker and gamma: ');
+        .text('Colour range picker and gamma: ')
+        .selectAll()
+          .data(this.colourSetupRange)
+          .enter()
+          .append('input')
+          .attr('style', 'color: orange') // same as .style('color', 'orange')
+          .attr('type', 'text')
+          .attr('value', (d) => d)
+          .on('change', (d, i, j) => {
+            this.colourSetupRange[i] = (<HTMLInputElement>(j[i])).value;
+            page();
+        });
       const margin = {
         top: 20,
         right: 130,
@@ -293,16 +333,6 @@ export class HeatmapComponent implements OnInit {
           .attr('height', height + margin.top + margin.bottom)
           .append('g');
       svg.attr('transform', `translate(${margin.left},${margin.top + 50}) rotate(-3)`);
-      d3.select('app-heatmap').selectAll('div').selectAll('david').data(this.colourSetupRange) // div for colour picker
-        .enter()
-        .append('input')
-        .style('color', 'orange')
-        .attr('type', 'text')
-        .attr('value', (d) => d)
-        .on('change', (d, i, j) => {
-          this.colourSetupRange[i] = (<HTMLInputElement>(j[i])).value;
-          page();
-        });
       const page = () => {
         svg.selectAll('text').remove();
         svg.selectAll('rect').remove();
@@ -376,7 +406,7 @@ export class HeatmapComponent implements OnInit {
     }
     const svg = svgBase.append('g').attr('transform', `translate(${margin.left + width / 2},${margin.top + height / 2})`),
       colours = d3.scaleLinear<d3.RGBColor>()
-        .interpolate(d3.interpolateRgb.gamma(0.5))
+        .interpolate(d3.interpolateRgb.gamma(1))
         .domain([0, nCirc])
         .range([d3.rgb(255, 0, 0), d3.rgb(0, 255, 0)]),
       baseRad = Math.min(width, height) * 0.5;
@@ -623,7 +653,7 @@ export class HeatmapComponent implements OnInit {
     managerData.forEach((di, ix) => {
       const ixx = (ix % (colourRange.length / 2)) * 2;
       const coloursd = d3.scaleLinear<d3.RGBColor, string>()
-        .interpolate(d3.interpolateRgb.gamma(2.2))
+        .interpolate(d3.interpolateRgb.gamma(1))
         .domain([0, this.numColours])
         .range([d3.rgb(colourRange[ixx]), d3.rgb(colourRange[ixx + 1])]),
         colours: string[] = [];
@@ -768,7 +798,7 @@ export class HeatmapComponent implements OnInit {
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
     colourRange: string[], transpose = false, lineMap = false,
-    sortEach = false) { // "Proper heatmap" if lineMap and sortEach are both false
+    sortEach = false, gamma = 1) { // "Proper heatmap" if lineMap and sortEach are both false
     const dataHere = lineMap ? 'total' : this.chosenData,
       totalsX = !lineMap ? this.totalsX : [], totalsY = !lineMap ? this.totalsY : [],
       labelsXY = { x: [' '], y: [' '] };
@@ -809,7 +839,7 @@ export class HeatmapComponent implements OnInit {
     height = gridSize * labelsXY.y.length;
     legendSize = Math.min(legendSize, legendElementWidth);
     const coloursd = d3.scaleLinear<d3.RGBColor>()
-      .interpolate(d3.interpolateRgb.gamma(2.2))
+      .interpolate(d3.interpolateRgb.gamma(gamma))
       .domain([0, buckets])
       .range([d3.rgb(colourRange[0]), d3.rgb(colourRange[1])]), colours: string[] = [],
       svgBase = d3.select(id).append('svg');
@@ -1019,7 +1049,7 @@ export class HeatmapComponent implements OnInit {
             this.chosenData = this.myData.managerKPIs[chosenData];
             d3.selectAll('svg').remove();
             this.heatMaps('app-heatmap', xLabels, this.managerGroups, this.managerProcess(this.myData.managerData[chosenData]), colourRange,
-              transpose, false, true);
+              transpose, false, true, gamma);
           })
           .on('mouseover', (d, idd, jj) => {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
