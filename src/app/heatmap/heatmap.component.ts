@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, SystemJsNgModuleLoader } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
@@ -263,35 +263,39 @@ export class HeatmapComponent implements OnInit {
         .style('color', 'black')
         .text('Colour range: ')
         .selectAll()
-          .data(this.colourRangeMaps)
-          .enter()
-          .append('input')
-          .style('color', 'blue')
-          .attr('type', 'text')
-          .attr('value', (d) => d)
-          .on('change', (d, i, j) => {
-            this.colourRangeMaps[i] = (<HTMLInputElement>(j[i])).value;
-            this.ngOnInit();
+        .data(this.colourRangeMaps)
+        .enter()
+        .append('input')
+        .style('color', 'blue')
+        .attr('type', 'text')
+        .attr('value', (d) => d)
+        .on('change', (d, i, j) => {
+          this.colourRangeMaps[i] = (<HTMLInputElement>(j[i])).value;
+          this.ngOnInit();
         });
-        d3.select('app-heatmap').select('div').append('g')
+      d3.select('app-heatmap').select('div').append('g')
         .style('color', 'black')
         .text('gamma: ')
-          .selectAll()
-          .data([this.gamma])
-          .enter()
-          .append('input')
-          .attr('style', 'color: blue')
-          .attr('type', 'text')
-          .attr('value', (d) => d)
-          .on('change', (d, i, j) => {
-            this.gamma = +(<HTMLInputElement>(j[i])).value;
-            this.ngOnInit();
+        .selectAll()
+        .data([this.gamma])
+        .enter()
+        .append('input')
+        .attr('style', 'color: blue')
+        .attr('type', 'text')
+        .attr('value', (d) => d)
+        .on('change', (d, i, j) => {
+          this.gamma = +(<HTMLInputElement>(j[i])).value;
+          this.ngOnInit();
         });
+      d3.select('app-heatmap').select('div').append('button')
+        .style('background-color', 'lightgrey')
+        .style('color', 'blue')
+        .text('SUBMIT');
       this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
           this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups,
-          this.managerProcess(this.myData.managerData[i]), this.colourRangeMaps,
-          this.transposeHeatMap, false, true, this.gamma);
+            this.managerProcess(this.myData.managerData[i]), this.colourRangeMaps,
+            this.transposeHeatMap, false, true, this.gamma);
         }
       });
       if (this.chosenData === '') {
@@ -308,15 +312,15 @@ export class HeatmapComponent implements OnInit {
         .style('color', 'brown')
         .text('Colour range picker and gamma: ')
         .selectAll()
-          .data(this.colourSetupRange)
-          .enter()
-          .append('input')
-          .attr('style', 'color: orange') // same as .style('color', 'orange')
-          .attr('type', 'text')
-          .attr('value', (d) => d)
-          .on('change', (d, i, j) => {
-            this.colourSetupRange[i] = (<HTMLInputElement>(j[i])).value;
-            page();
+        .data(this.colourSetupRange)
+        .enter()
+        .append('input')
+        .attr('style', 'color: orange') // same as .style('color', 'orange')
+        .attr('type', 'text')
+        .attr('value', (d) => d)
+        .on('change', (d, i, j) => {
+          this.colourSetupRange[i] = (<HTMLInputElement>(j[i])).value;
+          page();
         });
       const margin = {
         top: 20,
@@ -810,24 +814,24 @@ export class HeatmapComponent implements OnInit {
       labelsXY.y = yLabels;
     }
     // Sort both axes according to totals
-/*    totalsX.sort((a1, a2) => { // Managers' group data
-      if (a2.value > a1.value) {
-        return 1;
-      } else if (a2.value === a1.value) {
-        return 0;
-      } else {
-        return -1;
-      }
-    }); */
-/*    totalsY.sort((a1, a2) => {
-      if (a2.value > a1.value) { // Offices' data
-        return 1;
-      } else if (a2.value === a1.value) {
-        return 0;
-      } else {
-        return -1;
-      }
-    });*/
+    /*    totalsX.sort((a1, a2) => { // Managers' group data
+          if (a2.value > a1.value) {
+            return 1;
+          } else if (a2.value === a1.value) {
+            return 0;
+          } else {
+            return -1;
+          }
+        }); */
+    /*    totalsY.sort((a1, a2) => {
+          if (a2.value > a1.value) { // Offices' data
+            return 1;
+          } else if (a2.value === a1.value) {
+            return 0;
+          } else {
+            return -1;
+          }
+        });*/
     let legendSize = 40;
     const margin = { top: transpose ? 120 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 },
       buckets = Math.min(xLabels.length, yLabels.length);
@@ -909,7 +913,7 @@ export class HeatmapComponent implements OnInit {
         if (totalsX.length === 0 && totalsY.length === 0) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
-            const dd = {x: d.x, y: d.y, value: d.value, group: transpose ? yLabels[d.x - 1] : yLabels[d.y - 1]};
+            const dd = { x: d.x, y: d.y, value: d.value, group: transpose ? yLabels[d.x - 1] : yLabels[d.y - 1] };
             heatData.push(dd);
           });
         } else {
@@ -954,7 +958,7 @@ export class HeatmapComponent implements OnInit {
                 y: number;
                 value: number;
                 group: string;
-            }[] = [];
+              }[] = [];
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
                 j = totalsX.length ? oYinv[dataXY[ij].y - 1] : jj;
                 i = totalsY.length ? oXinv[dataXY[ij].x - 1] : ii;
@@ -980,18 +984,18 @@ export class HeatmapComponent implements OnInit {
               //          }
               //          for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
               for (let jj = 0; jj < yLabels.length && jj < tempY.length; jj++) {
-                heatData.push({x: tempY[jj].x, y: sortEach ? jj + 1 : tempY[jj].y, value: tempY[jj].value, group: tempY[jj].group});
+                heatData.push({ x: tempY[jj].x, y: sortEach ? jj + 1 : tempY[jj].y, value: tempY[jj].value, group: tempY[jj].group });
               }
+            }
           }
         }
-      }
         const colourScales: d3.ScaleQuantile<string>[] = [], colourScale = d3.scaleQuantile<string>()
           .domain([d3.min(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
           d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value)])
           .range(colours);
-          if (colourScale.domain()[0] === colourScale.domain()[1]) {
-            colourScale.domain([d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
-              d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value) + 1]);
+        if (colourScale.domain()[0] === colourScale.domain()[1]) {
+          colourScale.domain([d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
+          d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value) + 1]);
         }
         if (lineMap) {
           for (let jj = 0; jj < yLabels.length; jj++) {
@@ -1009,7 +1013,7 @@ export class HeatmapComponent implements OnInit {
         }
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
-        let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; group: string}, d3.BaseType, {}>;
+        let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; group: string }, d3.BaseType, {}>;
         if (shape === 'Circles') {
           painKiller = gridDistribution.enter().append('circle')
             .attr('cx', width * 0.5)
@@ -1055,7 +1059,7 @@ export class HeatmapComponent implements OnInit {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
             this.tooltip
               // tslint:disable-next-line:max-line-length
-              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${transpose ? d.group : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1]}<br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1]  : d.group}<br>${dataHere}<br>${d3.format('0.2f')(d.value)}`)
+              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>${transpose ? d.group : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1]}<br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : d.group}<br>${dataHere}<br>${d3.format('0.2f')(d.value)}`)
               .style('opacity', 0.9)
               .style('left', tX)
               .style('top', tY);
