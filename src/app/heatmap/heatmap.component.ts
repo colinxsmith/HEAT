@@ -7,7 +7,7 @@ import { AppComponent } from '../app.component';
   // tslint:disable-next-line:max-line-length
   template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button>',
   // tslint:disable-next-line:max-line-length
-  //  template: '<button  (click)="ngOnInit()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerKPIs">{{i}}</option></select>',
+  //  template: '<button  (click)="processDisplay()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerKPIs">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
@@ -183,15 +183,15 @@ export class HeatmapComponent implements OnInit {
   }
   chooseData(daig: string) {
     this.chosenData = daig;
-    this.ngOnInit();
+    this.processDisplay();
   }
   chooseFigure(daig: string) {
     this.chosenFigure = daig;
-    this.ngOnInit();
+    this.processDisplay();
   }
   chooseShape(daig: string) {
     this.chosenShape = daig;
-    this.ngOnInit();
+    this.processDisplay();
   }
   managerSummary() {
     const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
@@ -255,7 +255,10 @@ export class HeatmapComponent implements OnInit {
     }
     return KPI; // This is the KPI whose data will be plotted
   }
-  ngOnInit() { // Decide which figure
+  ngOnInit() {
+    this.processDisplay();
+  }
+  processDisplay() { // Decide which figure
     d3.select(this.mainScreen.nativeElement).selectAll('svg').remove();
     d3.select(this.mainScreen.nativeElement).selectAll('div').remove();
     if (this.chosenFigure === 'Heat Map') {
@@ -271,7 +274,7 @@ export class HeatmapComponent implements OnInit {
         .attr('value', (d) => d)
         .on('change', (d, i, j) => {
           this.colourRangeMaps[i] = (<HTMLInputElement>(j[i])).value;
-          this.ngOnInit();
+          this.processDisplay();
         });
       d3.select(this.mainScreen.nativeElement).select('div').append('g')
         .style('color', 'black')
@@ -285,7 +288,7 @@ export class HeatmapComponent implements OnInit {
         .attr('value', (d) => d)
         .on('change', (d, i, j) => {
           this.gamma = +(<HTMLInputElement>(j[i])).value;
-          this.ngOnInit();
+          this.processDisplay();
         });
       d3.select(this.mainScreen.nativeElement).select('div').append('button')
         .style('background-color', 'lightgrey')
@@ -794,11 +797,11 @@ export class HeatmapComponent implements OnInit {
   setPad() { // Set up the small heatmap data for zeros or no zeros
     this.pad = !this.pad;
     this.padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-    this.ngOnInit();
+    this.processDisplay();
   }
   setTrans() { // Set up data the other way round
     this.transposeHeatMap = !this.transposeHeatMap;
-    this.ngOnInit();
+    this.processDisplay();
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
     colourRange: string[], transpose = false, lineMap = false,
@@ -1052,7 +1055,8 @@ export class HeatmapComponent implements OnInit {
             const chosenData = (transpose ? d.x : d.y) - 1;
             this.chosenData = this.myData.managerKPIs[chosenData];
             d3.selectAll('svg').remove();
-            this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups, this.managerProcess(this.myData.managerData[chosenData]), colourRange,
+            this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
+              this.managerProcess(this.myData.managerData[chosenData]), colourRange,
               transpose, false, true, gamma);
           })
           .on('mouseover', (d, idd, jj) => {
