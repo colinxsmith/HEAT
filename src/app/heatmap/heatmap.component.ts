@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ElementRef} from '@angular/core';
 import * as d3 from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
@@ -13,7 +13,7 @@ import { AppComponent } from '../app.component';
 })
 export class HeatmapComponent implements OnInit {
   myData = new DatamoduleModule();
-  colourSetupRange = ['white', 'rgb(225,10,10)', '1.4'];
+  colourSetupRange = ['rgb(0,255,0)', 'red', '1'];
   plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerOffices: string[] = [];
@@ -31,7 +31,7 @@ export class HeatmapComponent implements OnInit {
   chosenShape = this.shape[0];
   pad = false;
   padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  colourRangeMaps = ['rgba(245,10,5,0.1)', 'rgb(245,10,5)'];
+  colourRangeMaps = ['white', 'pink'];
   gamma = 1;
   colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
@@ -173,7 +173,7 @@ export class HeatmapComponent implements OnInit {
           .call(this.wrapFunction, 70 * t, t);
       });
   }
-  constructor() {
+  constructor(private mainScreen: ElementRef) {
     this.myData.managerData.forEach((d) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
     /*    this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
           d.forEach((dd) => {
@@ -232,7 +232,7 @@ export class HeatmapComponent implements OnInit {
       }
     });
     this.managerGroups.sort((a, b) => a.localeCompare(b));
-    this.heatMaps('app-heatmap', this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps,
+    this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps,
       this.transposeHeatMap, true, false, this.gamma);
     let ij = 0;
     for (let i = 0; i < nx && dataV.length; ++i) {
@@ -256,10 +256,10 @@ export class HeatmapComponent implements OnInit {
     return KPI; // This is the KPI whose data will be plotted
   }
   ngOnInit() { // Decide which figure
-    d3.select('app-heatmap').selectAll('svg').remove();
-    d3.select('app-heatmap').selectAll('div').remove();
+    d3.select(this.mainScreen.nativeElement).selectAll('svg').remove();
+    d3.select(this.mainScreen.nativeElement).selectAll('div').remove();
     if (this.chosenFigure === 'Heat Map') {
-      d3.select('app-heatmap').append('div').append('g') // div for colour picker
+      d3.select(this.mainScreen.nativeElement).append('div').append('g') // div for colour picker
         .style('color', 'black')
         .text('Colour range: ')
         .selectAll()
@@ -273,7 +273,7 @@ export class HeatmapComponent implements OnInit {
           this.colourRangeMaps[i] = (<HTMLInputElement>(j[i])).value;
           this.ngOnInit();
         });
-      d3.select('app-heatmap').select('div').append('g')
+      d3.select(this.mainScreen.nativeElement).select('div').append('g')
         .style('color', 'black')
         .text('gamma: ')
         .selectAll()
@@ -287,13 +287,13 @@ export class HeatmapComponent implements OnInit {
           this.gamma = +(<HTMLInputElement>(j[i])).value;
           this.ngOnInit();
         });
-      d3.select('app-heatmap').select('div').append('button')
+      d3.select(this.mainScreen.nativeElement).select('div').append('button')
         .style('background-color', 'lightgrey')
         .style('color', 'blue')
         .text('SUBMIT');
       this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
-          this.heatMaps('app-heatmap', this.managerOffices, this.managerGroups,
+          this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.managerGroups,
             this.managerProcess(this.myData.managerData[i]), this.colourRangeMaps,
             this.transposeHeatMap, false, true, this.gamma);
         }
@@ -302,13 +302,13 @@ export class HeatmapComponent implements OnInit {
         this.managerProcess([]);
       }
     } else if (this.chosenFigure === 'Large Map') {
-      this.largeMap('app-heatmap', this.myData.managerKPIs, this.myData.managerData, this.colourRange);
+      this.largeMap(this.mainScreen.nativeElement, this.myData.managerKPIs, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
-      this.perfMap('app-heatmap', this.perfData);
+      this.perfMap(this.mainScreen.nativeElement, this.perfData);
     } else if (this.chosenFigure === '5 Circles') {
-      this.fiveCircles('app-heatmap', this.myData.fiveCircles);
+      this.fiveCircles(this.mainScreen.nativeElement, this.myData.fiveCircles);
     } else if (this.chosenFigure === 'Colour Setup') {
-      d3.select('app-heatmap').append('div') // div for colour picker
+      d3.select(this.mainScreen.nativeElement).append('div') // div for colour picker
         .style('color', 'brown')
         .text('Colour range picker and gamma: ')
         .selectAll()
@@ -332,7 +332,7 @@ export class HeatmapComponent implements OnInit {
         height = 500 - margin.top - margin.bottom,
         buckets = 50,
         colours: string[] = [],
-        svg = d3.select('app-heatmap').append('svg')
+        svg = d3.select(this.mainScreen.nativeElement).append('svg')
           .attr('width', width + margin.left + margin.right)
           .attr('height', height + margin.top + margin.bottom)
           .append('g');
@@ -393,7 +393,7 @@ export class HeatmapComponent implements OnInit {
         color: radarBlobColour
       };
 
-      this.RadarChart('app-heatmap', this.myData.radarData, radarChartOptions);
+      this.RadarChart(this.mainScreen.nativeElement, this.myData.radarData, radarChartOptions);
     }
   }
   fiveCircles(id: string, circData: number[]) {
@@ -1052,7 +1052,7 @@ export class HeatmapComponent implements OnInit {
             const chosenData = (transpose ? d.x : d.y) - 1;
             this.chosenData = this.myData.managerKPIs[chosenData];
             d3.selectAll('svg').remove();
-            this.heatMaps('app-heatmap', xLabels, this.managerGroups, this.managerProcess(this.myData.managerData[chosenData]), colourRange,
+            this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups, this.managerProcess(this.myData.managerData[chosenData]), colourRange,
               transpose, false, true, gamma);
           })
           .on('mouseover', (d, idd, jj) => {
