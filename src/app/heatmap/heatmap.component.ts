@@ -1052,10 +1052,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
               .attr('x', margin.left)
               .attr('y', 4)
               .attr('width', width)
-              .attr('height', 90)
+              .attr('height', heightHere)
               .style('shape-rendering', 'crispEdges')
               .style('fill', 'none')
-              .style('stroke-width', 0)
+              .style('stroke-width', 4)
               .style('stroke', 'brown');
           } else {
             datamag.style('fill', 'none');
