@@ -5,7 +5,7 @@ import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map<input  (change)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button>',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="processDisplay()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerKPIs">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -533,11 +533,11 @@ export class HeatmapComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.processDisplayI();
   }
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges) { // This never gets called
     console.log('OnChanges' + changes);
     this.processDisplayI();
   }
-  processDisplay() { this.processDisplayI(); }
+  processDisplay() { this.processDisplayI(); } // ngOnChanges should be called when this is called ?? But it isn't.
   processDisplayI() { // Decide which figure
     d3.select(this.mainScreen.nativeElement).selectAll('svg').remove();
     d3.select(this.mainScreen.nativeElement).selectAll('div').remove();
@@ -959,6 +959,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .attr('width', width / managerKPIs.length - 2)
         .attr('height', height / di.length)
         .style('fill', (dd) => `${colourScale(dd.value)}`)
+        .on('click', (dd, i) => clicker(di, i))
         .on('mouseover', (dd, ii, jj) => {
           const [tX, tY] = this.toolTipPosition(ii, jj, width, height);
           this.tooltip
@@ -969,8 +970,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .style('opacity', 1);
         }
         )
-        .on('click', (dd, i) => clicker(di, i))
-        .on('mouseout', () => this.tooltip.style('opacity', 0));
+        .on('mouseout', () => this.tooltip.style('opacity', 0))
+        ;
     });
     const highlite = svgBase.append('g').append('rect'),
       datamagbase = magnify.selectAll('.mag').data(colouredRectangles).enter().append('g'),
@@ -1027,15 +1028,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               .style('opacity', 0)
               .attr('class', 'totalsX')
               .text((d, labIndex) => `${managerData[labIndex][i].value}`)
-              .transition().duration(1500)
-              .tween('', (d, labIndex, datamagRef) => {
-                const nodeI = d3.select(d.nodes()[i]);
-                const dt = +nodeI.attr('x').replace('px', '') +
-                  +nodeI.attr('width').replace('px', '') / 2;
-                return (t: number) => d3.select(datamagRef[labIndex])
-                  .attr('transform', `translate(${dt} , ${1.5 * heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
-                  .style('opacity', `${Math.sqrt(t)}`);
-              }).on('mouseover', (d, idd, jj) => {
+              .on('mouseover', (d, idd, jj) => {
                 const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
                 this.tooltip
                   .style('left', tX)
@@ -1045,7 +1038,16 @@ export class HeatmapComponent implements OnInit, OnChanges {
                   .html(`<a class="fa fa-gears leafy"></a>${managerData[idd][i].x}<br>${managerData[idd][i].y}<br>${managerKPIs[idd]}<br>${managerData[idd][i].value}`);
               }
               )
-              .on('mouseout', () => this.tooltip.style('opacity', 0));
+              .on('mouseout', () => this.tooltip.style('opacity', 0))
+              .transition().duration(1500)
+              .tween('', (d, labIndex, datamagRef) => {
+                const nodeI = d3.select(d.nodes()[i]);
+                const dt = +nodeI.attr('x').replace('px', '') +
+                  +nodeI.attr('width').replace('px', '') / 2;
+                return (t: number) => d3.select(datamagRef[labIndex])
+                  .attr('transform', `translate(${dt} , ${1.5 * heightHere / 2}) rotate(${-270 * (1 - Math.sqrt(t))})`)
+                  .style('opacity', `${Math.sqrt(t)}`);
+              });
             magnifyBorder
               .attr('x', margin.left)
               .attr('y', 4)
@@ -1053,7 +1055,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               .attr('height', 90)
               .style('shape-rendering', 'crispEdges')
               .style('fill', 'none')
-              .style('stroke-width', 4)
+              .style('stroke-width', 0)
               .style('stroke', 'brown');
           } else {
             datamag.style('fill', 'none');
