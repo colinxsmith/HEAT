@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, ElementRef} from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ElementRef, OnChanges, Input, SimpleChanges } from '@angular/core';
 import * as d3 from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
@@ -11,7 +11,7 @@ import { AppComponent } from '../app.component';
   styleUrls: ['./heatmap.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class HeatmapComponent implements OnInit {
+export class HeatmapComponent implements OnInit, OnChanges {
   myData = new DatamoduleModule();
   colourSetupRange = ['rgb(0,255,0)', 'red', '1'];
   plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map'].reverse();
@@ -20,19 +20,18 @@ export class HeatmapComponent implements OnInit {
   managerGroups: string[] = [];
   totalsX: { ind: number, value: number }[] = [];
   totalsY: { ind: number, value: number }[] = [];
-  numColours = 250;
-  buttonName = 'Squares';
+  @Input() numColours = 250;
   transposeHeatMap = false;
-  shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
+  @Input() shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
   viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
-  chosenData = '';
+  @Input() chosenData = '';
   perfData = this.myData.perfMap;
-  chosenFigure = this.plotFigure[0];
-  chosenShape = this.shape[0];
-  pad = false;
-  padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  colourRangeMaps = ['white', 'pink'];
-  gamma = 1;
+  @Input() chosenFigure = this.plotFigure[0];
+  @Input() chosenShape = this.shape[0];
+  @Input() pad = false;
+  @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
+  @Input() colourRangeMaps = ['white', 'pink'];
+  @Input() gamma = 1;
   colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
@@ -61,6 +60,282 @@ export class HeatmapComponent implements OnInit {
     'rgba(255,255,255,0.2)', 'rgba(150,150,255,1)',
     'rgba(255,255,255,0.2)', 'rgba(150,150,255,1)'
   ];
+  squareArc = (ang1: number, ang2: number, rad1: number, rad2: number) => {
+    ang1 -= Math.PI * 0.5;
+    ang2 -= Math.PI * 0.5;
+    const makeZ = (x: number) => Math.abs(x) < 1e-8 ? 0 : x;
+    const seg1 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
+    const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0, face: 0 };
+    if (rad1 === 0) {
+      rad1 = 1e-7;
+    }
+    if (rad2 === 0) {
+      rad2 = 1e-7;
+    }
+    seg1.xx1 = rad1 * Math.cos(ang1);
+    seg1.yy1 = rad1 * Math.sin(ang1);
+    if (Math.abs(seg1.xx1) > Math.abs(seg1.yy1)) {
+      seg1.yy1 *= Math.abs(rad1 / seg1.xx1);
+      seg1.xx1 = seg1.xx1 < 0 ? -rad1 : rad1;
+    } else {
+      seg1.xx1 *= Math.abs(rad1 / seg1.yy1);
+      seg1.yy1 = seg1.yy1 < 0 ? -rad1 : rad1;
+    }
+    seg1.xx2 = rad2 * Math.cos(ang1);
+    seg1.yy2 = rad2 * Math.sin(ang1);
+    if (Math.abs(seg1.xx2) > Math.abs(seg1.yy2)) {
+      seg1.yy2 *= Math.abs(rad2 / seg1.xx2);
+      seg1.xx2 = seg1.xx2 < 0 ? -rad2 : rad2;
+    } else {
+      seg1.xx2 *= Math.abs(rad2 / seg1.yy2);
+      seg1.yy2 = seg1.yy2 < 0 ? -rad2 : rad2;
+    }
+    seg2.xx1 = rad1 * Math.cos(ang2);
+    seg2.yy1 = rad1 * Math.sin(ang2);
+    if (Math.abs(seg2.xx1) > Math.abs(seg2.yy1)) {
+      seg2.yy1 *= Math.abs(rad1 / seg2.xx1);
+      seg2.xx1 = seg2.xx1 < 0 ? -rad1 : rad1;
+    } else {
+      seg2.xx1 *= Math.abs(rad1 / seg2.yy1);
+      seg2.yy1 = seg2.yy1 < 0 ? -rad1 : rad1;
+    }
+    seg2.xx2 = rad2 * Math.cos(ang2);
+    seg2.yy2 = rad2 * Math.sin(ang2);
+    if (Math.abs(seg2.xx2) > Math.abs(seg2.yy2)) {
+      seg2.yy2 *= Math.abs(rad2 / seg2.xx2);
+      seg2.xx2 = seg2.xx2 < 0 ? -rad2 : rad2;
+    } else {
+      seg2.xx2 *= Math.abs(rad2 / seg2.yy2);
+      seg2.yy2 = seg2.yy2 < 0 ? -rad2 : rad2;
+    }
+    if (seg1.xx1 === -rad1 && seg2.xx1 === -rad1) {
+      // both left side
+      if (seg2.yy1 <= seg1.yy1) {
+        seg2.face = 0;
+      } else {
+        seg2.face = 4;
+      }
+    } else if (seg1.yy1 === -rad1 && seg2.yy1 === -rad1) {
+      // both top side
+      if (seg2.xx1 >= seg1.xx1) {
+        seg2.face = 0;
+      } else {
+        seg2.face = 4;
+      }
+    } else if (seg1.xx1 === rad1 && seg2.xx1 === rad1) {
+      // both right side
+      if (seg2.yy1 >= seg1.yy1) {
+        seg2.face = 0;
+      } else {
+        seg2.face = 4;
+      }
+    } else if (seg1.yy1 === rad1 && seg2.yy1 === rad1) {
+      // both bottom side
+      if (seg2.xx1 <= seg1.xx1) {
+        seg2.face = 0;
+      } else {
+        seg2.face = 4;
+      }
+    } else if (seg1.xx1 === -rad1 && seg2.yy1 === -rad1) {
+      // left to top
+      seg2.face = 1;
+    } else if (seg1.xx1 === -rad1 && seg2.xx1 === rad1) {
+      // left to right
+      seg2.face = 2;
+    } else if (seg1.xx1 === -rad1 && seg2.yy1 === rad1) {
+      // left to bottom
+      seg2.face = 3;
+    } else if (seg1.yy1 === -rad1 && seg2.xx1 === rad1) {
+      // top to right
+      seg2.face = 1;
+    } else if (seg1.yy1 === -rad1 && seg2.yy1 === rad1) {
+      // top to bottom
+      seg2.face = 2;
+    } else if (seg1.yy1 === -rad1 && seg2.xx1 === -rad1) {
+      // top to left
+      seg2.face = 3;
+    } else if (seg1.xx1 === rad1 && seg2.yy1 === rad1) {
+      // right to bottom
+      seg2.face = 1;
+    } else if (seg1.xx1 === rad1 && seg2.xx1 === -rad1) {
+      // right to left
+      seg2.face = 2;
+    } else if (seg1.xx1 === rad1 && seg2.yy1 === -rad1) {
+      // right to top
+      seg2.face = 3;
+    } else if (seg1.yy1 === rad1 && seg2.xx1 === -rad1) {
+      // bottom to left
+      seg2.face = 1;
+    } else if (seg1.yy1 === rad1 && seg2.yy1 === -rad1) {
+      // bottom to top
+      seg2.face = 2;
+    } else if (seg1.yy1 === rad1 && seg2.xx1 === rad1) {
+      // bottom to right
+      seg2.face = 3;
+    }
+    let quadR = 'M ' + seg1.xx2 + ' ' + seg1.yy2 + ' L ' + seg1.xx1 + ' ' + seg1.yy1;
+    seg1.xx1 = makeZ(seg1.xx1);
+    seg1.yy1 = makeZ(seg1.yy1);
+    seg1.xx2 = makeZ(seg1.xx2);
+    seg1.yy2 = makeZ(seg1.yy2);
+    seg2.xx1 = makeZ(seg2.xx1);
+    seg2.yy1 = makeZ(seg2.yy1);
+    seg2.xx2 = makeZ(seg2.xx2);
+    seg2.yy2 = makeZ(seg2.yy2);
+    if (seg2.face === 0) {
+      if (seg1.xx1 === -rad1) {
+        quadR += 'L ' + -rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + -rad2 + ' ' + seg2.yy2;
+      } else if (seg1.xx1 === rad1) {
+        quadR += 'L ' + rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + rad2 + ' ' + seg2.yy2;
+      } else if (seg1.yy1 === -rad1) {
+        quadR += 'L ' + seg2.xx1 + ' ' + -rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + -rad2;
+      } else if (seg1.yy1 === rad1) {
+        quadR += 'L ' + seg2.xx1 + ' ' + rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + rad2;
+      }
+    } else if (seg2.face === 1) {
+      if (seg1.xx1 === -rad1) {
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + seg2.xx1 + ' ' + -rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+      } else if (seg1.xx1 === rad1) {
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + seg2.xx1 + ' ' + rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+      } else if (seg1.yy1 === -rad1) {
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + rad2 + ' ' + seg2.yy2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+      } else if (seg1.yy1 === rad1) {
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + -rad2 + ' ' + seg2.yy2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+      }
+    } else if (seg2.face === 2) {
+      if (seg1.xx1 === -rad1) {
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + rad2 + ' ' + seg2.yy2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+      } else if (seg1.xx1 === rad1) {
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + -rad2 + ' ' + seg2.yy2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+      } else if (seg1.yy1 === -rad1) {
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + seg2.xx1 + ' ' + rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+      } else if (seg1.yy1 === rad1) {
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + seg2.xx1 + ' ' + -rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+      }
+    } else if (seg2.face === 3) {
+      if (seg1.xx1 === -rad1) {
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + seg2.xx1 + ' ' + rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+      } else if (seg1.xx1 === rad1) {
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + seg2.xx1 + ' ' + -rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+      } else if (seg1.yy1 === -rad1) {
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + -rad2 + ' ' + seg2.yy2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+      } else if (seg1.yy1 === rad1) {
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + rad2 + ' ' + seg2.yy2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+      }
+    } else if (seg2.face === 4) {
+      if (seg1.xx1 === -rad1) {
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + -rad2 + ' ' + seg2.yy2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+      } else if (seg1.xx1 === rad1) {
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + seg2.yy1;
+        quadR += 'L ' + rad2 + ' ' + seg2.yy2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+      } else if (seg1.yy1 === -rad1) {
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + seg2.xx1 + ' ' + -rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+      } else if (seg1.yy1 === rad1) {
+        quadR += 'L ' + -rad1 + ' ' + rad1;
+        quadR += 'L ' + -rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + -rad1;
+        quadR += 'L ' + rad1 + ' ' + rad1;
+        quadR += 'L ' + seg2.xx1 + ' ' + rad1;
+        quadR += 'L ' + seg2.xx2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + rad2;
+        quadR += 'L ' + rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + -rad2;
+        quadR += 'L ' + -rad2 + ' ' + rad2;
+      }
+    }
+    quadR += 'Z'; // Closed curve
+    return quadR;
+  }
   wrapFunction = (text1, width: number, lineHeight: number) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
     text1.each((kk, i, j) => {
       const text = d3.select(j[i]),
@@ -256,9 +531,14 @@ export class HeatmapComponent implements OnInit {
     return KPI; // This is the KPI whose data will be plotted
   }
   ngOnInit() {
-    this.processDisplay();
+    this.processDisplayI();
   }
-  processDisplay() { // Decide which figure
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('OnChanges' + changes);
+    this.processDisplayI();
+  }
+  processDisplay() { this.processDisplayI(); }
+  processDisplayI() { // Decide which figure
     d3.select(this.mainScreen.nativeElement).selectAll('svg').remove();
     d3.select(this.mainScreen.nativeElement).selectAll('div').remove();
     if (this.chosenFigure === 'Heat Map') {
@@ -274,7 +554,7 @@ export class HeatmapComponent implements OnInit {
         .attr('value', (d) => d)
         .on('change', (d, i, j) => {
           this.colourRangeMaps[i] = (<HTMLInputElement>(j[i])).value;
-          this.processDisplay();
+          this.processDisplayI();
         });
       d3.select(this.mainScreen.nativeElement).select('div').append('g')
         .style('color', 'black')
