@@ -14,7 +14,7 @@ import { AppComponent } from '../app.component';
 export class HeatmapComponent implements OnInit, OnChanges {
   myData = new DatamoduleModule();
   colourSetupRange = ['rgb(0,255,0)', 'red', '1'];
-  plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map'].reverse();
+  plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map', 'Heat Map 2'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerOffices: string[] = [];
   managerGroups: string[] = [];
@@ -489,6 +489,46 @@ export class HeatmapComponent implements OnInit, OnChanges {
     }
     return totalKPI;
   }
+  procNewData() {
+    const keys = Object.keys(this.myData.newData[0]);
+    const Names: string[] = [];
+    const Offices: string[] = [];
+    const KPIs: string[] = [];
+    const KPIi = {};
+    const Officesi = {};
+    const Namesi = {};
+    keys.forEach((d) => {
+      if (d !== 'Name' && d !== 'office') {
+        KPIs.push(d);
+        KPIi[d] = KPIs.length;
+      }
+    });
+    this.myData.newData.forEach((d) => {
+      Names.push(d.Name);
+      Namesi[d.Name] = Names.length;
+      if (Offices.find((k: string) => (k === d.office)) === undefined) {
+        Offices.push(d.office);
+        Officesi[d.office] = Offices.length;
+      }
+    });
+    const whichKPI = 0;
+    const plotKPI: { x: number, y: number, value: number }[] = [];
+    this.totalsX = [];
+    this.totalsY = [];
+    this.myData.newData.forEach((d) => this.totalsY.push({ ind: 0, value: 0 }));
+    Offices.forEach((d) => this.totalsX.push({ ind: 0, value: 0 }));
+    this.myData.newData.forEach((d) => {
+      this.totalsX[Officesi[d.office] - 1].value += +d[KPIs[whichKPI]];
+      this.totalsX[Officesi[d.office] - 1].ind = Officesi[d.office] - 1;
+      this.totalsY[Namesi[d.Name] - 1].value += +d[KPIs[whichKPI]];
+      this.totalsY[Namesi[d.Name] - 1].ind = Namesi[d.Name] - 1;
+      plotKPI.push({ y: Officesi[d.office], x: Namesi[d.Name], value: +d[KPIs[whichKPI]] });
+    });
+    this.chosenData = KPIs[whichKPI];
+    this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
+      plotKPI, this.colourSetupRange, this.transposeHeatMap, false, true, this.gamma);
+    this.chosenData = '';
+  }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
     const here = this, xmap = {}, ymap = {}, KPI: { x: number, y: number, value: number }[] = [];
     this.managerOffices = [];
@@ -584,6 +624,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
       if (this.chosenData === '') {
         this.managerProcess([]);
       }
+    } else if (this.chosenFigure === 'Heat Map 2') {
+      this.procNewData();
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap(this.mainScreen.nativeElement, this.myData.managerKPIs, this.myData.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
