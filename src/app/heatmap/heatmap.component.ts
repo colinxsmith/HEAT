@@ -30,7 +30,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   totalsX: { ind: number, value: number }[] = [];
   totalsY: { ind: number, value: number }[] = [];
   @Input() numColours = 250;
-  @Input() transposeHeatMap = true;
+  @Input() transposeHeatMap = false;
   @Input() shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
   viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
   @Input() chosenData = '';
@@ -478,13 +478,13 @@ export class HeatmapComponent implements OnInit, OnChanges {
     this.processDisplay();
   }
   managerSummary() {
-    const totalKPI: { x: number; y: number; value: number; }[] = []; // this.myData.managerData;
+    const totalKPI: { x: number; y: number; v2: number; v3: number; value: number; }[] = []; // this.myData.managerData;
     this.totalsX = [];
     this.totalsY = [];
     let sofar = 0, ik = 0;
     for (let ii = 0, ij = 0; ii < this.managerOffices.length; ii++) { // offices
       for (let jj = 0; jj < this.myData.managerData.length; jj++) { // KPI
-        totalKPI.push({ x: ii + 1, y: jj + 1, value: 0 });
+        totalKPI.push({ x: ii + 1, y: jj + 1, value: 0, v2: undefined, v3: undefined });
         ik = sofar;
         for (let kk = 0; kk < this.managerGroups.length; kk++) {
           if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
@@ -509,12 +509,14 @@ export class HeatmapComponent implements OnInit, OnChanges {
     HERE.Namesi = {};
     const keys = Object.keys(HERE.myData.newData[0]);
     const mKPIs: string[] = [];
+    const mKPIi = {};
     keys.forEach((d) => {
       if (d !== 'Name' && d !== 'office') {
         HERE.KPIs.push(d);
         if (d.startsWith('port') || d.startsWith('P_all') || d.startsWith('P_fail') || d.endsWith('_all') || d.endsWith('_ALL')
-        || d.startsWith('Out1')) {
+          || d.startsWith('Out1')) {
           mKPIs.push(d);
+          mKPIi[d] = mKPIs.length;
         }
         HERE.KPIi[d] = HERE.KPIs.length;
       }
@@ -528,26 +530,43 @@ export class HeatmapComponent implements OnInit, OnChanges {
       }
     });
     //                  office      KPI
-    const totalKPI: { x: number; y: number; value: number; }[] = []; // HERE.myData.managerData;
+    const totalKPI: { x: number; y: number; value: number; v2: number; v3: number }[] = []; // HERE.myData.managerData;
     HERE.totalsX = [];
     HERE.totalsY = [];
     HERE.Offices.forEach((office) => {
-      HERE.KPIs.forEach((kpi) => {
-        const kk = { x: HERE.Officesi[office], y: HERE.KPIi[kpi], value: 0 };
+      mKPIs.forEach((kpi) => {
+        const kk = { x: HERE.Officesi[office], y: mKPIi[kpi], value: 0, v2: undefined, v3: undefined };
+        if (/* kpi.startsWith('P_') || */ kpi.startsWith('Out1')) {
+          kk.v2 = 0;
+        } else if (kpi.endsWith('_all') || kpi.endsWith('_ALL')) {
+          kk.v2 = 0;
+          kk.v3 = 0;
+        }
         HERE.Names.forEach((name, i) => {
           if (HERE.myData.newData[i].office === office) {
             kk.value += +HERE.myData.newData[i][kpi];
+            if (/* kpi.startsWith('P_') ||*/ kpi.startsWith('Out1')) {
+//              console.log(kpi);
+//             console.log(this.KPIs[this.KPIi[kpi]]);
+              kk.v2 += +HERE.myData.newData[i][this.KPIs[this.KPIi[kpi]]];
+            } else if (kpi.endsWith('_all') || kpi.endsWith('_ALL')) {
+//              console.log(kpi);
+//              console.log(this.KPIs[this.KPIi[kpi]]);
+//              console.log(this.KPIs[this.KPIi[kpi] + 1]);
+              kk.v2 += +HERE.myData.newData[i][this.KPIs[this.KPIi[kpi]]];
+              kk.v3 += +HERE.myData.newData[i][this.KPIs[this.KPIi[kpi] + 1]];
+            }
           }
         });
         totalKPI.push(kk);
       });
     });
-    HERE.heatMaps(HERE.mainScreen.nativeElement, HERE.Offices, HERE.KPIs, totalKPI, HERE.colourRangeMaps,
-      HERE.transposeHeatMap, true, false, HERE.gamma, HERE.chosenData, 2);
+    HERE.heatMaps(HERE.mainScreen.nativeElement, HERE.Offices, mKPIs, totalKPI, HERE.colourRangeMaps,
+      HERE.transposeHeatMap, true, false, HERE.gamma, HERE.chosenData, 1.5);
 
     if (HERE.setKPI > -1) {
-      const kpiHere = HERE.KPIs[HERE.setKPI];
-      const plotKPI: { x: number, y: number, value: number }[] = [];
+      const kpiHere = mKPIs[HERE.setKPI];
+      const plotKPI: { x: number, y: number, value: number, v2: number, v3: number }[] = [];
       HERE.totalsX = [];
       HERE.totalsY = [];
       HERE.Names.forEach((d) => HERE.totalsX.push({ ind: 0, value: 0 }));
@@ -557,16 +576,28 @@ export class HeatmapComponent implements OnInit, OnChanges {
         HERE.totalsY[HERE.Officesi[d.office] - 1].ind = HERE.Officesi[d.office] - 1;
         HERE.totalsX[HERE.Namesi[d.Name] - 1].value += +d[kpiHere];
         HERE.totalsX[HERE.Namesi[d.Name] - 1].ind = HERE.Namesi[d.Name] - 1;
-        plotKPI.push({ x: HERE.Officesi[d.office], y: HERE.Namesi[d.Name], value: +d[kpiHere] });
+        let v2: number, v3: number;
+        if (/* kpiHere.startsWith('P_') ||*/ kpiHere.startsWith('Out1')) {
+//          console.log(kpiHere);
+//          console.log(this.KPIs[this.KPIi[kpiHere]]);
+          v2 = +d[this.KPIs[this.KPIi[kpiHere]]];
+        } else if (kpiHere.endsWith('_all') || kpiHere.endsWith('_ALL')) {
+//          console.log(kpiHere);
+//          console.log(this.KPIs[this.KPIi[kpiHere]]);
+//          console.log(this.KPIs[this.KPIi[kpiHere] + 1]);
+          v2 = +d[this.KPIs[this.KPIi[kpiHere]]];
+          v3 = +d[this.KPIs[this.KPIi[kpiHere] + 1]];
+        }
+        plotKPI.push({ x: HERE.Officesi[d.office], y: HERE.Namesi[d.Name], value: +d[kpiHere], v2: v2, v3: v3 });
       });
       HERE.totalsX = [];
       HERE.totalsY = [];
       HERE.heatMaps(HERE.mainScreen.nativeElement, HERE.Offices, HERE.Names,
-        plotKPI, HERE.colourRangeMaps, HERE.transposeHeatMap, false, true, HERE.gamma, kpiHere, 20);
+        plotKPI, HERE.colourRangeMaps, HERE.transposeHeatMap, false, true, HERE.gamma, kpiHere, 18);
     }
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
-    const here = this, xmap = {}, ymap = {}, KPI: { x: number, y: number, value: number }[] = [];
+    const here = this, xmap = {}, ymap = {}, KPI: { x: number, y: number, v2: number, v3: number, value: number }[] = [];
     this.managerOffices = [];
     this.managerGroups = [];
     this.totalsX = [];
@@ -598,9 +629,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
           && dataV[ij].y.replace(/[0-9]/g, '') === here.managerGroups[j].replace(/[0-9]/g, '')) {
           here.totalsY[i].value += dataV[ij].value; // Get total for each manager
           here.totalsX[j].value += dataV[ij].value; // Get total for each office
-          KPI.push({ x: i + 1, y: j + 1, value: dataV[ij++].value });
+          KPI.push({ x: i + 1, y: j + 1, v2: undefined, v3: undefined, value: dataV[ij++].value });
         } else {
-          if (here.pad) { KPI.push({ x: i + 1, y: j + 1, value: 0 }); }
+          if (here.pad) { KPI.push({ x: i + 1, y: j + 1, value: 0, v2: undefined, v3: undefined }); }
         }
       }
     }
@@ -1163,7 +1194,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     this.transposeHeatMap = !this.transposeHeatMap;
     this.processDisplay();
   }
-  heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
+  heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number, v2: number, v3: number }[],
     colourRange: string[], transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '', scalefac = 1) { // "Proper heatmap" if lineMap and sortEach are both false
     const dataHere = lineMap ? 'total' : chosenData,
@@ -1260,12 +1291,12 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .attr('transform', (d, i) => `translate(${(i) * gridSize - 1},-15) rotate(290)`)
         .attr('class', 'axis-xh')
         .call(this.wrapFunction, 60, 0.8),
-      tableTranspose = (d: { x: number, y: number, value: number }) => transpose ?
-        { y: +d.x, x: +d.y, value: +d.value } :
-        { y: +d.y, x: +d.x, value: +d.value },
+      tableTranspose = (d: { x: number, y: number, value: number, v2: number, v3: number }) => transpose ?
+        { y: +d.x, x: +d.y, value: +d.value, v2: +d.v2, v3: d.v3 } :
+        { y: +d.y, x: +d.x, value: +d.value, v2: +d.v2, v3: d.v3 },
       heatmapChart = (shape: string) => {
         const nutScale = d3.scaleSqrt().domain([0, 1]).range([0, 1]), slice = 85,
-          heatData: { x: number, y: number, value: number, group: string }[] = [];
+          heatData: { x: number, y: number, v2: number, v3: number, value: number, group: string }[] = [];
         const oXinv = [], oYinv = [];
         xLabels.forEach((d, i) => oXinv[i] = i);
         yLabels.forEach((d, i) => oYinv[i] = i);
@@ -1276,7 +1307,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         if (!sortEach && totalsX.length === 0 && totalsY.length === 0) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
-            const dd = { x: d.x, y: d.y, value: d.value, group: transpose ? yLabels[d.x - 1] : yLabels[d.y - 1] };
+            const dd = { x: d.x, y: d.y, v2: d.v2, v3: d.v3, value: d.value, group: transpose ? yLabels[d.x - 1] : yLabels[d.y - 1] };
             heatData.push(dd);
           });
         } else {
@@ -1286,6 +1317,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 x: number;
                 y: number;
                 value: number;
+                v2: number;
+                v3: number;
                 group: string;
               }[] = [];
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
@@ -1295,6 +1328,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
                   tempY.push({
                     x: i + 1, y: j + 1,
                     group: yLabels[j],
+                    v2: dataXY[ij].v2,
+                    v3: dataXY[ij].v3,
                     value: dataXY[ij++].value
                   });
                 }
@@ -1311,7 +1346,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 });
               }
               for (let jj = 0; jj < tempY.length; jj++) {
-                heatData.push({ y: tempY[jj].x, x: sortEach ? jj + 1 : tempY[jj].y, value: tempY[jj].value, group: tempY[jj].group });
+                heatData.push({
+                  y: tempY[jj].x, x: sortEach ? jj + 1 : tempY[jj].y, v2: tempY[jj].v2, v3: tempY[jj].v3,
+                  value: tempY[jj].value, group: tempY[jj].group
+                });
               }
             }
           } else {
@@ -1320,6 +1358,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 x: number;
                 y: number;
                 value: number;
+                v2: number;
+                v3: number;
                 group: string;
               }[] = [];
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
@@ -1329,6 +1369,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
                   tempY.push({
                     x: i + 1, y: j + 1,
                     group: yLabels[j],
+                    v2: dataXY[ij].v2,
+                    v3: dataXY[ij].v3,
                     value: dataXY[ij++].value
                   });
                 }
@@ -1347,18 +1389,20 @@ export class HeatmapComponent implements OnInit, OnChanges {
               //          }
               //          for (let ii = 0, i, j, ij = 0; ii < xLabels.length; ii++) {
               for (let jj = 0; jj < yLabels.length && jj < tempY.length; jj++) {
-                heatData.push({ x: tempY[jj].x, y: sortEach ? jj + 1 : tempY[jj].y, value: tempY[jj].value, group: tempY[jj].group });
+                heatData.push({ x: tempY[jj].x, y: sortEach ? jj + 1 : tempY[jj].y,
+                  v2: tempY[jj].v2, v3: tempY[jj].v3, value: tempY[jj].value, group: tempY[jj].group });
               }
             }
           }
         }
         const colourScales: d3.ScaleQuantile<string>[] = [], colourScale = d3.scaleQuantile<string>()
-          .domain([d3.min(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
-          d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value)])
+          .domain([d3.min(heatData, (d: { x: number, y: number, v2: number, v3: number, value: number, group: string }) => d.value),
+            d3.max(heatData, (d: { x: number, y: number, v2: number, v3: number, value: number, group: string }) => d.value)])
           .range(colours);
         if (colourScale.domain()[0] === colourScale.domain()[1]) {
-          colourScale.domain([d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
-          d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value) + 1]);
+          colourScale.domain([d3.max(heatData, (d: { x: number, y: number, v2: number, v3: number,
+             value: number, group: string }) => d.value),
+          d3.max(heatData, (d: { x: number, y: number, v2: number, v3: number, value: number, group: string }) => d.value) + 1]);
         }
         if (lineMap) {
           for (let jj = 0; jj < yLabels.length; jj++) {
@@ -1369,14 +1413,16 @@ export class HeatmapComponent implements OnInit, OnChanges {
             }
             colourScales[jj] = d3.scaleQuantile<string>().range(colours).domain([x1, x2]);
             if (colourScales[jj].domain()[0] === colourScales[jj].domain()[1]) {
-              colourScales[jj].domain([d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value),
-              d3.max(heatData, (d: { x: number, y: number, value: number, group: string }) => d.value) + 1]);
+              colourScales[jj].domain([d3.max(heatData, (d: { x: number, y: number, v2: number, v3: number,
+                value: number, group: string }) => d.value),
+              d3.max(heatData, (d: { x: number, y: number, v2: number, v3: number, value: number, group: string }) => d.value) + 1]);
             }
           }
         }
         const gridDistribution = svg.selectAll('.values')
           .data(heatData);
-        let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; value: number; group: string }, d3.BaseType, {}>;
+        let painKiller: d3.Selection<d3.BaseType, { x: number; y: number; v2: number, v3: number,
+          value: number; group: string }, d3.BaseType, {}>;
         if (shape === 'Circles') {
           painKiller = gridDistribution.enter().append('circle')
             .attr('cx', width * 0.5)
