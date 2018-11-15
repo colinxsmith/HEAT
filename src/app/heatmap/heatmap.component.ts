@@ -507,11 +507,15 @@ export class HeatmapComponent implements OnInit, OnChanges {
     HERE.KPIi = {};
     HERE.Officesi = {};
     HERE.Namesi = {};
-
     const keys = Object.keys(HERE.myData.newData[0]);
+    const mKPIs: string[] = [];
     keys.forEach((d) => {
       if (d !== 'Name' && d !== 'office') {
         HERE.KPIs.push(d);
+        if (d.startsWith('port') || d.startsWith('P_all') || d.startsWith('P_fail') || d.endsWith('_all') || d.endsWith('_ALL')
+        || d.startsWith('Out1')) {
+          mKPIs.push(d);
+        }
         HERE.KPIi[d] = HERE.KPIs.length;
       }
     });
