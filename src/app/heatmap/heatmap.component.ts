@@ -13,6 +13,15 @@ import { AppComponent } from '../app.component';
 })
 export class HeatmapComponent implements OnInit, OnChanges {
   myData = new DatamoduleModule();
+  whichKPI = -1;
+  setKPI = -1;
+  Names: string[] = [];
+  Offices: string[] = [];
+  KPIs: string[] = [];
+  KPIi = {};
+  Officesi = {};
+  Namesi = {};
+
   colourSetupRange = ['rgb(0,255,0)', 'red', '1'];
   plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map', 'Heat Map 2'].reverse();
   tooltip = AppComponent.toolTipStatic;
@@ -490,44 +499,65 @@ export class HeatmapComponent implements OnInit, OnChanges {
     return totalKPI;
   }
   procNewData() {
-    const keys = Object.keys(this.myData.newData[0]);
-    const Names: string[] = [];
-    const Offices: string[] = [];
-    const KPIs: string[] = [];
-    const KPIi = {};
-    const Officesi = {};
-    const Namesi = {};
+    const HERE = this;
+    d3.selectAll('svg').remove();
+    HERE.Names = [];
+    HERE.Offices = [];
+    HERE.KPIs = [];
+    HERE.KPIi = {};
+    HERE.Officesi = {};
+    HERE.Namesi = {};
+
+    const keys = Object.keys(HERE.myData.newData[0]);
     keys.forEach((d) => {
       if (d !== 'Name' && d !== 'office') {
-        KPIs.push(d);
-        KPIi[d] = KPIs.length;
+        HERE.KPIs.push(d);
+        HERE.KPIi[d] = HERE.KPIs.length;
       }
     });
-    this.myData.newData.forEach((d) => {
-      Names.push(d.Name);
-      Namesi[d.Name] = Names.length;
-      if (Offices.find((k: string) => (k === d.office)) === undefined) {
-        Offices.push(d.office);
-        Officesi[d.office] = Offices.length;
+    HERE.myData.newData.forEach((d) => {
+      HERE.Names.push(d.Name);
+      HERE.Namesi[d.Name] = HERE.Names.length;
+      if (HERE.Offices.find((k: string) => (k === d.office)) === undefined) {
+        HERE.Offices.push(d.office);
+        HERE.Officesi[d.office] = HERE.Offices.length;
       }
     });
-    const whichKPI = 0;
-    const plotKPI: { x: number, y: number, value: number }[] = [];
-    this.totalsX = [];
-    this.totalsY = [];
-    this.myData.newData.forEach((d) => this.totalsY.push({ ind: 0, value: 0 }));
-    Offices.forEach((d) => this.totalsX.push({ ind: 0, value: 0 }));
-    this.myData.newData.forEach((d) => {
-      this.totalsX[Officesi[d.office] - 1].value += +d[KPIs[whichKPI]];
-      this.totalsX[Officesi[d.office] - 1].ind = Officesi[d.office] - 1;
-      this.totalsY[Namesi[d.Name] - 1].value += +d[KPIs[whichKPI]];
-      this.totalsY[Namesi[d.Name] - 1].ind = Namesi[d.Name] - 1;
-      plotKPI.push({ y: Officesi[d.office], x: Namesi[d.Name], value: +d[KPIs[whichKPI]] });
+    //                  office      KPI
+    const totalKPI: { x: number; y: number; value: number; }[] = []; // HERE.myData.managerData;
+    HERE.totalsX = [];
+    HERE.totalsY = [];
+    HERE.Offices.forEach((office) => {
+      HERE.KPIs.forEach((kpi) => {
+        const kk = { x: HERE.Officesi[office], y: HERE.KPIi[kpi], value: 0 };
+        HERE.Names.forEach((name, i) => {
+          if (HERE.myData.newData[i].office === office) {
+            kk.value += +HERE.myData.newData[i][kpi];
+          }
+        });
+        totalKPI.push(kk);
+      });
     });
-    this.chosenData = KPIs[whichKPI];
-    this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
-      plotKPI, this.colourSetupRange, this.transposeHeatMap, false, true, this.gamma);
-    this.chosenData = '';
+    HERE.heatMaps(HERE.mainScreen.nativeElement, HERE.Offices, HERE.KPIs, totalKPI, HERE.colourRangeMaps,
+      HERE.transposeHeatMap, true, false, HERE.gamma, HERE.chosenData, 2);
+
+    if (HERE.setKPI > -1) {
+      const kpiHere = HERE.KPIs[HERE.setKPI];
+      const plotKPI: { x: number, y: number, value: number }[] = [];
+      HERE.totalsX = [];
+      HERE.totalsY = [];
+      HERE.Names.forEach((d) => HERE.totalsX.push({ ind: 0, value: 0 }));
+      HERE.Offices.forEach((d) => HERE.totalsY.push({ ind: 0, value: 0 }));
+      HERE.myData.newData.forEach((d) => {
+        HERE.totalsY[HERE.Officesi[d.office] - 1].value += +d[kpiHere];
+        HERE.totalsY[HERE.Officesi[d.office] - 1].ind = HERE.Officesi[d.office] - 1;
+        HERE.totalsX[HERE.Namesi[d.Name] - 1].value += +d[kpiHere];
+        HERE.totalsX[HERE.Namesi[d.Name] - 1].ind = HERE.Namesi[d.Name] - 1;
+        plotKPI.push({ x: HERE.Officesi[d.office], y: HERE.Namesi[d.Name], value: +d[kpiHere] });
+      });
+      HERE.heatMaps(HERE.mainScreen.nativeElement, HERE.Offices, HERE.Names,
+        plotKPI, HERE.colourRangeMaps, HERE.transposeHeatMap, false, true, HERE.gamma, kpiHere, 10);
+    }
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
     const here = this, xmap = {}, ymap = {}, KPI: { x: number, y: number, value: number }[] = [];
@@ -548,7 +578,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     });
     this.managerGroups.sort((a, b) => a.localeCompare(b));
     this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps,
-      this.transposeHeatMap, true, false, this.gamma);
+      this.transposeHeatMap, true, false, this.gamma, this.chosenData);
     let ij = 0;
     for (let i = 0; i < nx && dataV.length; ++i) {
       if (here.totalsY[i] === undefined) {
@@ -618,7 +648,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         if (this.chosenData === d) {
           this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.managerGroups,
             this.managerProcess(this.myData.managerData[i]), this.colourRangeMaps,
-            this.transposeHeatMap, false, true, this.gamma);
+            this.transposeHeatMap, false, true, this.gamma, this.chosenData);
         }
       });
       if (this.chosenData === '') {
@@ -1129,8 +1159,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number }[],
     colourRange: string[], transpose = false, lineMap = false,
-    sortEach = false, gamma = 1) { // "Proper heatmap" if lineMap and sortEach are both false
-    const dataHere = lineMap ? 'total' : this.chosenData,
+    sortEach = false, gamma = 1, chosenData = '', scalefac = 1) { // "Proper heatmap" if lineMap and sortEach are both false
+    const dataHere = lineMap ? 'total' : chosenData,
       totalsX = !lineMap ? this.totalsX : [], totalsY = !lineMap ? this.totalsY : [],
       labelsXY = { x: [' '], y: [' '] };
     if (transpose) {
@@ -1162,8 +1192,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
     let legendSize = 40;
     const margin = { top: transpose ? 120 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 },
       buckets = Math.min(xLabels.length, yLabels.length);
-    let width = 1200 - margin.left - margin.right,
-      height = transpose ? 900 : 1400 - margin.top - margin.bottom - legendSize;
+    let width = 1200 * scalefac - margin.left - margin.right,
+      height = transpose ? 900 * scalefac : 1400 * scalefac - margin.top - margin.bottom - legendSize;
     const gridSize = Math.min(Math.floor(width / labelsXY.x.length), Math.floor(height / labelsXY.y.length)),
       legendElementWidth = gridSize;
     width = gridSize * labelsXY.x.length;
@@ -1183,7 +1213,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       svgBase.attr('width', width + margin.left + margin.right);
       svgBase.attr('height', height + margin.top + margin.bottom + legendSize);
     }
-    const doBox = false;
+    const doBox = true;
     if (doBox) {
       const box = svgBase.append('rect')
         .attr('x', 0)
@@ -1255,7 +1285,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
                 i = totalsY.length ? oXinv[dataXY[ij].x - 1] : ii;
                 j = totalsX.length ? oYinv[dataXY[ij].y - 1] : jj;
-                if (jj === dataXY[ij].y - 1) {
+                if (ii === dataXY[ij].x - 1) {
                   tempY.push({
                     x: i + 1, y: j + 1,
                     group: yLabels[j],
@@ -1372,16 +1402,38 @@ export class HeatmapComponent implements OnInit, OnChanges {
         }
         painKiller
           .attr('class', 'bordered')
-          .on('click', (d) => {
+          .on('click', (dd) => {
             if (!lineMap) {
               return;
             }
-            const chosenData = (transpose ? d.x : d.y) - 1;
-            this.chosenData = this.myData.managerKPIs[chosenData];
+            this.whichKPI = (transpose ? dd.x : dd.y) - 1;
             d3.selectAll('svg').remove();
-            this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-              this.managerProcess(this.myData.managerData[chosenData]), colourRange,
-              transpose, false, true, gamma);
+            if (this.chosenFigure === 'Heat Map') {
+              this.chosenData = this.myData.managerKPIs[this.whichKPI];
+              this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
+                this.managerProcess(this.myData.managerData[this.whichKPI]), colourRange,
+                transpose, false, true, gamma, this.chosenData);
+              this.whichKPI = -1;
+            } else if (this.chosenFigure === 'Heat Map 2') {
+              this.setKPI = this.whichKPI;
+              this.whichKPI = -1;
+              this.procNewData();
+/*              const plotKPI: { x: number, y: number, value: number }[] = [];
+              this.totalsX = [];
+              this.totalsY = [];
+              this.myData.newData.forEach((d) => this.totalsY.push({ ind: 0, value: 0 }));
+              this.Offices.forEach((d) => this.totalsX.push({ ind: 0, value: 0 }));
+              this.myData.newData.forEach((d) => {
+                this.totalsX[this.Officesi[d.office] - 1].value += +d[this.KPIs[this.whichKPI]];
+                this.totalsX[this.Officesi[d.office] - 1].ind = this.Officesi[d.office] - 1;
+                this.totalsY[this.Namesi[d.Name] - 1].value += +d[this.KPIs[this.whichKPI]];
+                this.totalsY[this.Namesi[d.Name] - 1].ind = this.Namesi[d.Name] - 1;
+                plotKPI.push({ x: this.Officesi[d.office], y: this.Namesi[d.Name], value: +d[this.KPIs[this.whichKPI]] });
+              });
+              this.heatMaps(this.mainScreen.nativeElement, xLabels, this.Names,
+                plotKPI, this.colourRangeMaps, transpose, false, true, this.gamma, this.KPIs[this.whichKPI], 20);
+              this.whichKPI = -1;*/
+            }
           })
           .on('mouseover', (d, idd, jj) => {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
@@ -1461,7 +1513,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-45)`);
-        const totalsOnMap = false;
+        const totalsOnMap = true;
         if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
           const totsy = svg.selectAll('.totalsY')
             .data(transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
