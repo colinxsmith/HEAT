@@ -13,14 +13,14 @@ import { AppComponent } from '../app.component';
 })
 export class HeatmapComponent implements OnInit, OnChanges {
   myData = new DatamoduleModule();
-  whichKPI = -1;
-  setKPI = -1;
-  Names: string[] = [];
-  Offices: string[] = [];
-  KPIs: string[] = [];
-  KPIi = {};
-  Officesi = {};
-  Namesi = {};
+  @Input() whichKPI = -1;
+  @Input() setKPI = -1;
+  @Input() Names: string[] = [];
+  @Input() Offices: string[] = [];
+  @Input() KPIs: string[] = [];
+  @Input() KPIi = {};
+  @Input() Officesi = {};
+  @Input() Namesi = {};
 
   colourSetupRange = ['rgb(0,255,0)', 'red', '1'];
   plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map', 'Heat Map 2'].reverse();
@@ -1213,7 +1213,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       svgBase.attr('width', width + margin.left + margin.right);
       svgBase.attr('height', height + margin.top + margin.bottom + legendSize);
     }
-    const doBox = true;
+    const doBox = false;
     if (doBox) {
       const box = svgBase.append('rect')
         .attr('x', 0)
@@ -1418,21 +1418,6 @@ export class HeatmapComponent implements OnInit, OnChanges {
               this.setKPI = this.whichKPI;
               this.whichKPI = -1;
               this.procNewData();
-/*              const plotKPI: { x: number, y: number, value: number }[] = [];
-              this.totalsX = [];
-              this.totalsY = [];
-              this.myData.newData.forEach((d) => this.totalsY.push({ ind: 0, value: 0 }));
-              this.Offices.forEach((d) => this.totalsX.push({ ind: 0, value: 0 }));
-              this.myData.newData.forEach((d) => {
-                this.totalsX[this.Officesi[d.office] - 1].value += +d[this.KPIs[this.whichKPI]];
-                this.totalsX[this.Officesi[d.office] - 1].ind = this.Officesi[d.office] - 1;
-                this.totalsY[this.Namesi[d.Name] - 1].value += +d[this.KPIs[this.whichKPI]];
-                this.totalsY[this.Namesi[d.Name] - 1].ind = this.Namesi[d.Name] - 1;
-                plotKPI.push({ x: this.Officesi[d.office], y: this.Namesi[d.Name], value: +d[this.KPIs[this.whichKPI]] });
-              });
-              this.heatMaps(this.mainScreen.nativeElement, xLabels, this.Names,
-                plotKPI, this.colourRangeMaps, transpose, false, true, this.gamma, this.KPIs[this.whichKPI], 20);
-              this.whichKPI = -1;*/
             }
           })
           .on('mouseover', (d, idd, jj) => {
@@ -1513,7 +1498,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .text((d) => `${d3.format('0.3f')(d.value)}`)
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-45)`);
-        const totalsOnMap = true;
+        const totalsOnMap = false;
         if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
           const totsy = svg.selectAll('.totalsY')
             .data(transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
