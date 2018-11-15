@@ -30,7 +30,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   totalsX: { ind: number, value: number }[] = [];
   totalsY: { ind: number, value: number }[] = [];
   @Input() numColours = 250;
-  transposeHeatMap = false;
+  @Input() transposeHeatMap = true;
   @Input() shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
   viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
   @Input() chosenData = '';
@@ -39,7 +39,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() chosenShape = this.shape[0];
   @Input() pad = false;
   @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  @Input() colourRangeMaps = ['white', 'pink'];
+  @Input() colourRangeMaps = ['white', 'red'];
   @Input() gamma = 1;
   colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
@@ -556,7 +556,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         plotKPI.push({ x: HERE.Officesi[d.office], y: HERE.Namesi[d.Name], value: +d[kpiHere] });
       });
       HERE.heatMaps(HERE.mainScreen.nativeElement, HERE.Offices, HERE.Names,
-        plotKPI, HERE.colourRangeMaps, HERE.transposeHeatMap, false, true, HERE.gamma, kpiHere, 10);
+        plotKPI, HERE.colourRangeMaps, HERE.transposeHeatMap, false, true, HERE.gamma, kpiHere, 20);
     }
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
