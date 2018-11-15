@@ -1544,7 +1544,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('y', (labelsXY.y.length + 0.5) * gridSize + legendSize / 4 + 3);
         }
       };
-    heatmapChart(lineMap ? 'Squares' : this.chosenShape);
+    heatmapChart(lineMap ? 'Circles' : this.chosenShape);
   }
   RadarChart(id: string, data: { axis: string; value: number; }[][], options: {
     w: number; h: number;
