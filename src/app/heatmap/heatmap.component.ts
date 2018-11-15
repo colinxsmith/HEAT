@@ -555,6 +555,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
         HERE.totalsX[HERE.Namesi[d.Name] - 1].ind = HERE.Namesi[d.Name] - 1;
         plotKPI.push({ x: HERE.Officesi[d.office], y: HERE.Namesi[d.Name], value: +d[kpiHere] });
       });
+      HERE.totalsX = [];
+      HERE.totalsY = [];
       HERE.heatMaps(HERE.mainScreen.nativeElement, HERE.Offices, HERE.Names,
         plotKPI, HERE.colourRangeMaps, HERE.transposeHeatMap, false, true, HERE.gamma, kpiHere, 20);
     }
@@ -1232,7 +1234,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.y[transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (totalsX.length ? sortEach ? '' : totalsX[i].ind : i)];
+            : (sortEach ? '' :   totalsX.length ? totalsX[i].ind : i)];
         }
         )
         .attr('x', 0)
@@ -1245,7 +1247,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.x[!transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (totalsX.length ? sortEach ? '' : totalsX[i].ind : i)];
+            : (sortEach ? '' : totalsX.length ? totalsX[i].ind : i)];
         })
         .attr('x', 0)
         .attr('y', 0)
@@ -1267,7 +1269,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           totalsY.forEach((d, i) => oXinv[d.ind] = i);
           totalsX.forEach((d, i) => oYinv[d.ind] = i);
         }
-        if (totalsX.length === 0 && totalsY.length === 0) {
+        if (!sortEach && totalsX.length === 0 && totalsY.length === 0) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
             const dd = { x: d.x, y: d.y, value: d.value, group: transpose ? yLabels[d.x - 1] : yLabels[d.y - 1] };
