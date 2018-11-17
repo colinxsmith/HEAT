@@ -13,6 +13,7 @@ import { AppComponent } from '../app.component';
 })
 export class HeatmapComponent implements OnInit, OnChanges {
   myData = new DatamoduleModule();
+  tableGuess = 0;
   @Input() whichKPI = -1;
   @Input() setKPI = -1;
   @Input() Names: string[] = [];
@@ -69,7 +70,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     'rgba(255,255,255,0.2)', 'rgba(150,150,255,1)',
     'rgba(255,255,255,0.2)', 'rgba(150,150,255,1)'
   ];
-  oneCheck = (x1: number, x2: number) => (x1 - x2) * (x1 - x2) < 1e-12 ? 1 : Math.min(1.0, x1 / x2);
+  oneCheck = (x1: number, x2: number) => (x1 - x2) * (x1 - x2) < 1e-12 ? 1 : Math.min(1.0, (x1) / x2);
   squareArc = (ang1: number, ang2: number, rad1: number, rad2: number) => {
     ang1 -= Math.PI * 0.5;
     ang2 -= Math.PI * 0.5;
@@ -530,13 +531,26 @@ export class HeatmapComponent implements OnInit, OnChanges {
         HERE.Officesi[d.office] = HERE.Offices.length;
       }
     });
+
+    let biggestOffice = 0;
+    HERE.Offices.forEach((office) => {
+      let officeSize = 0;
+      HERE.myData.newData.forEach((d) => {
+        if (d.office === office) {
+          officeSize++;
+        }
+      });
+      biggestOffice = Math.max(biggestOffice, officeSize);
+    });
+    this.tableGuess = biggestOffice;
     //                  office      KPI
     const totalKPI: { x: number; y: number; value: number; v2: number; v3: number }[] = []; // HERE.myData.managerData;
     HERE.totalsX = [];
     HERE.totalsY = [];
     HERE.Offices.forEach((office) => {
       mKPIs.forEach((kpi) => {
-        const kk = { x: HERE.Officesi[office], y: mKPIi[kpi], value: 0, v2: 0, v3: undefined };
+        const kk = { x: HERE.Officesi[office], y: mKPIi[kpi], value: 0,
+          v2: undefined, v3: undefined };
         if (/* kpi.startsWith('P_') || */ kpi.startsWith('Out1')) {
           kk.v2 = 0;
         } else if (kpi.endsWith('_all') || kpi.endsWith('_ALL')) {
@@ -589,7 +603,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
           v2 = +d[this.KPIs[this.KPIi[kpiHere]]];
           v3 = +d[this.KPIs[this.KPIi[kpiHere] + 1]];
         }
-        plotKPI.push({ x: HERE.Officesi[d.office], y: HERE.Namesi[d.Name], value: +d[kpiHere], v2: v2, v3: v3 });
+        plotKPI.push({ x: HERE.Officesi[d.office], y: HERE.Namesi[d.Name],
+          value: +d[kpiHere], v2: v2, v3: v3 });
       });
       HERE.totalsX = [];
       HERE.totalsY = [];
@@ -1237,6 +1252,13 @@ export class HeatmapComponent implements OnInit, OnChanges {
       legendElementWidth = gridSize;
     width = gridSize * labelsXY.x.length;
     height = gridSize * labelsXY.y.length;
+    if (this.tableGuess > 0 && sortEach) {
+      if (transpose) {
+        width = Math.min(this.tableGuess * gridSize, width);
+      } else {
+        height = Math.min(this.tableGuess * gridSize, height);
+      }
+    }
     legendSize = Math.min(legendSize, legendElementWidth);
     const coloursd = d3.scaleLinear<d3.RGBColor>()
       .interpolate(d3.interpolateRgb.gamma(gamma))
@@ -1252,7 +1274,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       svgBase.attr('width', width + margin.left + margin.right);
       svgBase.attr('height', height + margin.top + margin.bottom + legendSize);
     }
-    const doBox = false;
+    const doBox = true;
     if (doBox) {
       const box = svgBase.append('rect')
         .attr('x', 0)
@@ -1294,8 +1316,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .attr('class', 'axis-xh')
         .call(this.wrapFunction, 60, 0.8),
       tableTranspose = (d: { x: number, y: number, value: number, v2: number, v3: number }) => transpose ?
-        { y: +d.x, x: +d.y, value: +d.value, v2: +d.v2, v3: d.v3 } :
-        { y: +d.y, x: +d.x, value: +d.value, v2: +d.v2, v3: d.v3 },
+        { y: d.x, x: d.y, value: d.value, v2: d.v2, v3: d.v3 } :
+        { y: d.y, x: d.x, value: d.value, v2: d.v2, v3: d.v3 },
       heatmapChart = (shape: string) => {
         const nutScale = d3.scaleSqrt().domain([0, 1]).range([0, 1]), slice = 85,
           heatData: { x: number, y: number, v2: number, v3: number, value: number, group: string }[] = [];
@@ -1312,7 +1334,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
         if (!sortEach && totalsX.length === 0 && totalsY.length === 0) {
           dataXY.forEach((d) => {
             d = tableTranspose(d);
-            const dd = { x: d.x, y: d.y, v2: d.v2, v3: d.v3, value: d.value, group: transpose ? yLabels[d.x - 1] : yLabels[d.y - 1] };
+            const dd = { x: d.x, y: d.y, v2: d.v2, v3: d.v3, value: d.value,
+              group: transpose ? yLabels[d.x - 1] : yLabels[d.y - 1] };
             heatData.push(dd);
           });
         } else {
@@ -1352,7 +1375,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
               }
               for (let jj = 0; jj < tempY.length; jj++) {
                 heatData.push({
-                  y: tempY[jj].x, x: sortEach ? jj + 1 : tempY[jj].y, v2: tempY[jj].v2, v3: tempY[jj].v3,
+                  y: tempY[jj].x, x: sortEach ? jj + 1 : tempY[jj].y, v2: tempY[jj].v2,
+                  v3: tempY[jj].v3,
                   value: tempY[jj].value, group: tempY[jj].group
                 });
               }
@@ -1409,7 +1433,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
         if (colourScale.domain()[0] === colourScale.domain()[1]) {
           colourScale.domain([d3.max(heatData, (d: { x: number, y: number, v2: number, v3: number,
              value: number, group: string }) => d.v3 === undefined ? d.value : d.v3),
-          d3.max(heatData, (d: { x: number, y: number, v2: number, v3: number, value: number, group: string }) =>
+          d3.max(heatData, (d: { x: number, y: number, v2: number, v3: number,
+            value: number, group: string }) =>
           d.v3 === undefined ? d.value : d.v3) + 1]);
         }
         if (lineMap) {
@@ -1445,18 +1470,26 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('width', gridSize)
             .attr('height', gridSize);
         } else if (shape === 'Doughnuts') {
+          const shapeFiller = slice;
           painKiller = gridDistribution.enter().append('path')
             .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
           ${Math.min(d.x * gridSize, Math.random() * height)})`)
-            .attr('d', () => d3.arc()
-              ({ startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2, innerRadius: nutScale(slice / 360) * gridSize / 2 }));
+            .attr('d', (d) => d3.arc()
+              ({ startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2,
+                innerRadius:
+                (d.v2 === undefined  ? (composit ? 1 : nutScale(shapeFiller / 360)) :
+                this.oneCheck(d.v2, d.value)) * gridSize / 2 }));
         } else if (shape === 'Cakes') {
+          const shapeFiller = slice;
           painKiller = gridDistribution.enter().append('path')
             .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
           ${Math.min(d.x * gridSize, Math.random() * height)})`)
-            .attr('d', () => d3.arc()
+            .attr('d', (d) => d3.arc()
               ({
-                startAngle: slice * Math.PI / 180, endAngle: 2 * Math.PI,
+                startAngle: (d.v2 === undefined ?
+                  (composit ? 360: shapeFiller) :
+                  this.oneCheck(d.v2, d.value) * 360) * Math.PI / 180,
+                  endAngle: 2 * Math.PI,
                 outerRadius: gridSize / 2, innerRadius: 0
               }));
         }
@@ -1496,8 +1529,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
               .style('top', tY);
           })
           .on('mouseout', () => this.tooltip.style('opacity', 0))
-//          .transition()
-//          .duration(1000)
+          .transition()
+          .duration(1000)
           .attr('x', (d) => (d.x - 1) * gridSize)
           .attr('y', (d) => (d.y - 1) * gridSize)
           .attr('cx', (d) => (d.x - 1 + 0.45) * gridSize)
@@ -1507,9 +1540,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .attr('rx', 0)
           .attr('ry', 0)
           .attr('r', gridSize / 2)
-          .style('opacity', (d) => composit ? (d.v3 === undefined ? 1 : 0.5) : 1)
+          .style('opacity', (d) => composit ? (d.v3 === undefined ? 0.5 : 0.5) : 1)
           .style('fill', (d) => {
-            return lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1](d.v3 === undefined ? d.value : d.v3)}` :
+            return lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
+              (d.v3 === undefined ? d.value : d.v3)}` :
             `${colourScale(d.v3 === undefined ? d.value : d.v3)}`;
           });
         if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
@@ -1517,7 +1551,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           gridDistribution.enter().append('path')
             .attr('transform', (d) => `translate(${Math.random() * 10 * gridSize},${Math.random() * 10 * gridSize})
           rotate(${-90})`)
-/*            .attr('d', () => shape === 'Cakes' ?
+            .attr('d', () => shape === 'Cakes' ?
               d3.arc()
                 ({
                   startAngle: 0, endAngle: 0,
@@ -1529,14 +1563,15 @@ export class HeatmapComponent implements OnInit, OnChanges {
                   innerRadius: 0, outerRadius: 0
                 })
             )
-            .style('fill', 'green')*/
-            //            .transition().duration(1000)
+            .style('fill', 'green')
+                        .transition().duration(1000)
             .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize})
           rotate(${90})`)
             .attr('d', (d) => shape === 'Cakes' ?
               d3.arc()
                 ({
-                  startAngle: 0, endAngle: (d.v2 === undefined ? (composit ? 360 : shapeFiller) :
+                  startAngle: 0, endAngle: (d.v2 === undefined ?
+                    (composit ? 360 : shapeFiller) :
                     this.oneCheck(d.v2, d.value) * 360) * Math.PI / 180,
                   outerRadius: gridSize / 2, innerRadius: 0
                 }) :
@@ -1544,7 +1579,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 ({
                   startAngle: 0, endAngle: Math.PI * 2,
                   innerRadius: 0, outerRadius:
-                    (d.v2 === undefined ? (composit ? 1 : nutScale(shapeFiller / 360)) : this.oneCheck(d.v2, d.value)) * gridSize / 2
+                    (d.v2 === undefined ? (composit ? 1 : nutScale(shapeFiller / 360)) :
+                    this.oneCheck(d.v2, d.value)) * gridSize / 2
                 })
             )
             .style('fill', (d, i) => {
@@ -1558,7 +1594,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 attr('offset', '0%').attr('class', 'top').style('stop-color', `${colourScale(d.value)}`);
               cakeGradient.append('stop')
                 .attr('offset', '100%').attr('class', 'bottom').style('stop-color', `${colourScale(d.value)}`);
-              return composit ? colourScale(d.v3 === undefined ? d.value : d.v3) : `url(#${uName})`;
+              return composit ?
+                (lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
+                  (d.v3 === undefined ? d.value : d.v3)}` :
+                  `${colourScale(d.v3 === undefined ? d.value : d.v3)}`) : `url(#${uName})`;
             });
         }
         gridDistribution.enter().append('text')
