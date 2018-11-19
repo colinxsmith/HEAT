@@ -1599,7 +1599,25 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 })
             )
             .style('fill', 'green')
-            .on('mouseover', (d, idd, jj) => {
+            .on('click', (dd) => {
+              if (!lineMap) {
+                return;
+              }
+              this.whichKPI = (transpose ? dd.x : dd.y) - 1;
+              d3.selectAll('svg').remove();
+              if (this.chosenFigure === 'Heat Map') {
+                this.chosenData = this.myData.managerKPIs[this.whichKPI];
+                this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
+                  this.managerProcess(this.myData.managerData[this.whichKPI]), colourRange,
+                  transpose, false, true, gamma, this.chosenData);
+                this.whichKPI = -1;
+              } else if (this.chosenFigure === 'Heat Map 2') {
+                this.setKPI = this.whichKPI;
+                this.whichKPI = -1;
+                this.procNewData();
+              }
+            })
+              .on('mouseover', (d, idd, jj) => {
               const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
               this.tooltip
                 .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
