@@ -1335,25 +1335,34 @@ export class HeatmapComponent implements OnInit, OnChanges {
           totalsY.forEach((d, i) => oXinv[d.ind] = i);
           totalsX.forEach((d, i) => oYinv[d.ind] = i);
         }
+        const rowMax: number[] = [], colMax: number[] = [];
+        for (let kk = 0; kk < xLabels.length; ++kk) {
+          const dd: number[] = [];
+          dataXY.forEach((d, ij) => {
+            if (ij % xLabels.length === kk) {
+              dd.push(d.value);
+            }
+          });
+          colMax.push(d3.max(dd, (d) => d));
+        }
+        for (let kk = 0; kk < yLabels.length; ++kk) {
+          const dd: number[] = [];
+          dataXY.forEach((d, ij) => {
+            if (ij % yLabels.length === kk) {
+              dd.push(d.value);
+            }
+          });
+          rowMax.push(d3.max(dd, (d) => d));
+        }
         if (!sortEach && totalsX.length === 0 && totalsY.length === 0) {
           let i = 0, j = 0;
-          const ddMax = [];
-          for (let kk = 0; kk < yLabels.length; ++kk) {
-            const ddRow: number[] = [];
-            dataXY.forEach((d, ij) => {
-              if (ij % xLabels.length === kk) {
-                ddRow.push(d.value);
-              }
-            });
-            ddMax.push(d3.max(ddRow, (d) => d));
-          }
           dataXY.forEach((d) => {
             i = d.x - 1;
             j = d.y - 1;
             d = tableTranspose(d);
             const dd: HD = {
               x: d.x, y: d.y, v2: d.v2, v3: d.v3, value: d.value,
-              group: transpose ? yLabels[d.x - 1] : yLabels[d.y - 1], scale: ddMax[j]
+              group: transpose ? yLabels[d.x - 1] : yLabels[d.y - 1], scale: rowMax[j]
             };
             heatData.push(dd);
           });
@@ -1538,8 +1547,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
               <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : d.group}
               <br>${dataHere}
               <br>${d3.format('0.2f')(d.value)}
-              <br>${d3.format('0.2f')(d.v2)}
-              <br>${d3.format('0.2f')(d.v3)}
+              <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
+              <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
             `)
               .style('opacity', 0.9)
               .style('left', tX)
@@ -1558,11 +1567,14 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .attr('ry', 0)
           .attr('r', gridSize / 2)
           .style('opacity', (d) => composit ? (d.v3 === undefined ? 0.5 : 0.5) : 1)
-          .attr('d', (d , ii) => shape === 'Doughnuts' ?
+          .attr('d', (d , ii) => shape === 'Doughnuts' || shape === 'Cakes' ?
             d3.arc()
               ({
                 startAngle: 0, endAngle: 2 * Math.PI,
-                outerRadius: gridSize / 2 * d.value / d.scale , innerRadius: 0
+                outerRadius: shape === 'Doughnuts' ? gridSize / 2 * d.value / d.scale :
+                (d.v2 === undefined ? (composit ? 1 : nutScale(slice / 360)) :
+                    this.oneCheck(d.v2, d.value)) * d.value / d.scale * gridSize / 2
+                , innerRadius: 0
           }) : ' ')
           .style('fill', (d) => {
             return lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
@@ -1595,9 +1607,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : d.group}
                 <br>${dataHere}
                 <br>${d3.format('0.2f')(d.value)}
-                <br>${d3.format('0.2f')(d.v2)}
-                <br>${d3.format('0.2f')(d.v3)}
-              `)
+                <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
+                <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
+                `)
                 .style('opacity', 0.9)
                 .style('left', tX)
                 .style('top', tY);
@@ -1612,7 +1624,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
                   startAngle: 0, endAngle: (d.v2 === undefined ?
                     (composit ? 360 : shapeFiller) :
                     this.oneCheck(d.v2, d.value) * d.value / d.scale * 360) * Math.PI / 180,
-                  outerRadius: gridSize / 2, innerRadius: 0
+                  outerRadius: (d.v2 === undefined ? (composit ? 1 : nutScale(shapeFiller / 360)) :
+                  this.oneCheck(d.v2, d.value)) * d.value / d.scale * gridSize / 2, innerRadius: 0
                 }) :
               d3.arc()
                 ({
@@ -1670,8 +1683,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
               <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : d.group}
               <br>${dataHere}
               <br>${d3.format('0.2f')(d.value)}
-              <br>${d3.format('0.2f')(d.v2)}
-              <br>${d3.format('0.2f')(d.v3)}
+              <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
+              <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
             `)
               .style('opacity', 0.9)
               .style('left', tX)
