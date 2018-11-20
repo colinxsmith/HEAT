@@ -32,7 +32,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   totalsX: { ind: number, value: number }[] = [];
   totalsY: { ind: number, value: number }[] = [];
   @Input() numColours = 250;
-  @Input() transposeHeatMap = true;
+  @Input() transposeHeatMap = false;
   @Input() shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
   viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
   @Input() chosenData = '';
@@ -1689,7 +1689,6 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 })
             )
             .style('fill', (d, i) => {
-              const grad = false;
               const cCol = lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
                 (d.v3 === undefined ? d.value : d.v3)}` :
                 `${colourScale(d.v3 === undefined ? d.value : d.v3)}`;
@@ -1703,7 +1702,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 attr('offset', '0%').attr('class', 'top').style('stop-color', cCol);
               cakeGradient.append('stop')
                 .attr('offset', '100%').attr('class', 'bottom').style('stop-color', cCol);
-              return grad ? `url(#${uName})` : cCol;
+              return !composit ? `url(#${uName})` : cCol;
             });
         }
         gridDistribution.enter().append('text')
