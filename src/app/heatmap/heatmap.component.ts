@@ -2,6 +2,7 @@ import { Component, OnInit, ViewEncapsulation, ElementRef, OnChanges, Input, Sim
 import * as d3 from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
+import { assertNotNull } from '@angular/compiler/src/output/output_ast';
 interface HD { x: number; y: number; v2: number; v3: number; value: number; group: string; scale: number; }
 @Component({
   selector: 'app-heatmap',
@@ -707,6 +708,38 @@ export class HeatmapComponent implements OnInit, OnChanges {
         this.managerProcess([]);
       }
     } else if (this.chosenFigure === 'Heat Map 2') {
+      d3.select(this.mainScreen.nativeElement).append('div').append('g') // div for colour picker
+        .style('color', 'black')
+        .text('Colour range: ')
+        .selectAll()
+        .data(this.colourRangeMaps)
+        .enter()
+        .append('input')
+        .style('color', 'blue')
+        .attr('type', 'text')
+        .attr('value', (d) => d)
+        .on('change', (d, i, j) => {
+          this.colourRangeMaps[i] = (<HTMLInputElement>(j[i])).value;
+          this.processDisplayI();
+        });
+      d3.select(this.mainScreen.nativeElement).select('div').append('g')
+        .style('color', 'black')
+        .text('gamma: ')
+        .selectAll()
+        .data([this.gamma])
+        .enter()
+        .append('input')
+        .attr('style', 'color: blue')
+        .attr('type', 'text')
+        .attr('value', (d) => d)
+        .on('change', (d, i, j) => {
+          this.gamma = +(<HTMLInputElement>(j[i])).value;
+          this.processDisplay();
+        });
+      d3.select(this.mainScreen.nativeElement).select('div').append('button')
+        .style('background-color', 'lightgrey')
+        .style('color', 'blue')
+        .text('SUBMIT');
       this.procNewData();
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap(this.mainScreen.nativeElement, this.myData.managerKPIs, this.myData.managerData, this.colourRange);
@@ -1338,8 +1371,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
         const rowMax: number[] = [], colMax: number[] = [];
         for (let kk = 0; kk < xLabels.length; ++kk) {
           const dd: number[] = [];
-          dataXY.forEach((d, ij) => {
-            if (ij % xLabels.length === kk) {
+          dataXY.forEach((d) => {
+            if (d.x - 1 === kk) {
               dd.push(d.value);
             }
           });
@@ -1347,8 +1380,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
         }
         for (let kk = 0; kk < yLabels.length; ++kk) {
           const dd: number[] = [];
-          dataXY.forEach((d, ij) => {
-            if (ij % yLabels.length === kk) {
+          dataXY.forEach((d) => {
+            if (d.y - 1 === kk) {
               dd.push(d.value);
             }
           });
@@ -1405,7 +1438,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 heatData.push({
                   y: tempY[jj].x, x: sortEach ? jj + 1 : tempY[jj].y, v2: tempY[jj].v2,
                   v3: tempY[jj].v3,
-                  value: tempY[jj].value, group: tempY[jj].group, scale: tempY[0].value
+                  value: tempY[jj].value, group: tempY[jj].group, scale: colMax[ii]
                 });
               }
             }
@@ -1567,20 +1600,22 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .attr('ry', 0)
           .attr('r', gridSize / 2)
           .style('opacity', (d) => composit ? (d.v3 === undefined ? 0.5 : 0.5) : 1)
-          .attr('d', (d , ii) => shape === 'Doughnuts' || shape === 'Cakes' ?
-            d3.arc()
-              ({
-                startAngle: 0, endAngle: 2 * Math.PI,
-                outerRadius: shape === 'Doughnuts' ? gridSize / 2 * d.value / d.scale :
-                (d.v2 === undefined ? (composit ? 1 : nutScale(slice / 360)) :
-                    this.oneCheck(d.v2, d.value)) * d.value / d.scale * gridSize / 2
-                , innerRadius: 0
-          }) : ' ')
           .style('fill', (d) => {
             return lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
               (d.v3 === undefined ? d.value : d.v3)}` :
-            `${colourScale(d.v3 === undefined ? d.value : d.v3)}`;
+              `${colourScale(d.v3 === undefined ? d.value : d.v3)}`;
           });
+        if (composit && (shape === 'Doughnuts' || shape === 'Cakes')) {// Need to add 'd' for path attribute
+          painKiller.attr('d', (d, ii) => (shape === 'Doughnuts' || shape === 'Cakes') ?
+            d3.arc()
+              ({
+                startAngle: 0, endAngle: 2 * Math.PI,
+                outerRadius: shape === 'Doughnuts' ? gridSize / 2 * (composit ? d.value / d.scale : 1) :
+                  (d.v2 === undefined ? (composit ? 1 : nutScale(slice / 360)) :
+                    this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1 ) * gridSize / 2
+                , innerRadius: 0
+              }) : ' ');
+        }
         if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
           const shapeFiller = slice;
           gridDistribution.enter().append('path')
@@ -1633,7 +1668,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 .style('top', tY);
             })
             .on('mouseout', () => this.tooltip.style('opacity', 0))
-                        .transition().duration(1000)
+            .transition().duration(1000)
             .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize})
           rotate(${90})`)
             .attr('d', (d) => shape === 'Cakes' ?
@@ -1641,8 +1676,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 ({
                   startAngle: 0, endAngle: (d.v2 === undefined ?
                     (composit ? 360 : shapeFiller) :
-                    this.oneCheck(d.v2, d.value) * d.value / d.scale * 360) * Math.PI / 180,
-                  outerRadius: (d.v2 === undefined ? (composit ? 1 : nutScale(shapeFiller / 360)) :
+                    this.oneCheck(d.v2, d.value) * 360) * Math.PI / 180,
+                  outerRadius: (d.v2 === undefined ? (composit ? 1 : 1) :
                   this.oneCheck(d.v2, d.value)) * d.value / d.scale * gridSize / 2, innerRadius: 0
                 }) :
               d3.arc()
@@ -1654,6 +1689,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 })
             )
             .style('fill', (d, i) => {
+              const grad = false;
+              const cCol = lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
+                (d.v3 === undefined ? d.value : d.v3)}` :
+                `${colourScale(d.v3 === undefined ? d.value : d.v3)}`;
               const uName = `cakeCol${i}`, cakeGradient = svg.append('linearGradient')
                 .attr('id', uName)
                 .attr('x2', '0%')
@@ -1661,13 +1700,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 .attr('x1', '50%')
                 .attr('y1', '0%');
               cakeGradient.append('stop').
-                attr('offset', '0%').attr('class', 'top').style('stop-color', `${colourScale(d.value)}`);
+                attr('offset', '0%').attr('class', 'top').style('stop-color', cCol);
               cakeGradient.append('stop')
-                .attr('offset', '100%').attr('class', 'bottom').style('stop-color', `${colourScale(d.value)}`);
-              return composit ?
-                (lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
-                  (d.v3 === undefined ? d.value : d.v3)}` :
-                  `${colourScale(d.v3 === undefined ? d.value : d.v3)}`) : `url(#${uName})`;
+                .attr('offset', '100%').attr('class', 'bottom').style('stop-color', cCol);
+              return grad ? `url(#${uName})` : cCol;
             });
         }
         gridDistribution.enter().append('text')
