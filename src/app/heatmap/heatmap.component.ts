@@ -41,8 +41,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() chosenShape = this.shape[0];
   @Input() pad = false;
   @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  @Input() colourRangeMaps = ['white', 'red'];
-  @Input() gamma = 1;
+  @Input() colourRangeMaps = ['rgb(144,238,144)', 'red'];
+  @Input() gamma = 75e-2;
   colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
@@ -1610,9 +1610,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
             d3.arc()
               ({
                 startAngle: 0, endAngle: 2 * Math.PI,
-                outerRadius: shape === 'Doughnuts' ? gridSize / 2 * (composit ? d.value / d.scale : 1) :
-                  (d.v2 === undefined ? (composit ? 1 : nutScale(slice / 360)) :
-                    this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1 ) * gridSize / 2
+                outerRadius: shape === 'Doughnuts' ?
+                  gridSize / 2 * (composit ? d.value / d.scale : 1) :
+                  (d.v2 === undefined ? 1 :
+                    this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1) * gridSize / 2
                 , innerRadius: 0
               }) : ' ');
         }
@@ -1678,14 +1679,14 @@ export class HeatmapComponent implements OnInit, OnChanges {
                     (composit ? 360 : shapeFiller) :
                     this.oneCheck(d.v2, d.value) * 360) * Math.PI / 180,
                   outerRadius: (d.v2 === undefined ? (composit ? 1 : 1) :
-                  this.oneCheck(d.v2, d.value)) * d.value / d.scale * gridSize / 2, innerRadius: 0
+                  this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1) * gridSize / 2, innerRadius: 0
                 }) :
               d3.arc()
                 ({
                   startAngle: 0, endAngle: Math.PI * 2,
                   innerRadius: 0, outerRadius:
                     (d.v2 === undefined ? (composit ? 1 : nutScale(shapeFiller / 360)) :
-                    this.oneCheck(d.v2, d.value)) * d.value / d.scale * gridSize / 2
+                    this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1) * gridSize / 2
                 })
             )
             .style('fill', (d, i) => {
@@ -1702,7 +1703,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 attr('offset', '0%').attr('class', 'top').style('stop-color', cCol);
               cakeGradient.append('stop')
                 .attr('offset', '100%').attr('class', 'bottom').style('stop-color', cCol);
-              return !composit ? `url(#${uName})` : cCol;
+              return /* !composit ? */ `url(#${uName})` /* : cCol */;
             });
         }
         gridDistribution.enter().append('text')
