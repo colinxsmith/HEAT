@@ -1,3 +1,4 @@
+export interface HD { x: number; y: number; v2: number; v3: number; value: number; group: string; scale: number; }
 export class DatamoduleModule {
   newData = [
 // tslint:disable-next-line:max-line-length

@@ -1,8 +1,7 @@
 import { Component, OnInit, ViewEncapsulation, ElementRef, OnChanges, Input, SimpleChanges } from '@angular/core';
 import * as d3 from 'd3';
-import { DatamoduleModule } from '../datamodule/datamodule.module';
+import { DatamoduleModule, HD } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
-interface HD { x: number; y: number; v2: number; v3: number; value: number; group: string; scale: number; }
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
