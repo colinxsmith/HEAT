@@ -2,7 +2,6 @@ import { Component, OnInit, ViewEncapsulation, ElementRef, OnChanges, Input, Sim
 import * as d3 from 'd3';
 import { DatamoduleModule } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
-import { assertNotNull } from '@angular/compiler/src/output/output_ast';
 interface HD { x: number; y: number; v2: number; v3: number; value: number; group: string; scale: number; }
 @Component({
   selector: 'app-heatmap',
@@ -502,41 +501,40 @@ export class HeatmapComponent implements OnInit, OnChanges {
     return totalKPI;
   }
   procNewData() {
-    const HERE = this;
     d3.selectAll('svg').remove();
-    HERE.Names = [];
-    HERE.Offices = [];
-    HERE.KPIs = [];
-    HERE.KPIi = {};
-    HERE.Officesi = {};
-    HERE.Namesi = {};
-    const keys = Object.keys(HERE.myData.newData[0]);
+    this.Names = [];
+    this.Offices = [];
+    this.KPIs = [];
+    this.KPIi = {};
+    this.Officesi = {};
+    this.Namesi = {};
+    const keys = Object.keys(this.myData.newData[0]);
     const mKPIs: string[] = [];
     const mKPIi = {};
     keys.forEach((d) => {
       if (d !== 'Name' && d !== 'office') {
-        HERE.KPIs.push(d);
+        this.KPIs.push(d);
         if (d.startsWith('port') || d.startsWith('P_all') || d.startsWith('P_fail') || d.endsWith('_all') || d.endsWith('_ALL')
           || d.startsWith('Out1')) {
           mKPIs.push(d);
           mKPIi[d] = mKPIs.length;
         }
-        HERE.KPIi[d] = HERE.KPIs.length;
+        this.KPIi[d] = this.KPIs.length;
       }
     });
-    HERE.myData.newData.forEach((d) => {
-      HERE.Names.push(d.Name);
-      HERE.Namesi[d.Name] = HERE.Names.length;
-      if (HERE.Offices.find((k: string) => (k === d.office)) === undefined) {
-        HERE.Offices.push(d.office);
-        HERE.Officesi[d.office] = HERE.Offices.length;
+    this.myData.newData.forEach((d) => {
+      this.Names.push(d.Name);
+      this.Namesi[d.Name] = this.Names.length;
+      if (this.Offices.find((k: string) => (k === d.office)) === undefined) {
+        this.Offices.push(d.office);
+        this.Officesi[d.office] = this.Offices.length;
       }
     });
 
     let biggestOffice = 0;
-    HERE.Offices.forEach((office) => {
+    this.Offices.forEach((office) => {
       let officeSize = 0;
-      HERE.myData.newData.forEach((d) => {
+      this.myData.newData.forEach((d) => {
         if (d.office === office) {
           officeSize++;
         }
@@ -544,12 +542,12 @@ export class HeatmapComponent implements OnInit, OnChanges {
       biggestOffice = Math.max(biggestOffice, officeSize);
     });
     //                  office      KPI
-    const totalKPI: { x: number; y: number; value: number; v2: number; v3: number }[] = []; // HERE.myData.managerData;
-    HERE.totalsX = [];
-    HERE.totalsY = [];
-    HERE.Offices.forEach((office) => {
+    const totalKPI: { x: number; y: number; value: number; v2: number; v3: number }[] = []; // this.myData.managerData;
+    this.totalsX = [];
+    this.totalsY = [];
+    this.Offices.forEach((office) => {
       mKPIs.forEach((kpi) => {
-        const kk = { x: HERE.Officesi[office], y: mKPIi[kpi], value: 0,
+        const kk = { x: this.Officesi[office], y: mKPIi[kpi], value: 0,
           v2: undefined, v3: undefined };
         if (/* kpi.startsWith('P_') || */ kpi.startsWith('Out1')) {
           kk.v2 = 0;
@@ -557,40 +555,40 @@ export class HeatmapComponent implements OnInit, OnChanges {
           kk.v2 = 0;
           kk.v3 = 0;
         }
-        HERE.Names.forEach((name, i) => {
-          if (HERE.myData.newData[i].office === office) {
-            kk.value += +HERE.myData.newData[i][kpi];
+        this.Names.forEach((name, i) => {
+          if (this.myData.newData[i].office === office) {
+            kk.value += +this.myData.newData[i][kpi];
             if (/* kpi.startsWith('P_') ||*/ kpi.startsWith('Out1')) {
 //              console.log(kpi);
 //             console.log(this.KPIs[this.KPIi[kpi]]);
-              kk.v2 += +HERE.myData.newData[i][this.KPIs[this.KPIi[kpi]]];
+              kk.v2 += +this.myData.newData[i][this.KPIs[this.KPIi[kpi]]];
             } else if (kpi.endsWith('_all') || kpi.endsWith('_ALL')) {
 //              console.log(kpi);
 //              console.log(this.KPIs[this.KPIi[kpi]]);
 //              console.log(this.KPIs[this.KPIi[kpi] + 1]);
-              kk.v2 += +HERE.myData.newData[i][this.KPIs[this.KPIi[kpi]]];
-              kk.v3 += +HERE.myData.newData[i][this.KPIs[this.KPIi[kpi] + 1]];
+              kk.v2 += +this.myData.newData[i][this.KPIs[this.KPIi[kpi]]];
+              kk.v3 += +this.myData.newData[i][this.KPIs[this.KPIi[kpi] + 1]];
             }
           }
         });
         totalKPI.push(kk);
       });
     });
-    HERE.heatMaps(HERE.mainScreen.nativeElement, HERE.Offices, mKPIs, totalKPI, HERE.colourRangeMaps,
-      HERE.transposeHeatMap, true, false, HERE.gamma, HERE.chosenData, true, biggestOffice);
+    this.heatMaps(this.mainScreen.nativeElement, this.Offices, mKPIs, totalKPI, this.colourRangeMaps,
+      this.transposeHeatMap, true, false, this.gamma, this.chosenData, true, biggestOffice);
 
-    if (HERE.setKPI > -1) {
-      const kpiHere = mKPIs[HERE.setKPI];
+    if (this.setKPI > -1) {
+      const kpiHere = mKPIs[this.setKPI];
       const plotKPI: { x: number, y: number, value: number, v2: number, v3: number }[] = [];
-      HERE.totalsX = [];
-      HERE.totalsY = [];
-      HERE.Names.forEach((d) => HERE.totalsX.push({ ind: 0, value: 0 }));
-      HERE.Offices.forEach((d) => HERE.totalsY.push({ ind: 0, value: 0 }));
-      HERE.myData.newData.forEach((d) => {
-        HERE.totalsY[HERE.Officesi[d.office] - 1].value += +d[kpiHere];
-        HERE.totalsY[HERE.Officesi[d.office] - 1].ind = HERE.Officesi[d.office] - 1;
-        HERE.totalsX[HERE.Namesi[d.Name] - 1].value += +d[kpiHere];
-        HERE.totalsX[HERE.Namesi[d.Name] - 1].ind = HERE.Namesi[d.Name] - 1;
+      this.totalsX = [];
+      this.totalsY = [];
+      this.Names.forEach((d) => this.totalsX.push({ ind: 0, value: 0 }));
+      this.Offices.forEach((d) => this.totalsY.push({ ind: 0, value: 0 }));
+      this.myData.newData.forEach((d) => {
+        this.totalsY[this.Officesi[d.office] - 1].value += +d[kpiHere];
+        this.totalsY[this.Officesi[d.office] - 1].ind = this.Officesi[d.office] - 1;
+        this.totalsX[this.Namesi[d.Name] - 1].value += +d[kpiHere];
+        this.totalsX[this.Namesi[d.Name] - 1].ind = this.Namesi[d.Name] - 1;
         let v2: number, v3: number;
         if (/* kpiHere.startsWith('P_') ||*/ kpiHere.startsWith('Out1')) {
 //          console.log(kpiHere);
@@ -603,13 +601,13 @@ export class HeatmapComponent implements OnInit, OnChanges {
           v2 = +d[this.KPIs[this.KPIi[kpiHere]]];
           v3 = +d[this.KPIs[this.KPIi[kpiHere] + 1]];
         }
-        plotKPI.push({ x: HERE.Officesi[d.office], y: HERE.Namesi[d.Name],
+        plotKPI.push({ x: this.Officesi[d.office], y: this.Namesi[d.Name],
           value: +d[kpiHere], v2: v2, v3: v3 });
       });
-      HERE.totalsX = [];
-      HERE.totalsY = [];
-      HERE.heatMaps(HERE.mainScreen.nativeElement, HERE.Offices, HERE.Names,
-        plotKPI, HERE.colourRangeMaps, HERE.transposeHeatMap, false, true, HERE.gamma, kpiHere, true, biggestOffice);
+      this.totalsX = [];
+      this.totalsY = [];
+      this.heatMaps(this.mainScreen.nativeElement, this.Offices, this.Names,
+        plotKPI, this.colourRangeMaps, this.transposeHeatMap, false, true, this.gamma, kpiHere, true, biggestOffice);
     }
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
@@ -1257,24 +1255,28 @@ export class HeatmapComponent implements OnInit, OnChanges {
       labelsXY.y = yLabels;
     }
     // Sort both axes according to totals
-    /*    totalsX.sort((a1, a2) => { // Managers' group data
-          if (a2.value > a1.value) {
-            return 1;
-          } else if (a2.value === a1.value) {
-            return 0;
-          } else {
-            return -1;
-          }
-        }); */
-    /*    totalsY.sort((a1, a2) => {
-          if (a2.value > a1.value) { // Offices' data
-            return 1;
-          } else if (a2.value === a1.value) {
-            return 0;
-          } else {
-            return -1;
-          }
-        });*/
+    if (totalsX !== []) {
+      totalsX.sort((a1, a2) => { // Managers' group data
+        if (a2.value > a1.value) {
+          return 1;
+        } else if (a2.value === a1.value) {
+          return 0;
+        } else {
+          return -1;
+        }
+      });
+    }
+    if (totalsY !== []) {
+      totalsY.sort((a1, a2) => {
+        if (a2.value > a1.value) { // Offices' data
+          return 1;
+        } else if (a2.value === a1.value) {
+          return 0;
+        } else {
+          return -1;
+        }
+      });
+    }
     let legendSize = 40;
     let nW = transpose ? tableGuess : labelsXY.x.length;
     let nH = !transpose ? tableGuess : labelsXY.y.length;
@@ -1356,7 +1358,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         { y: d.x, x: d.y, value: d.value, v2: d.v2, v3: d.v3 } :
         { y: d.y, x: d.x, value: d.value, v2: d.v2, v3: d.v3 },
       heatmapChart = (shape: string) => {
-        const nutScale = d3.scaleSqrt().domain([0, 1]).range([0, 1]), slice = 85,
+        const nutScale = d3.scalePow().exponent(1.1).domain([0, 1]).range([0, 1]), slice = 85,
           heatData: HD[] = [];
         const oXinv = [], oYinv = [];
         if (composit && (shape === 'Squares' || shape === 'Circles')) {
@@ -1537,7 +1539,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               ({ startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2,
                 innerRadius:
                 (d.v2 === undefined  ? (composit ? 1 : nutScale(shapeFiller / 360)) :
-                this.oneCheck(d.v2, d.value)) * gridSize / 2 }));
+                nutScale(this.oneCheck(d.v2, d.value))) * gridSize / 2 }));
         } else if (shape === 'Cakes') {
           const shapeFiller = slice;
           painKiller = gridDistribution.enter().append('path')
@@ -1686,7 +1688,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                   startAngle: 0, endAngle: Math.PI * 2,
                   innerRadius: 0, outerRadius:
                     (d.v2 === undefined ? (composit ? 1 : nutScale(shapeFiller / 360)) :
-                    this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1) * gridSize / 2
+                    nutScale(this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1)) * gridSize / 2
                 })
             )
             .style('fill', (d, i, jj) => {
@@ -1761,7 +1763,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('class', 'totalsX')
             .text((d) => !transpose && sortEach ? '' : d3.format('0.2f')(d.value));
         }
-        const doLegend = false && !lineMap;
+        const doLegend = true && !lineMap;
         if (doLegend) {
           const scaleC: number[] = [];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
@@ -1771,7 +1773,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('class', 'legend');
           legend_g.append('rect')
             .attr('x', (d, i) => legendElementWidth * i)
-            .attr('y', (labelsXY.y.length + 0.5) * gridSize)
+            .attr('y', (nH + 0.5) * gridSize)
             .attr('width', legendElementWidth)
             .attr('height', legendSize / 2)
             .style('fill', (d, i) => `${colourScale(d)}`)
@@ -1789,7 +1791,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('class', 'legend')
             .text((d) => '\uf07e ' + /* '≥ '*/ + d3.format('0.2f')(d))
             .attr('x', (d, i) => legendElementWidth * (i + 0.25))
-            .attr('y', (labelsXY.y.length + 0.5) * gridSize + legendSize / 4 + 3);
+            .attr('y', (nH + 0.5) * gridSize + legendSize / 4 + 3);
         }
       };
     heatmapChart(lineMap ? (composit ? this.chosenShape : 'Squares') : this.chosenShape);
