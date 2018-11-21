@@ -40,7 +40,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() pad = false;
   @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   @Input() colourRangeMaps = ['rgb(144,238,144)', 'red'];
-  @Input() gamma = 75e-2;
+  @Input() gamma = 155e-2;
   colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
