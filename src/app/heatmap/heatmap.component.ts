@@ -1689,21 +1689,22 @@ export class HeatmapComponent implements OnInit, OnChanges {
                     this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1) * gridSize / 2
                 })
             )
-            .style('fill', (d, i) => {
+            .style('fill', (d, i, jj) => {
               const cCol = lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
                 (d.v3 === undefined ? d.value : d.v3)}` :
                 `${colourScale(d.v3 === undefined ? d.value : d.v3)}`;
-              const uName = `cakeCol${i}`, cakeGradient = svg.append('linearGradient')
+              const uName = lineMap ? `lcakeCol${i}` : `cakeCol${i}`;
+              const cakeGradient = svg.append('linearGradient')
                 .attr('id', uName)
                 .attr('x2', '0%')
-                .attr('y2', '50%')
-                .attr('x1', '50%')
+                .attr('y2', '30%')
+                .attr('x1', '30%')
                 .attr('y1', '0%');
               cakeGradient.append('stop').
                 attr('offset', '0%').attr('class', 'top').style('stop-color', cCol);
               cakeGradient.append('stop')
                 .attr('offset', '100%').attr('class', 'bottom').style('stop-color', cCol);
-              return /* !composit ? */ `url(#${uName})` /* : cCol */;
+              return !composit ? `url(#${uName})` : d.v2 === undefined ? cCol : `url(#${uName})`;
             });
         }
         gridDistribution.enter().append('text')
