@@ -1290,7 +1290,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       scale = 1;
     }
     const margin = { top: transpose ? 150 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 },
-      buckets = Math.min(nW, nH);
+      buckets = Math.min(nW, nH) + 1;
     let width = 1200 * scale - margin.left - margin.right,
       height = transpose ? 900 * scale : 1400 * scale - margin.top - margin.bottom - legendSize;
     const gridSize = Math.min(Math.floor(width / nW), Math.floor(height / nH)),
@@ -1762,7 +1762,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('class', 'totalsX')
             .text((d) => !transpose && sortEach ? '' : d3.format('0.2f')(d.value));
         }
-        const doLegend = true && !lineMap;
+        const doLegend = true ; // && !lineMap;
         if (doLegend) {
           const scaleC: number[] = [];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
