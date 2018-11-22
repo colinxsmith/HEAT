@@ -66,6 +66,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
   ];
   oneCheck = (x1: number, x2: number) => (x1 - x2) * (x1 - x2) < 1e-12 ? 1 : Math.min(1.0, (x1) / x2);
   squareArc = (ang1: number, ang2: number, rad1: number, rad2: number) => {
+    console.log(ang1);
+    console.log(ang2);
+    console.log(rad1);
+    console.log(rad2);
     ang1 -= Math.PI * 0.5;
     ang2 -= Math.PI * 0.5;
     const makeZ = (x: number) => Math.abs(x) < 1e-8 ? 0 : x;
@@ -1482,12 +1486,13 @@ export class HeatmapComponent implements OnInit, OnChanges {
             }
           }
         }
-        const colourScales: d3.ScaleQuantile<string>[] = [], colourScale = d3.scaleQuantile<string>()
-          .domain([d3.min(heatData, (d: HD) =>
-            d.v3 === undefined ? d.value : d.v3),
+        const HFormat = (kk: number) => d3.format(kk < 2 ? '0.2f' : '0.0f')(kk),
+          colourScales: d3.ScaleQuantile<string>[] = [], colourScale = d3.scaleQuantile<string>()
+            .domain([d3.min(heatData, (d: HD) =>
+              d.v3 === undefined ? d.value : d.v3),
             d3.max(heatData, (d: HD) =>
-            d.v3 === undefined ? d.value : d.v3)])
-          .range(colours);
+              d.v3 === undefined ? d.value : d.v3)])
+            .range(colours);
         if (colourScale.domain()[0] === colourScale.domain()[1]) {
           colourScale.domain([d3.max(heatData, (d: HD) => d.v3 === undefined ? d.value : d.v3),
           d3.max(heatData, (d: HD) =>
@@ -1533,7 +1538,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               ({ startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2,
                 innerRadius:
                 (d.v2 === undefined  ? (composit ? 1 : nutScale(shapeFiller / 360)) :
-                nutScale(this.oneCheck(d.v2, d.value))) * gridSize / 2 }));
+                nutScale(this.oneCheck(d.v2, d.scale))) * gridSize / 2 }));
         } else if (shape === 'Cakes') {
           const shapeFiller = slice;
           painKiller = gridDistribution.enter().append('path')
@@ -1542,8 +1547,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('d', (d) => ARC
               ({
                 startAngle: (d.v2 === undefined ?
-                  (composit ? 360 : shapeFiller) :
-                  this.oneCheck(d.v2, d.value) * 360) * Math.PI / 180,
+                  (composit ? 1 : shapeFiller / 360) :
+                  this.oneCheck(d.v2, d.value)) * Math.PI * 2,
                 endAngle: 2 * Math.PI,
                 outerRadius: gridSize / 2, innerRadius: 0
               }));
@@ -1595,14 +1600,14 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .attr('rx', 0)
           .attr('ry', 0)
           .attr('r', gridSize / 2)
-          .style('opacity', (d) => composit ? (d.v3 === undefined ? 0.5 : 0.5) : 1)
+          .style('opacity', (d) => composit ? (d.v3 === undefined ? 0.5 : 0.5) : 0.5)
           .style('fill', (d) => {
             return lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
               (d.v3 === undefined ? d.value : d.v3)}` :
               `${colourScale(d.v3 === undefined ? d.value : d.v3)}`;
           });
         if (composit && (shape === 'Doughnuts' || shape === 'Cakes')) {// Need to add 'd' for path attribute
-          painKiller.attr('d', (d, ii) => (shape === 'Doughnuts' || shape === 'Cakes') ?
+          painKiller.attr('d', (d) => (shape === 'Doughnuts' || shape === 'Cakes') ?
             ARC
               ({
                 startAngle: 0, endAngle: 2 * Math.PI,
@@ -1623,7 +1628,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               ARC
                 ({
                   startAngle: 0, endAngle: Math.PI * 2,
-                  innerRadius: 0, outerRadius: 1
+                  innerRadius: 0, outerRadius: 2
                 })
             )
             .style('fill', 'green')
@@ -1668,7 +1673,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               ARC
                 ({
                   startAngle: 0, endAngle: (d.v2 === undefined ?
-                    (composit ? 360 : shapeFiller) :
+                    (composit ? 1 : shapeFiller / 360) :
                     this.oneCheck(d.v2, d.value)) * 2 * Math.PI,
                   outerRadius: (composit ? this.oneCheck(d.value , d.scale) : 1) * gridSize / 2, innerRadius: 0
                 }) :
@@ -1705,7 +1710,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .attr('transform', (d) => `translate(${(d.x - 1) * gridSize}, ${(d.y - 1) * gridSize}) rotate(135)`)
           .attr('dy', 3)
           .attr('class', 'datavals')
-          .text((d) => `${d3.format('0.0f')(d.value)}`)
+          .text((d) => `${HFormat(d.value)}`)
           .on('click', (dd) => {
             if (!lineMap) {
               return;
