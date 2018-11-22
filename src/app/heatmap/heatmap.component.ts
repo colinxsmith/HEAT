@@ -597,7 +597,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           value: +d[kpiHere], v2: v2, v3: v3 });
       });
       this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
-        plotKPI, totalsX, totalsY, this.colourRangeMaps, this.transposeHeatMap, false, true,
+        plotKPI, [], [], this.colourRangeMaps, this.transposeHeatMap, false, true,
         this.gamma, kpiHere, true, biggestOffice);
     }
   }
@@ -1237,7 +1237,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
     transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '',
     composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
-    const dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] };
+    const dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
+//    ARC = (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius);
+    ARC = d3.arc();
 //    totalsX = !lineMap ? totalsX : [], totalsY = !lineMap ? totalsY : [];
     if (transpose) {
       labelsXY.x = yLabels;
@@ -1350,7 +1352,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         { y: d.x, x: d.y, value: d.value, v2: d.v2, v3: d.v3 } :
         { y: d.y, x: d.x, value: d.value, v2: d.v2, v3: d.v3 },
       heatmapChart = (shape: string) => {
-        const nutScale = d3.scalePow().exponent(1.1).domain([0, 1]).range([0, 1]), slice = 85,
+        const nutScale = d3.scalePow().exponent(1).domain([0, 1]).range([0, 1]), slice = 85,
           heatData: HD[] = [];
         const oXinv = [], oYinv = [];
         if (composit && (shape === 'Squares' || shape === 'Circles')) {
@@ -1527,7 +1529,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           painKiller = gridDistribution.enter().append('path')
             .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
           ${Math.min(d.x * gridSize, Math.random() * height)})`)
-            .attr('d', (d) => d3.arc()
+            .attr('d', (d) => ARC
               ({ startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2,
                 innerRadius:
                 (d.v2 === undefined  ? (composit ? 1 : nutScale(shapeFiller / 360)) :
@@ -1537,7 +1539,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           painKiller = gridDistribution.enter().append('path')
             .attr('transform', (d) => `translate(${Math.min(d.y * gridSize, Math.random() * width)},
           ${Math.min(d.x * gridSize, Math.random() * height)})`)
-            .attr('d', (d) => d3.arc()
+            .attr('d', (d) => ARC
               ({
                 startAngle: (d.v2 === undefined ?
                   (composit ? 360 : shapeFiller) :
@@ -1601,14 +1603,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
           });
         if (composit && (shape === 'Doughnuts' || shape === 'Cakes')) {// Need to add 'd' for path attribute
           painKiller.attr('d', (d, ii) => (shape === 'Doughnuts' || shape === 'Cakes') ?
-            d3.arc()
+            ARC
               ({
                 startAngle: 0, endAngle: 2 * Math.PI,
-                outerRadius: shape === 'Doughnuts' ?
-                  gridSize / 2 * (composit ? d.value / d.scale : 1) :
-                  (d.v2 === undefined ? 1 :
-                    this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1) * gridSize / 2
-                , innerRadius: 0
+                outerRadius: gridSize / 2 * (composit ? d.value / d.scale : 1), innerRadius: 0
               }) : ' ');
         }
         if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
@@ -1617,15 +1615,15 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('transform', (d) => `translate(${Math.random() * 10 * gridSize},${Math.random() * 10 * gridSize})
           rotate(${-90})`)
             .attr('d', () => shape === 'Cakes' ?
-              d3.arc()
+              ARC
                 ({
-                  startAngle: 0, endAngle: 0,
+                  startAngle: 0, endAngle: 10,
                   outerRadius: gridSize / 2, innerRadius: 0
                 }) :
-              d3.arc()
+              ARC
                 ({
                   startAngle: 0, endAngle: Math.PI * 2,
-                  innerRadius: 0, outerRadius: 0
+                  innerRadius: 0, outerRadius: 1
                 })
             )
             .style('fill', 'green')
@@ -1667,26 +1665,28 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize})
           rotate(${90})`)
             .attr('d', (d) => shape === 'Cakes' ?
-              d3.arc()
+              ARC
                 ({
                   startAngle: 0, endAngle: (d.v2 === undefined ?
                     (composit ? 360 : shapeFiller) :
-                    this.oneCheck(d.v2, d.value) * 360) * Math.PI / 180,
-                  outerRadius: (d.v2 === undefined ? (composit ? 1 : 1) :
-                  this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1) * gridSize / 2, innerRadius: 0
+                    this.oneCheck(d.v2, d.value)) * 2 * Math.PI,
+                  outerRadius: (composit ? this.oneCheck(d.value , d.scale) : 1) * gridSize / 2, innerRadius: 0
                 }) :
-              d3.arc()
+              ARC
                 ({
                   startAngle: 0, endAngle: Math.PI * 2,
                   innerRadius: 0, outerRadius:
-                    (d.v2 === undefined ? (composit ? 1 : nutScale(shapeFiller / 360)) :
-                    nutScale(this.oneCheck(d.v2, d.value)) * (composit ? d.value / d.scale : 1)) * gridSize / 2
+                    (d.v2 === undefined ?
+                      (composit ? this.oneCheck(d.value , d.scale) : nutScale(shapeFiller / 360)) :
+                      nutScale(this.oneCheck(d.v2, d.scale))
+                    ) * gridSize / 2
                 })
             )
             .style('fill', (d, i, jj) => {
               const cCol = lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
                 (d.v3 === undefined ? d.value : d.v3)}` :
                 `${colourScale(d.v3 === undefined ? d.value : d.v3)}`;
+              if (shape === 'Cakes') { return cCol; }
               const uName = lineMap ? `lcakeCol${i}` : `cakeCol${i}`;
               const cakeGradient = svg.append('linearGradient')
                 .attr('id', uName)
@@ -1698,7 +1698,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 attr('offset', '0%').attr('class', 'top').style('stop-color', cCol);
               cakeGradient.append('stop')
                 .attr('offset', '100%').attr('class', 'bottom').style('stop-color', cCol);
-              return !composit ? `url(#${uName})` : d.v2 === undefined ? cCol : `url(#${uName})`;
+              return  !composit ? `url(#${uName})` : d.v2 === undefined ? cCol : `url(#${uName})`;
             });
         }
         gridDistribution.enter().append('text')
@@ -1742,16 +1742,16 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .on('mouseout', () => this.tooltip.style('opacity', 0))
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-45)`);
-        const totalsOnMap = false;
-        if (totalsOnMap && this.totalsX.length && this.totalsY.length) {
+        const totalsOnMap = true;
+        if (totalsOnMap && totalsX.length && totalsY.length) {
           const totsy = svg.selectAll('.totalsY')
-            .data(transpose ? this.totalsX : this.totalsY).enter().append('g').append('text');
+            .data(transpose ? totalsX : totalsY).enter().append('g').append('text');
           totsy.attr('class', 'totalsY')
-            .attr('transform', (d, i) => `translate(${(i + 0.45) * gridSize},${labelsXY.y.length * gridSize}) rotate(30)`)
+            .attr('transform', (d, i) => `translate(${(i + 0.45) * gridSize},${nH * gridSize}) rotate(30)`)
             .text((d) => transpose && sortEach ? '' : d3.format('0.2f')(d.value));
           const totsx = svg.selectAll('.totalsX')
-            .data(transpose ? this.totalsY : this.totalsX).enter().append('g').append('text');
-          totsx.attr('transform', (d, i) => `translate(${labelsXY.x.length * gridSize + 10},${(i + 0.45) * gridSize + 3}) rotate(30)`)
+            .data(transpose ? totalsY : totalsX).enter().append('g').append('text');
+          totsx.attr('transform', (d, i) => `translate(${nW * gridSize + 10},${(i + 0.45) * gridSize + 3}) rotate(30)`)
             .attr('class', 'totalsX')
             .text((d) => !transpose && sortEach ? '' : d3.format('0.2f')(d.value));
         }
