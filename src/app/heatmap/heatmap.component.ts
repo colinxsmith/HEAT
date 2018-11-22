@@ -1242,9 +1242,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
     sortEach = false, gamma = 1, chosenData = '',
     composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
     const dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
-//    ARC = (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius);
-    ARC = d3.arc();
-//    totalsX = !lineMap ? totalsX : [], totalsY = !lineMap ? totalsY : [];
+      //    ARC = (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius);
+      ARC = (a: d3.DefaultArcObject) => /*{ console.log(a); return */ (d3.arc()(a)) /*; }*/;
+    //    totalsX = !lineMap ? totalsX : [], totalsY = !lineMap ? totalsY : [];
     if (transpose) {
       labelsXY.x = yLabels;
       labelsXY.y = xLabels;
