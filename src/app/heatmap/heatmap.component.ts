@@ -537,8 +537,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
     });
     //                  office      KPI
     const totalKPI: { x: number; y: number; value: number; v2: number; v3: number }[] = []; // this.myData.managerData;
-    this.totalsX = [];
-    this.totalsY = [];
+    const totalsX: { ind: number; value: number; }[] = [];
+    const totalsY: { ind: number; value: number; }[] = [];
     Offices.forEach((office) => {
       mKPIs.forEach((kpi) => {
         const kk = { x: Officesi[office], y: mKPIi[kpi], value: 0,
@@ -568,21 +568,19 @@ export class HeatmapComponent implements OnInit, OnChanges {
         totalKPI.push(kk);
       });
     });
-    this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, this.colourRangeMaps,
-      this.transposeHeatMap, true, false, this.gamma, this.chosenData, true, biggestOffice);
+    this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, [], [], this.colourRangeMaps,
+      this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice);
 
     if (this.setKPI > -1) {
       const kpiHere = mKPIs[this.setKPI];
       const plotKPI: { x: number, y: number, value: number, v2: number, v3: number }[] = [];
-      this.totalsX = [];
-      this.totalsY = [];
-      Names.forEach((d) => this.totalsX.push({ ind: 0, value: 0 }));
-      Offices.forEach((d) => this.totalsY.push({ ind: 0, value: 0 }));
+      Names.forEach((d) => totalsX.push({ ind: 0, value: 0 }));
+      Offices.forEach((d) => totalsY.push({ ind: 0, value: 0 }));
       this.myData.newData.forEach((d) => {
-        this.totalsY[Officesi[d.office] - 1].value += +d[kpiHere];
-        this.totalsY[Officesi[d.office] - 1].ind = Officesi[d.office] - 1;
-        this.totalsX[Namesi[d.Name] - 1].value += +d[kpiHere];
-        this.totalsX[Namesi[d.Name] - 1].ind = Namesi[d.Name] - 1;
+        totalsY[Officesi[d.office] - 1].value += +d[kpiHere];
+        totalsY[Officesi[d.office] - 1].ind = Officesi[d.office] - 1;
+        totalsX[Namesi[d.Name] - 1].value += +d[kpiHere];
+        totalsX[Namesi[d.Name] - 1].ind = Namesi[d.Name] - 1;
         let v2: number, v3: number;
         if (/* kpiHere.startsWith('P_') ||*/ kpiHere.startsWith('Out1')) {
 //          console.log(kpiHere);
@@ -598,10 +596,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
         plotKPI.push({ x: Officesi[d.office], y: Namesi[d.Name],
           value: +d[kpiHere], v2: v2, v3: v3 });
       });
-      this.totalsX = [];
-      this.totalsY = [];
       this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
-        plotKPI, this.colourRangeMaps, this.transposeHeatMap, false, true, this.gamma, kpiHere, true, biggestOffice);
+        plotKPI, totalsX, totalsY, this.colourRangeMaps, this.transposeHeatMap, false, true,
+        this.gamma, kpiHere, true, biggestOffice);
     }
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
@@ -622,7 +619,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
       }
     });
     this.managerGroups.sort((a, b) => a.localeCompare(b));
-    this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.myData.managerKPIs, this.managerSummary(), this.colourRangeMaps,
+    this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.myData.managerKPIs, this.managerSummary(),
+    this.totalsX, this.totalsY, this.colourRangeMaps,
       this.transposeHeatMap, true, false, this.gamma, this.chosenData);
     let ij = 0;
     for (let i = 0; i < nx && dataV.length; ++i) {
@@ -692,7 +690,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
           this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.managerGroups,
-            this.managerProcess(this.myData.managerData[i]), this.colourRangeMaps,
+            this.managerProcess(this.myData.managerData[i]), this.totalsX, this.totalsY, this.colourRangeMaps,
             this.transposeHeatMap, false, true, this.gamma, this.chosenData);
         }
       });
@@ -1235,12 +1233,12 @@ export class HeatmapComponent implements OnInit, OnChanges {
     this.processDisplay();
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number, v2: number, v3: number }[],
-    colourRange: string[], transpose = false, lineMap = false,
+    totalsX: { ind: number, value: number }[], totalsY: { ind: number, value: number }[], colourRange: string[],
+    transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '',
     composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
-    const dataHere = lineMap ? 'total' : chosenData,
-      totalsX = !lineMap ? this.totalsX : [], totalsY = !lineMap ? this.totalsY : [],
-      labelsXY = { x: [' '], y: [' '] };
+    const dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] };
+//    totalsX = !lineMap ? totalsX : [], totalsY = !lineMap ? totalsY : [];
     if (transpose) {
       labelsXY.x = yLabels;
       labelsXY.y = xLabels;
@@ -1250,7 +1248,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     }
     // Sort both axes according to totals
     if (totalsX !== []) {
-      totalsX.sort((a1, a2) => { // Managers' group data
+      totalsX.sort((a1, a2) => { // Managers' data
         if (a2.value > a1.value) {
           return 1;
         } else if (a2.value === a1.value) {
@@ -1559,7 +1557,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             if (this.chosenFigure === 'Heat Map') {
               this.chosenData = this.myData.managerKPIs[this.whichKPI];
               this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-                this.managerProcess(this.myData.managerData[this.whichKPI]), colourRange,
+                this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRange,
                 transpose, false, true, gamma, this.chosenData);
               this.whichKPI = -1;
             } else if (this.chosenFigure === 'Heat Map 2') {
@@ -1640,7 +1638,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               if (this.chosenFigure === 'Heat Map') {
                 this.chosenData = this.myData.managerKPIs[this.whichKPI];
                 this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-                  this.managerProcess(this.myData.managerData[this.whichKPI]), colourRange,
+                  this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRange,
                   transpose, false, true, gamma, this.chosenData);
                 this.whichKPI = -1;
               } else if (this.chosenFigure === 'Heat Map 2') {
@@ -1717,7 +1715,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             if (this.chosenFigure === 'Heat Map') {
               this.chosenData = this.myData.managerKPIs[this.whichKPI];
               this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-                this.managerProcess(this.myData.managerData[this.whichKPI]), colourRange,
+                this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRange,
                 transpose, false, true, gamma, this.chosenData);
               this.whichKPI = -1;
             } else if (this.chosenFigure === 'Heat Map 2') {
