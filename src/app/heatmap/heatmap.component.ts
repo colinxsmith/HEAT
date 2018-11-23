@@ -1542,7 +1542,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           d3.max(heatData, (d: HD) =>
           d.v3 === undefined ? d.value : d.v3) + 1]);
         }
-        let labStart = yLabels[0].substr(0, 2), pRed = true;
+        let labStart = yLabels[0].substr(0, 2), pBlue = false;
         const accumulate = true;
         if (lineMap) {
           let x1 = 1e10, x2 = -1e10, lastJ = 0;
@@ -1553,7 +1553,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               x1 = 1e10, x2 = -1e10, lastJ = jj;
             }
             if (lastJ === jj) {
-              pRed = !pRed;
+              pBlue = !pBlue;
             }
             if (!accumulate) {
               x1 = 1e10, x2 = -1e10;
@@ -1570,7 +1570,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 x2 = d3.max(heatData, (d) => d.y - 1 === jj ? (d.v3 === undefined ? d.value : d.v3) : x2);
               }
             }
-            colourScales[jj] = d3.scaleQuantile<string>().range(pRed ? coloursRed : coloursBlue).domain([x1, x2]);
+            colourScales[jj] = d3.scaleQuantile<string>().range(pBlue ? coloursRed : coloursBlue).domain([x1, x2]);
             if (accumulate && jj > lastJ) {
               if (jj > 0) {
                 for (let jjj = lastJ; jjj < jj; ++jjj) {
