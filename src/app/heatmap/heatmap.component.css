@@ -55,13 +55,19 @@ text.axis-xh {
     font-size: 15px;
     font-weight: bold;
     font-family: Calibri, sans-serif;
-    fill: #00b;
+    fill: rgb(84,83,79);
 }
 text.axis-y {
     font-size: 15px;
     font-weight: bold;
     font-family: Calibri, sans-serif;
-    fill: #00b;
+    fill: rgb(84,83,79);
+}
+text.title{
+    font-weight: normal;
+    font-family: Calibri, sans-serif;
+    fill:rgb(84,83,79);
+    text-anchor: middle;
 }
 .leafy {
     color: rgba(195, 255, 40, 0.568);
@@ -156,10 +162,4 @@ stop.top {
 stop.bottom {
     stop-color: rgb(82, 73, 73);
     stop-opacity: 0.10;
-}
-text.title{
-    font-weight: normal;
-    font-family: Calibri, sans-serif;
-    fill:rgb(84,83,79);
-    text-anchor: middle;
 }

@@ -1512,7 +1512,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                   }
                 });
               }
-              for (let jj = 0; jj < yLabels.length && jj < tempY.length; jj++) {
+              for (let jj = 0; jj < tempY.length; jj++) {
                 heatData.push({
                   x: tempY[jj].x, y: sortEach ? jj + 1 : tempY[jj].y,
                   v2: tempY[jj].v2, v3: tempY[jj].v3, value: tempY[jj].value, group: tempY[jj].group,
@@ -1536,25 +1536,39 @@ export class HeatmapComponent implements OnInit, OnChanges {
         }
         let labStart = yLabels[0].substr(0, 2), changeColour = false, pRed = true;
         if (lineMap) {
+          let x1 = 1e10, x2 = -1e10, lastJ = 0;
           for (let jj = 0; jj < yLabels.length; jj++) {
-            let x1 = 1e9, x2 = -1e9;
-            for (let ii = 0; ii < xLabels.length; ii++) {
-              x1 = Math.min(x1, heatData[ii * yLabels.length + jj].v3 === undefined ?
-                heatData[ii * yLabels.length + jj].value : heatData[ii * yLabels.length + jj].v3);
-              x2 = Math.max(x2, heatData[ii * yLabels.length + jj].v3 === undefined ?
-                heatData[ii * yLabels.length + jj].value : heatData[ii * yLabels.length + jj].v3);
-            }
             const labStartHere = yLabels[jj].startsWith('C') ? yLabels[jj].substr(0, 3) : yLabels[jj].substr(0, 2);
             if (labStart.toLocaleLowerCase() === labStartHere.toLocaleLowerCase()) {
               changeColour = false;
             } else {
               changeColour = true;
               labStart = labStartHere;
+              x1 = 1e10, x2 = -1e10, lastJ = jj;
             }
             if (changeColour) {
-              pRed = ! pRed;
+              pRed = !pRed;
+            }
+            if (transpose) {
+              for (let ii = 0; ii < xLabels.length; ++ii) {
+                x1 = d3.min(heatData, (d) => d.x - 1 === jj ? (d.v3 === undefined ? d.value : d.v3) : x1);
+                x2 = d3.max(heatData, (d) => d.x - 1 === jj ? (d.v3 === undefined ? d.value : d.v3) : x2);
+              }
+
+            } else {
+              for (let ii = 0; ii < xLabels.length; ++ii) {
+                x1 = d3.min(heatData, (d) => d.y - 1 === jj ? (d.v3 === undefined ? d.value : d.v3) : x1);
+                x2 = d3.max(heatData, (d) => d.y - 1 === jj ? (d.v3 === undefined ? d.value : d.v3) : x2);
+              }
             }
             colourScales[jj] = d3.scaleQuantile<string>().range(pRed ? coloursRed : coloursBlue).domain([x1, x2]);
+            if (!changeColour) {
+              if (jj > 0) {
+                for (let jjj = lastJ; jjj < jj; ++jjj) {
+                  colourScales[jjj] = colourScales[jj];
+                }
+              }
+            }
             if (x1 === x2) {
               colourScales[jj].domain([x1, Math.max(x1 + 1e-5, x1 * 1.01)]);
             }
