@@ -17,7 +17,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() setKPI = -1;
 
 
-  colourSetupRange = ['rgb(0,255,0)', 'red', '1'];
+  @Input() colourSetupRange = ['rgb(0,255,0)', 'red', '1'];
   plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map', 'Heat Map 2'].reverse();
   tooltip = AppComponent.toolTipStatic;
   managerOffices: string[] = [];
@@ -34,9 +34,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() chosenShape = this.shape[0];
   @Input() pad = false;
   @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  @Input() colourRangeMaps = ['rgb(144,238,144)', 'red'];
+  @Input() colourRangeMapRed = ['white', 'rgba(225,0,0,1)'];
+  @Input() colourRangeMapBlue = ['white', 'rgba(100,100,225,1)'];
   @Input() gamma = 155e-2; // Try to make the colours go green orange red
-  colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
+  @Input() colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
     'rgba(105,245,100,0.2)', 'rgba(105,245,100,1)',
@@ -572,7 +573,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         totalKPI.push(kk);
       });
     });
-    this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, [], [], this.colourRangeMaps,
+    this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, [], [], this.colourRangeMapRed, this.colourRangeMapBlue,
       this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice);
 
     if (this.setKPI > -1) {
@@ -602,7 +603,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
       });
       const orderByTotals = false;
       this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
-        plotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMaps, this.transposeHeatMap, false, true,
+        plotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMapRed,
+        this.colourRangeMapBlue, this.transposeHeatMap, false, true,
         this.gamma, kpiHere, true, biggestOffice);
     }
   }
@@ -625,8 +627,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
     });
     this.managerGroups.sort((a, b) => a.localeCompare(b));
     this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.myData.managerKPIs, this.managerSummary(),
-    this.totalsX, this.totalsY, this.colourRangeMaps,
-      this.transposeHeatMap, true, false, this.gamma, this.chosenData);
+    this.totalsX, this.totalsY, this.colourRangeMapRed, this.colourRangeMapBlue,
+      this.transposeHeatMap, true, false, this.gamma, '');
     let ij = 0;
     for (let i = 0; i < nx && dataV.length; ++i) {
       if (here.totalsY[i] === undefined) {
@@ -664,14 +666,14 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .style('color', 'black')
         .text('Colour range: ')
         .selectAll()
-        .data(this.colourRangeMaps)
+        .data(this.colourRangeMapRed)
         .enter()
         .append('input')
         .style('color', 'blue')
         .attr('type', 'text')
         .attr('value', (d) => d)
         .on('change', (d, i, j) => {
-          this.colourRangeMaps[i] = (<HTMLInputElement>(j[i])).value;
+          this.colourRangeMapRed[i] = (<HTMLInputElement>(j[i])).value;
           this.processDisplayI();
         });
       d3.select(this.mainScreen.nativeElement).select('div').append('g')
@@ -695,7 +697,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       this.myData.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
           this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.managerGroups,
-            this.managerProcess(this.myData.managerData[i]), this.totalsX, this.totalsY, this.colourRangeMaps,
+            this.managerProcess(this.myData.managerData[i]), this.totalsX, this.totalsY, this.colourRangeMapRed, this.colourRangeMapBlue,
             this.transposeHeatMap, false, true, this.gamma, this.chosenData);
         }
       });
@@ -705,16 +707,31 @@ export class HeatmapComponent implements OnInit, OnChanges {
     } else if (this.chosenFigure === 'Heat Map 2') {
       d3.select(this.mainScreen.nativeElement).append('div').append('g') // div for colour picker
         .style('color', 'black')
-        .text('Colour range: ')
+        .text('Colour Red range: ')
         .selectAll()
-        .data(this.colourRangeMaps)
+        .data(this.colourRangeMapRed)
+        .enter()
+        .append('input')
+        .style('color', 'red')
+        .attr('type', 'text')
+        .attr('value', (d) => d)
+        .on('change', (d, i, j) => {
+          this.colourRangeMapRed[i] = (<HTMLInputElement>(j[i])).value;
+          this.processDisplayI();
+        });
+
+      d3.select(this.mainScreen.nativeElement).append('div').append('g') // div for colour picker
+        .style('color', 'black')
+        .text('Colour Blue range: ')
+        .selectAll()
+        .data(this.colourRangeMapBlue)
         .enter()
         .append('input')
         .style('color', 'blue')
         .attr('type', 'text')
         .attr('value', (d) => d)
         .on('change', (d, i, j) => {
-          this.colourRangeMaps[i] = (<HTMLInputElement>(j[i])).value;
+          this.colourRangeMapBlue[i] = (<HTMLInputElement>(j[i])).value;
           this.processDisplayI();
         });
       d3.select(this.mainScreen.nativeElement).select('div').append('g')
@@ -733,7 +750,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         });
       d3.select(this.mainScreen.nativeElement).select('div').append('button')
         .style('background-color', 'lightgrey')
-        .style('color', 'blue')
+        .style('color', 'green')
         .text('SUBMIT');
       this.procNewData();
     } else if (this.chosenFigure === 'Large Map') {
@@ -1238,7 +1255,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
     this.processDisplay();
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number, v2: number, v3: number }[],
-    totalsX: { ind: number, value: number }[], totalsY: { ind: number, value: number }[], colourRange: string[],
+    totalsX: { ind: number, value: number }[], totalsY: { ind: number, value: number }[],
+    colourRangeRed: string[], colourRangeBlue: string[],
     transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '',
     composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
@@ -1298,14 +1316,21 @@ export class HeatmapComponent implements OnInit, OnChanges {
     width = gridSize * nW;
     height = gridSize * nH;
     legendSize = Math.min(legendSize, legendElementWidth);
-    const coloursd = d3.scaleLinear<d3.RGBColor>()
+    const coloursRedd = d3.scaleLinear<d3.RGBColor>()
       .interpolate(d3.interpolateRgb.gamma(gamma))
       .domain([0, buckets])
-      .range([d3.rgb(colourRange[0]), d3.rgb(colourRange[1])]), colours: string[] = [],
-      svgBase = d3.select(id).append('svg');
+      .range([d3.rgb(colourRangeRed[0]), d3.rgb(colourRangeRed[1])]), coloursRed: string[] = [],
+      coloursBlued = d3.scaleLinear<d3.RGBColor>()
+        .interpolate(d3.interpolateRgb.gamma(gamma))
+        .domain([0, buckets])
+        .range([d3.rgb(colourRangeBlue[0]), d3.rgb(colourRangeBlue[1])]), coloursBlue: string[] = [],
+        svgBase = d3.select(id).append('svg');
     for (let i = 0; i < buckets; i++) {
-      colours[i] = coloursd(i * buckets / (buckets - 1));
+      coloursRed[i] = coloursRedd(i * buckets / (buckets - 1));
     }
+  for (let i = 0; i < buckets; i++) {
+    coloursBlue[i] = coloursBlued(i * buckets / (buckets - 1));
+  }
     if (this.viewbox) {
       svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`);
     } else {
@@ -1367,7 +1392,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         { y: d.x, x: d.y, value: d.value, v2: d.v2, v3: d.v3 } :
         { y: d.y, x: d.x, value: d.value, v2: d.v2, v3: d.v3 },
       heatmapChart = (shape: string) => {
-        const nutScale = d3.scalePow().exponent(1).domain([0, 1]).range([0, 1]), slice = 85,
+        const nutScale = d3.scalePow().exponent(1).domain([0, 1]).range([0.2, 1]), slice = 85,
           heatData: HD[] = [];
         const oXinv = [], oYinv = [];
         if (composit && (shape === 'Squares' || shape === 'Circles')) {
@@ -1503,12 +1528,13 @@ export class HeatmapComponent implements OnInit, OnChanges {
               d.v3 === undefined ? d.value : d.v3),
             d3.max(heatData, (d: HD) =>
               d.v3 === undefined ? d.value : d.v3)])
-            .range(colours);
+            .range(coloursRed);
         if (colourScale.domain()[0] === colourScale.domain()[1]) {
           colourScale.domain([d3.max(heatData, (d: HD) => d.v3 === undefined ? d.value : d.v3),
           d3.max(heatData, (d: HD) =>
           d.v3 === undefined ? d.value : d.v3) + 1]);
         }
+        let labStart = yLabels[0].substr(0, 2), changeColour = false, pRed = true;
         if (lineMap) {
           for (let jj = 0; jj < yLabels.length; jj++) {
             let x1 = 1e9, x2 = -1e9;
@@ -1518,7 +1544,17 @@ export class HeatmapComponent implements OnInit, OnChanges {
               x2 = Math.max(x2, heatData[ii * yLabels.length + jj].v3 === undefined ?
                 heatData[ii * yLabels.length + jj].value : heatData[ii * yLabels.length + jj].v3);
             }
-            colourScales[jj] = d3.scaleQuantile<string>().range(colours).domain([x1, x2]);
+            const labStartHere = yLabels[jj].startsWith('C') ? yLabels[jj].substr(0, 3) : yLabels[jj].substr(0, 2);
+            if (labStart.toLocaleLowerCase() === labStartHere.toLocaleLowerCase()) {
+              changeColour = false;
+            } else {
+              changeColour = true;
+              labStart = labStartHere;
+            }
+            if (changeColour) {
+              pRed = ! pRed;
+            }
+            colourScales[jj] = d3.scaleQuantile<string>().range(pRed ? coloursRed : coloursBlue).domain([x1, x2]);
             if (x1 === x2) {
               colourScales[jj].domain([x1, Math.max(x1 + 1e-5, x1 * 1.01)]);
             }
@@ -1548,7 +1584,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('d', (d) => ARC
               ({ startAngle: 0, endAngle: Math.PI * 2, outerRadius: gridSize / 2,
                 innerRadius:
-                (d.v2 === undefined  ? (composit ? 1 : nutScale(shapeFiller / 360)) :
+                (d.v2 === undefined  ? nutScale(composit ? 1 : (shapeFiller / 360)) :
                 nutScale(this.oneCheck(d.v2, d.scale))) * gridSize / 2 }));
         } else if (shape === 'Cakes') {
           const shapeFiller = slice;
@@ -1575,7 +1611,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             if (this.chosenFigure === 'Heat Map') {
               this.chosenData = this.myData.managerKPIs[this.whichKPI];
               this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-                this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRange,
+                this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRangeRed, colourRangeBlue,
                 transpose, false, true, gamma, this.chosenData);
               this.whichKPI = -1;
             } else if (this.chosenFigure === 'Heat Map 2') {
@@ -1622,7 +1658,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             ARC
               ({
                 startAngle: 0, endAngle: 2 * Math.PI,
-                outerRadius: gridSize / 2 * (composit ? d.value / d.scale : 1), innerRadius: 0
+                outerRadius: gridSize / 2 * nutScale(composit ? d.value / d.scale : 1), innerRadius: 0
               }) : ' ');
         }
         if (shape === 'Cakes' || shape === 'Doughnuts') { // The fill-ins for these shapes which will have variable slice
@@ -1652,7 +1688,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               if (this.chosenFigure === 'Heat Map') {
                 this.chosenData = this.myData.managerKPIs[this.whichKPI];
                 this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-                  this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRange,
+                  this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRangeRed, colourRangeBlue,
                   transpose, false, true, gamma, this.chosenData);
                 this.whichKPI = -1;
               } else if (this.chosenFigure === 'Heat Map 2') {
@@ -1693,7 +1729,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                   startAngle: 0, endAngle: Math.PI * 2,
                   innerRadius: 0, outerRadius:
                     (d.v2 === undefined ?
-                      (composit ? this.oneCheck(d.value , d.scale) : nutScale(shapeFiller / 360)) :
+                      nutScale(composit ? (this.oneCheck(d.value , d.scale)) : (shapeFiller / 360)) :
                       nutScale(this.oneCheck(d.v2, d.scale))
                     ) * gridSize / 2
                 })
@@ -1731,7 +1767,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             if (this.chosenFigure === 'Heat Map') {
               this.chosenData = this.myData.managerKPIs[this.whichKPI];
               this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-                this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRange,
+                this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRangeRed, colourRangeBlue,
                 transpose, false, true, gamma, this.chosenData);
               this.whichKPI = -1;
             } else if (this.chosenFigure === 'Heat Map 2') {
@@ -1771,7 +1807,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .attr('class', 'totalsX')
             .text((d) => !transpose && sortEach ? '' : d3.format('0.2f')(d.value));
         }
-        const doLegend = true ; // && !lineMap;
+        const doLegend = true && !lineMap;
         if (doLegend) {
           const scaleC: number[] = [];
           colourScale.quantiles().forEach((d) => scaleC.push(d));
