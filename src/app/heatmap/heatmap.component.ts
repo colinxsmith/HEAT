@@ -1537,7 +1537,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               d.v3 === undefined ? d.value : d.v3),
             d3.max(heatData, (d: HD) =>
               d.v3 === undefined ? d.value : d.v3)])
-            .range(coloursBlue);
+            .range(coloursRed);
         if (colourScale.domain()[0] === colourScale.domain()[1]) {
           colourScale.domain([d3.max(heatData, (d: HD) => d.v3 === undefined ? d.value : d.v3),
           d3.max(heatData, (d: HD) =>
