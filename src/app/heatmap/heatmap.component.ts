@@ -67,10 +67,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
   ];
   oneCheck = (x1: number, x2: number) => (x1 - x2) * (x1 - x2) < 1e-12 ? 1 : Math.min(1.0, (x1) / x2);
   squareArc = (ang1: number, ang2: number, rad1: number, rad2: number) => {
-    console.log(ang1);
+/*    console.log(ang1);
     console.log(ang2);
     console.log(rad1);
-    console.log(rad2);
+    console.log(rad2);*/
     ang1 -= Math.PI * 0.5;
     ang2 -= Math.PI * 0.5;
     const makeZ = (x: number) => Math.abs(x) < 1e-8 ? 0 : x;
@@ -1260,9 +1260,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
     transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '',
     composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
-    const title = chosenData.replace(/_/g, ' '), dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
-      //    ARC = (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius);
-      ARC = (a: d3.DefaultArcObject) => /*{ console.log(a); return */ (d3.arc()(a)) /*; }*/;
+    const mySquare = true,
+      title = chosenData.replace(/_/g, ' '), dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
+      ARC = mySquare ? (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius) :
+        (a: d3.DefaultArcObject) => /*{ console.log(a); return */(d3.arc()(a)) /*; }*/;
     //    totalsX = !lineMap ? totalsX : [], totalsY = !lineMap ? totalsY : [];
     if (transpose) {
       labelsXY.x = yLabels;
