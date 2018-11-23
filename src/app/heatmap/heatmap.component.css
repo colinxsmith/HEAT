@@ -64,7 +64,7 @@ text.axis-y {
     fill: rgb(84,83,79);
 }
 text.title{
-    font-weight: normal;
+    font-weight: bold;
     font-family: Calibri, sans-serif;
     fill:rgb(84,83,79);
     text-anchor: middle;
