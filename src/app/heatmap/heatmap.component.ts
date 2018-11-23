@@ -600,8 +600,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
         plotKPI.push({ x: Officesi[d.office], y: Namesi[d.Name],
           value: +d[kpiHere], v2: v2, v3: v3 });
       });
+      const orderByTotals = false;
       this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
-        plotKPI, [], [], this.colourRangeMaps, this.transposeHeatMap, false, true,
+        plotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMaps, this.transposeHeatMap, false, true,
         this.gamma, kpiHere, true, biggestOffice);
     }
   }
@@ -1241,7 +1242,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '',
     composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
-    const dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
+    const title = chosenData.replace(/_/g, ' '), dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
       //    ARC = (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius);
       ARC = (a: d3.DefaultArcObject) => /*{ console.log(a); return */ (d3.arc()(a)) /*; }*/;
     //    totalsX = !lineMap ? totalsX : [], totalsY = !lineMap ? totalsY : [];
@@ -1291,7 +1292,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     const margin = { top: transpose ? 150 : 100, right: 50, bottom: 10, left: transpose ? 100 : 200 },
       buckets = Math.min(nW, nH) + 1;
     let width = 1200 * scale - margin.left - margin.right,
-      height = transpose ? 900 * scale : 1400 * scale - margin.top - margin.bottom - legendSize;
+      height = transpose ? 900 * scale : 1400 * scale - margin.top - margin.bottom - legendSize * 2;
     const gridSize = Math.min(Math.floor(width / nW), Math.floor(height / nH)),
       legendElementWidth = gridSize;
     width = gridSize * nW;
@@ -1309,28 +1310,38 @@ export class HeatmapComponent implements OnInit, OnChanges {
       svgBase.attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom + legendSize}`);
     } else {
       svgBase.attr('width', width + margin.left + margin.right);
-      svgBase.attr('height', height + margin.top + margin.bottom + legendSize);
+      svgBase.attr('height', height + margin.top + margin.bottom + legendSize + gridSize);
     }
-    const doBox = false;
+    const doBox = true;
     if (doBox) {
       const box = svgBase.append('rect')
         .attr('x', 0)
         .attr('y', 0)
         .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom + legendSize)
+        .attr('height', height + margin.top + margin.bottom + legendSize + gridSize)
         .style('stroke', 'black')
         .style('fill', 'none')
         .style('stroke-width', 1);
     }
-    const svg = svgBase
+    const tit = svgBase
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'),
+      TitleArea = tit.append('text')
+        .attr('class', 'title')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('transform', `translate(${width / 2},${-gridSize})`)
+        .style('font-size', `${gridSize}px`)
+        .text(title),
+      svg = svgBase
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top + gridSize})`),
       YLabels = svg.selectAll('.yLabel')
         .data(labelsXY.y)
         .enter().append('text')
         .text((d, i) => {
           return labelsXY.y[transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (sortEach ? '' :   totalsX.length ? totalsX[i].ind : i)];
+            : (sortEach ? '' : totalsX.length ? totalsX[i].ind : i)];
         }
         )
         .attr('x', 0)
@@ -1690,8 +1701,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
             .style('fill', (d, i, jj) => {
               const cCol = lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
                 (d.v3 === undefined ? d.value : d.v3)}` :
-                `${colourScale(d.v3 === undefined ? d.value : d.v3)}`;
-              if (shape === 'Cakes') { return cCol; }
+                `${colourScale(d.v3 === undefined ? d.value : d.v3)}`, noGrad = true;
+              if (noGrad) { return cCol; }
               const uName = lineMap ? `lcakeCol${i}` : `cakeCol${i}`;
               const cakeGradient = svg.append('linearGradient')
                 .attr('id', uName)
