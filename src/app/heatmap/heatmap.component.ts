@@ -1365,8 +1365,12 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .data(labelsXY.y)
         .enter().append('text')
         .text((d, i) => {
-          return labelsXY.y[transpose ? (totalsY.length ? totalsY[i].ind : i)
+          let back = labelsXY.y[transpose ? (totalsY.length ? totalsY[i].ind : i)
             : (sortEach ? '' : totalsX.length ? totalsX[i].ind : i)];
+          if (back !== undefined) {
+            back = back.replace(/_/g, ' ');
+          }
+          return back;
         }
         )
         .attr('x', 0)
@@ -1378,8 +1382,12 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .data(labelsXY.x)
         .enter().append('text')
         .text((d, i) => {
-          return labelsXY.x[!transpose ? (totalsY.length ? totalsY[i].ind : i)
-            : (sortEach ? '' : totalsX.length ? totalsX[i].ind : i)];
+          let back = labelsXY.x[!transpose ? (totalsY.length ? totalsY[i].ind : i)
+          : (sortEach ? '' : totalsX.length ? totalsX[i].ind : i)];
+          if (back !== undefined) {
+            back = back.replace(/_/g, ' ');
+          }
+          return back;
         })
         .attr('x', 0)
         .attr('y', 0)
@@ -1639,9 +1647,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
             this.tooltip
               .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
-              ${transpose ? d.group : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1]}
-              <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : d.group}
-              <br>${dataHere}
+              ${transpose ? d.group.replace(/_/g, ' ') : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1].replace(/_/g, ' ')}
+              <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1].replace(/_/g, ' ') : d.group.replace(/_/g, ' ')}
+              <br>${dataHere.replace(/_/g, ' ')}
               <br>${d3.format('0.2f')(d.value)}
               <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
               <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
@@ -1716,9 +1724,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
               const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
               this.tooltip
                 .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
-                ${transpose ? d.group : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1]}
-                <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : d.group}
-                <br>${dataHere}
+                ${transpose ? d.group.replace(/_/g, ' ') : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1].replace(/_/g, ' ')}
+                <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1].replace(/_/g, ' ') : d.group.replace(/_/g, ' ')}
+                <br>${dataHere.replace(/_/g, ' ')}
                 <br>${d3.format('0.2f')(d.value)}
                 <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
                 <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
@@ -1795,9 +1803,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
             const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
             this.tooltip
               .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
-              ${transpose ? d.group : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1]}
-              <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1] : d.group}
-              <br>${dataHere}
+              ${transpose ? d.group.replace(/_/g, ' ') : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1].replace(/_/g, ' ')}
+              <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1].replace(/_/g, ' ') : d.group.replace(/_/g, ' ')}
+              <br>${dataHere.replace(/_/g, ' ')}
               <br>${d3.format('0.2f')(d.value)}
               <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
               <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
