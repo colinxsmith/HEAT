@@ -1401,7 +1401,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         { y: d.x, x: d.y, value: d.value, v2: d.v2, v3: d.v3 } :
         { y: d.y, x: d.x, value: d.value, v2: d.v2, v3: d.v3 },
       heatmapChart = (shape: string) => {
-        const nutScale = d3.scalePow().exponent(1).domain([0, 1]).range([0.2, 1]), slice = 85,
+        const nutScale = d3.scalePow().exponent(1).domain([0, 1]).range([0, 1]), slice = 85,
           heatData: HD[] = [];
         const oXinv = [], oYinv = [];
         if (composit && (shape === 'Squares' || shape === 'Circles')) {
@@ -1537,7 +1537,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               d.v3 === undefined ? d.value : d.v3),
             d3.max(heatData, (d: HD) =>
               d.v3 === undefined ? d.value : d.v3)])
-            .range(coloursRed);
+            .range(coloursBlue);
         if (colourScale.domain()[0] === colourScale.domain()[1]) {
           colourScale.domain([d3.max(heatData, (d: HD) => d.v3 === undefined ? d.value : d.v3),
           d3.max(heatData, (d: HD) =>
