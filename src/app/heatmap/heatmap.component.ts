@@ -34,8 +34,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() chosenShape = this.shape[0];
   @Input() pad = false;
   @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  @Input() colourRangeMapRed = ['white', 'rgba(225,0,0,1)'];
-  @Input() colourRangeMapBlue = ['white', 'rgba(100,100,225,1)'];
+  @Input() colourRangeMapRed = ['rgba(225,0,0,0.1)', 'rgba(225,0,0,1)'];
+  @Input() colourRangeMapBlue = ['rgba(100,100,225,0.1)', 'rgba(100,100,225,1)'];
   @Input() gamma = 155e-2; // Try to make the colours go green orange red
   @Input() colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
@@ -1534,20 +1534,21 @@ export class HeatmapComponent implements OnInit, OnChanges {
           d3.max(heatData, (d: HD) =>
           d.v3 === undefined ? d.value : d.v3) + 1]);
         }
-        let labStart = yLabels[0].substr(0, 2), changeColour = false, pRed = true;
+        let labStart = yLabels[0].substr(0, 2), pRed = true;
+        const accumulate = true;
         if (lineMap) {
           let x1 = 1e10, x2 = -1e10, lastJ = 0;
           for (let jj = 0; jj < yLabels.length; jj++) {
             const labStartHere = yLabels[jj].startsWith('C') ? yLabels[jj].substr(0, 3) : yLabels[jj].substr(0, 2);
-            if (labStart.toLocaleLowerCase() === labStartHere.toLocaleLowerCase()) {
-              changeColour = false;
-            } else {
-              changeColour = true;
+            if (labStart.toLocaleLowerCase() !== labStartHere.toLocaleLowerCase()) {
               labStart = labStartHere;
               x1 = 1e10, x2 = -1e10, lastJ = jj;
             }
-            if (changeColour) {
+            if (lastJ === jj) {
               pRed = !pRed;
+            }
+            if (!accumulate) {
+              x1 = 1e10, x2 = -1e10;
             }
             if (transpose) {
               for (let ii = 0; ii < xLabels.length; ++ii) {
@@ -1562,7 +1563,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               }
             }
             colourScales[jj] = d3.scaleQuantile<string>().range(pRed ? coloursRed : coloursBlue).domain([x1, x2]);
-            if (!changeColour) {
+            if (accumulate && jj > lastJ) {
               if (jj > 0) {
                 for (let jjj = lastJ; jjj < jj; ++jjj) {
                   colourScales[jjj] = colourScales[jj];
