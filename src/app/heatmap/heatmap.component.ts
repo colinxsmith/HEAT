@@ -5,7 +5,7 @@ import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map<input  (change)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map <input  (change)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="modDough()"> Modify Doughnut</button>',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="processDisplay()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerKPIs">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -26,6 +26,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   totalsY: { ind: number, value: number }[] = [];
   @Input() numColours = 250;
   @Input() transposeHeatMap = false;
+  @Input() doughnutArc = false;
   @Input() shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
   viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
   @Input() chosenData = '';
@@ -1254,13 +1255,17 @@ export class HeatmapComponent implements OnInit, OnChanges {
     this.transposeHeatMap = !this.transposeHeatMap;
     this.processDisplay();
   }
+  modDough() {
+    this.doughnutArc = !this.doughnutArc;
+    this.processDisplay();
+  }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number, v2: number, v3: number }[],
     totalsX: { ind: number, value: number }[], totalsY: { ind: number, value: number }[],
     colourRangeRed: string[], colourRangeBlue: string[],
     transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '',
     composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
-    const mySquare = true,
+    const mySquare = this.doughnutArc,
       title = chosenData.replace(/_/g, ' '), dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
       ARC = mySquare ? (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius) :
         (a: d3.DefaultArcObject) => /*{ console.log(a); return */(d3.arc()(a)) /*; }*/;
@@ -1671,7 +1676,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .attr('rx', 0)
           .attr('ry', 0)
           .attr('r', gridSize / 2)
-          .style('opacity', (d) => composit ? (d.v3 === undefined ? 0.5 : 0.5) : 0.5)
+          .style('opacity', (d) => composit ? (d.v3 === undefined ? 0.3 : 0.3) : 0.3)
           .style('fill', (d) => {
             return lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
               (d.v3 === undefined ? d.value : d.v3)}` :
