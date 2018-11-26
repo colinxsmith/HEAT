@@ -557,17 +557,29 @@ export class HeatmapComponent implements OnInit, OnChanges {
         }
         Names.forEach((name, i) => {
           if (this.myData.newData[i].office === office) {
-            kk.value += +this.myData.newData[i][kpi];
+            let v0 = +this.myData.newData[i][kpi], v2 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
             if (/* kpi.startsWith('P_') ||*/ kpi.toLocaleLowerCase().startsWith('out1')) {
-//              console.log(kpi);
-//             console.log(KPIs[KPIi[kpi]]);
-              kk.v2 += +this.myData.newData[i][KPIs[KPIi[kpi]]];
+              //              console.log(kpi);
+              //             console.log(KPIs[KPIi[kpi]]);
+              if (v2 > v0) {
+                v2 = +this.myData.newData[i][kpi];
+                v0 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
+              }
+              kk.value += v0;
+              kk.v2 += v2;
             } else if (kpi.toLocaleLowerCase().endsWith('_all')) {
-//              console.log(kpi);
-//              console.log(KPIs[KPIi[kpi]]);
-//              console.log(KPIs[KPIi[kpi] + 1]);
-              kk.v2 += +this.myData.newData[i][KPIs[KPIi[kpi]]];
+              //              console.log(kpi);
+              //              console.log(KPIs[KPIi[kpi]]);
+              //              console.log(KPIs[KPIi[kpi] + 1]);
+              if (v2 > v0) {
+                v2 = +this.myData.newData[i][kpi];
+                v0 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
+              }
+              kk.value += v0;
+              kk.v2 += v2;
               kk.v3 += +this.myData.newData[i][KPIs[KPIi[kpi] + 1]];
+            } else {
+              kk.value += v0;
             }
           }
         });
@@ -583,24 +595,26 @@ export class HeatmapComponent implements OnInit, OnChanges {
       Names.forEach((d) => totalsX.push({ ind: 0, value: 0 }));
       Offices.forEach((d) => totalsY.push({ ind: 0, value: 0 }));
       this.myData.newData.forEach((d) => {
-        totalsY[Officesi[d.office] - 1].value += +d[kpiHere];
-        totalsY[Officesi[d.office] - 1].ind = Officesi[d.office] - 1;
-        totalsX[Namesi[d.Name] - 1].value += +d[kpiHere];
-        totalsX[Namesi[d.Name] - 1].ind = Namesi[d.Name] - 1;
-        let v2: number, v3: number;
+        let v0 = +d[kpiHere], v2: number, v3: number;
         if (/* kpiHere.startsWith('P_') ||*/ kpiHere.startsWith('Out1')) {
-//          console.log(kpiHere);
-//          console.log(KPIs[KPIi[kpiHere]]);
-          v2 = +d[KPIs[KPIi[kpiHere]]];
+          //          console.log(kpiHere);
+          //          console.log(KPIs[KPIi[kpiHere]]);
+          v0 = Math.max(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
+          v2 = Math.min(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
         } else if (kpiHere.endsWith('_all') || kpiHere.endsWith('_ALL')) {
-//          console.log(kpiHere);
-//          console.log(KPIs[KPIi[kpiHere]]);
-//          console.log(KPIs[KPIi[kpiHere] + 1]);
-          v2 = +d[KPIs[KPIi[kpiHere]]];
+          //          console.log(kpiHere);
+          //          console.log(KPIs[KPIi[kpiHere]]);
+          //          console.log(KPIs[KPIi[kpiHere] + 1]);
+          v0 = Math.max(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
+          v2 = Math.min(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
           v3 = +d[KPIs[KPIi[kpiHere] + 1]];
         }
+        totalsY[Officesi[d.office] - 1].value += v0;
+        totalsY[Officesi[d.office] - 1].ind = Officesi[d.office] - 1;
+        totalsX[Namesi[d.Name] - 1].value += v0;
+        totalsX[Namesi[d.Name] - 1].ind = Namesi[d.Name] - 1;
         plotKPI.push({ x: Officesi[d.office], y: Namesi[d.Name],
-          value: +d[kpiHere], v2: v2, v3: v3 });
+          value: v0, v2: v2, v3: v3 });
       });
       const orderByTotals = false;
       this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
