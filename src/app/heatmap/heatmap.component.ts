@@ -545,10 +545,13 @@ export class HeatmapComponent implements OnInit, OnChanges {
     const totalKPI: { x: number; y: number; value: number; v2: number; v3: number }[] = []; // this.myData.managerData;
     const totalsX: { ind: number; value: number; }[] = [];
     const totalsY: { ind: number; value: number; }[] = [];
+    const fix = true;
     Offices.forEach((office) => {
       mKPIs.forEach((kpi) => {
-        const kk = { x: Officesi[office], y: mKPIi[kpi], value: 0,
-          v2: undefined, v3: undefined };
+        const kk = {
+          x: Officesi[office], y: mKPIi[kpi], value: 0,
+          v2: undefined, v3: undefined
+        };
         if (/* kpi.startsWith('P_') || */ kpi.startsWith('Out1')) {
           kk.v2 = 0;
         } else if (kpi.endsWith('_all') || kpi.endsWith('_ALL')) {
@@ -561,7 +564,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             if (/* kpi.startsWith('P_') ||*/ kpi.toLocaleLowerCase().startsWith('out1')) {
               //              console.log(kpi);
               //             console.log(KPIs[KPIi[kpi]]);
-              if (v2 > v0) {
+              if (fix && v2 > v0) {
                 v2 = +this.myData.newData[i][kpi];
                 v0 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
               }
@@ -571,7 +574,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               //              console.log(kpi);
               //              console.log(KPIs[KPIi[kpi]]);
               //              console.log(KPIs[KPIi[kpi] + 1]);
-              if (v2 > v0) {
+              if (fix && v2 > v0) {
                 v2 = +this.myData.newData[i][kpi];
                 v0 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
               }
@@ -599,14 +602,24 @@ export class HeatmapComponent implements OnInit, OnChanges {
         if (/* kpiHere.startsWith('P_') ||*/ kpiHere.startsWith('Out1')) {
           //          console.log(kpiHere);
           //          console.log(KPIs[KPIi[kpiHere]]);
-          v0 = Math.max(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
-          v2 = Math.min(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
+          if (fix) {
+            v0 = Math.max(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
+            v2 = Math.min(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
+          } else {
+            v0 = +d[kpiHere];
+            v2 = +d[KPIs[KPIi[kpiHere]]];
+          }
         } else if (kpiHere.endsWith('_all') || kpiHere.endsWith('_ALL')) {
           //          console.log(kpiHere);
           //          console.log(KPIs[KPIi[kpiHere]]);
           //          console.log(KPIs[KPIi[kpiHere] + 1]);
-          v0 = Math.max(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
-          v2 = Math.min(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
+          if (fix) {
+            v0 = Math.max(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
+            v2 = Math.min(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
+          } else {
+            v0 = +d[kpiHere];
+            v2 = +d[KPIs[KPIi[kpiHere]]];
+          }
           v3 = +d[KPIs[KPIi[kpiHere] + 1]];
         }
         totalsY[Officesi[d.office] - 1].value += v0;
