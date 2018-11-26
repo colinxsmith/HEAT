@@ -558,11 +558,11 @@ export class HeatmapComponent implements OnInit, OnChanges {
         Names.forEach((name, i) => {
           if (this.myData.newData[i].office === office) {
             kk.value += +this.myData.newData[i][kpi];
-            if (/* kpi.startsWith('P_') ||*/ kpi.startsWith('Out1')) {
+            if (/* kpi.startsWith('P_') ||*/ kpi.toLocaleLowerCase().startsWith('out1')) {
 //              console.log(kpi);
 //             console.log(KPIs[KPIi[kpi]]);
               kk.v2 += +this.myData.newData[i][KPIs[KPIi[kpi]]];
-            } else if (kpi.endsWith('_all') || kpi.endsWith('_ALL')) {
+            } else if (kpi.toLocaleLowerCase().endsWith('_all')) {
 //              console.log(kpi);
 //              console.log(KPIs[KPIi[kpi]]);
 //              console.log(KPIs[KPIi[kpi] + 1]);
