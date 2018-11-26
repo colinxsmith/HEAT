@@ -1539,14 +1539,14 @@ export class HeatmapComponent implements OnInit, OnChanges {
         const HFormat = (kk: number) => d3.format(kk < 2 ? '0.2f' : '0.0f')(kk),
           colourScales: d3.ScaleQuantile<string>[] = [], colourScale = d3.scaleQuantile<string>()
             .domain([d3.min(heatData, (d: HD) =>
-              d.v3 === undefined ? d.value : d.v3),
+              d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3),
             d3.max(heatData, (d: HD) =>
-              d.v3 === undefined ? d.value : d.v3)])
+              d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3)])
             .range(coloursRed);
         if (colourScale.domain()[0] === colourScale.domain()[1]) {
-          colourScale.domain([d3.max(heatData, (d: HD) => d.v3 === undefined ? d.value : d.v3),
+          colourScale.domain([d3.max(heatData, (d: HD) => d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3),
           d3.max(heatData, (d: HD) =>
-          d.v3 === undefined ? d.value : d.v3) + 1]);
+          d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3) + 1]);
         }
         let labStart = yLabels[0].substr(0, 2), pBlue = false;
         const accumulate = true;
@@ -1566,14 +1566,14 @@ export class HeatmapComponent implements OnInit, OnChanges {
             }
             if (transpose) {
               for (let ii = 0; ii < xLabels.length; ++ii) {
-                x1 = d3.min(heatData, (d) => d.x - 1 === jj ? (d.v3 === undefined ? d.value : d.v3) : x1);
-                x2 = d3.max(heatData, (d) => d.x - 1 === jj ? (d.v3 === undefined ? d.value : d.v3) : x2);
+                x1 = d3.min(heatData, (d) => d.x - 1 === jj ? (d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3) : x1);
+                x2 = d3.max(heatData, (d) => d.x - 1 === jj ? (d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3) : x2);
               }
 
             } else {
               for (let ii = 0; ii < xLabels.length; ++ii) {
-                x1 = d3.min(heatData, (d) => d.y - 1 === jj ? (d.v3 === undefined ? d.value : d.v3) : x1);
-                x2 = d3.max(heatData, (d) => d.y - 1 === jj ? (d.v3 === undefined ? d.value : d.v3) : x2);
+                x1 = d3.min(heatData, (d) => d.y - 1 === jj ? (d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3) : x1);
+                x2 = d3.max(heatData, (d) => d.y - 1 === jj ? (d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3) : x2);
               }
             }
             colourScales[jj] = d3.scaleQuantile<string>().range(pBlue ? coloursRed : coloursBlue).domain([x1, x2]);
@@ -1676,7 +1676,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .attr('rx', 0)
           .attr('ry', 0)
           .attr('r', gridSize / 2)
-          .style('opacity', (d) => composit ? (d.v3 === undefined ? 0.3 : 0.3) : 0.3)
+          .style('opacity', (d) => composit ? (d.v3 === undefined ? 0.3 : 0.3) : (shape === 'Doughnuts' || shape === 'Cakes') ? 0.3 : 1)
           .style('fill', (d) => {
             return lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
               (d.v3 === undefined ? d.value : d.v3)}` :
@@ -1765,8 +1765,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
             )
             .style('fill', (d, i, jj) => {
               const cCol = lineMap ? `${colourScales[(transpose ? d.x : d.y) - 1]
-                (d.v3 === undefined ? d.value : d.v3)}` :
-                `${colourScale(d.v3 === undefined ? d.value : d.v3)}`, noGrad = true;
+                (d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3)}` :
+                `${colourScale(d.v3 === undefined ? (d.v2 === undefined ? d.value : d.v2) : d.v3)}`, noGrad = true;
               if (noGrad) { return cCol; }
               const uName = lineMap ? `lcakeCol${i}` : `cakeCol${i}`;
               const cakeGradient = svg.append('linearGradient')
