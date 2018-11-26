@@ -599,7 +599,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       Offices.forEach((d) => totalsY.push({ ind: 0, value: 0 }));
       this.myData.newData.forEach((d) => {
         let v0 = +d[kpiHere], v2: number, v3: number;
-        if (/* kpiHere.startsWith('P_') ||*/ kpiHere.startsWith('Out1')) {
+        if (/* kpiHere.startsWith('P_') ||*/ kpiHere.toLocaleLowerCase().startsWith('out1')) {
           //          console.log(kpiHere);
           //          console.log(KPIs[KPIi[kpiHere]]);
           if (fix) {
@@ -609,7 +609,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
             v0 = +d[kpiHere];
             v2 = +d[KPIs[KPIi[kpiHere]]];
           }
-        } else if (kpiHere.endsWith('_all') || kpiHere.endsWith('_ALL')) {
+        } else if (kpiHere.toLocaleLowerCase().endsWith('_all')) {
           //          console.log(kpiHere);
           //          console.log(KPIs[KPIi[kpiHere]]);
           //          console.log(KPIs[KPIi[kpiHere] + 1]);
