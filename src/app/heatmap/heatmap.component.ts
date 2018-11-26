@@ -368,9 +368,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
         }
       }
     })
-  toolTipPosition = (ii: number, jj: d3.BaseType[] | d3.ArrayLike<d3.BaseType>, figWidth: number, figHeight: number) => {
-    const [mX, mY] = d3.mouse(<d3.ContainerElement>jj[ii]), [tX, tY]: [number, number] = [d3.event.pageX, d3.event.pageY];
-    return [mX > figWidth * 0.8 ? `${tX - 200}px` : `${tX + 10}px`, mY < figHeight * 0.8 ? `${tY}px` : `${tY - 100}px`];
+  toolTipPosition = (i: number, j: d3.BaseType[] | d3.ArrayLike<d3.BaseType>, figWidth: number, figHeight: number) => {
+    const [mX, mY] = d3.mouse(<d3.ContainerElement>j[i]), [tX, tY]: [number, number] = [d3.event.pageX, d3.event.pageY];
+    return [Math.abs(mX - figWidth) / figWidth < 0.8 ? `${tX - 200}px` : `${tX + 10}px`,
+    Math.abs(mY - figHeight) / figHeight * 0.8 ? `${tY}px` : `${tY - 100}px`];
   }
   displayOneLinePerfData = (performanceLine: { name: string; performance: number; hold: boolean; }[], assetIndex: number,
     performanceHeightIndicator: d3.ScaleLinear<number, number>, svgPerf: d3.Selection<d3.BaseType, {}, HTMLElement, {}>,
@@ -1433,6 +1434,21 @@ export class HeatmapComponent implements OnInit, OnChanges {
         { y: d.x, x: d.y, value: d.value, v2: d.v2, v3: d.v3 } :
         { y: d.y, x: d.x, value: d.value, v2: d.v2, v3: d.v3 },
       heatmapChart = (shape: string) => {
+        const tipMouse = (d: HD, idd: number, jj: d3.BaseType[] | d3.ArrayLike<d3.BaseType>) => {
+          const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
+          this.tooltip
+            .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
+          ${transpose ? d.group.replace(/_/g, ' ') : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1].replace(/_/g, ' ')}
+          <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1].replace(/_/g, ' ') : d.group.replace(/_/g, ' ')}
+          <br>${dataHere.replace(/_/g, ' ')}
+          <br>${d3.format('0.2f')(d.value)}
+          <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
+          <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
+          `)
+            .style('opacity', 0.9)
+            .style('left', tX)
+            .style('top', tY);
+        };
         const nutScale = d3.scalePow().exponent(1).domain([0, 1]).range([0, 1]), slice = 85,
           heatData: HD[] = [];
         const oXinv = [], oYinv = [];
@@ -1676,21 +1692,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               this.procNewData();
             }
           })
-          .on('mouseover', (d, idd, jj) => {
-            const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
-            this.tooltip
-              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
-              ${transpose ? d.group.replace(/_/g, ' ') : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1].replace(/_/g, ' ')}
-              <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1].replace(/_/g, ' ') : d.group.replace(/_/g, ' ')}
-              <br>${dataHere.replace(/_/g, ' ')}
-              <br>${d3.format('0.2f')(d.value)}
-              <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
-              <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
-            `)
-              .style('opacity', 0.9)
-              .style('left', tX)
-              .style('top', tY);
-          })
+          .on('mouseover', (d, idd, jj) => tipMouse(d, idd, jj))
           .on('mouseout', () => this.tooltip.style('opacity', 0))
           .transition()
           .duration(1000)
@@ -1753,21 +1755,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 this.procNewData();
               }
             })
-              .on('mouseover', (d, idd, jj) => {
-              const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
-              this.tooltip
-                .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
-                ${transpose ? d.group.replace(/_/g, ' ') : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1].replace(/_/g, ' ')}
-                <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1].replace(/_/g, ' ') : d.group.replace(/_/g, ' ')}
-                <br>${dataHere.replace(/_/g, ' ')}
-                <br>${d3.format('0.2f')(d.value)}
-                <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
-                <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
-                `)
-                .style('opacity', 0.9)
-                .style('left', tX)
-                .style('top', tY);
-            })
+            .on('mouseover', (d, idd, jj) => tipMouse(d, idd, jj))
             .on('mouseout', () => this.tooltip.style('opacity', 0))
             .transition().duration(1000)
             .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize},${(d.y - 1 + 0.45) * gridSize})
@@ -1832,21 +1820,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               this.procNewData();
             }
           })
-          .on('mouseover', (d, idd, jj) => {
-            const [tX, tY] = this.toolTipPosition(idd, jj, width, height);
-            this.tooltip
-              .html(`<app-icon><fa><i class="fa fa-envira leafy"></i></fa></app-icon>
-              ${transpose ? d.group.replace(/_/g, ' ') : xLabels[totalsY.length ? totalsY[d.x - 1].ind : d.x - 1].replace(/_/g, ' ')}
-              <br>${transpose ? xLabels[totalsY.length ? totalsY[d.y - 1].ind : d.y - 1].replace(/_/g, ' ') : d.group.replace(/_/g, ' ')}
-              <br>${dataHere.replace(/_/g, ' ')}
-              <br>${d3.format('0.2f')(d.value)}
-              <br>${d.v2 !== undefined ? d3.format('0.2f')(d.v2) : ''}
-              <br>${d.v3 !== undefined ? d3.format('0.2f')(d.v3) : ''}
-            `)
-              .style('opacity', 0.9)
-              .style('left', tX)
-              .style('top', tY);
-          })
+          .on('mouseover', (d, idd, jj) => tipMouse(d, idd, jj))
           .on('mouseout', () => this.tooltip.style('opacity', 0))
           .transition().duration(1000)
           .attr('transform', (d) => `translate(${(d.x - 1 + 0.45) * gridSize}, ${(d.y - 1 + 0.45) * gridSize}) rotate(-45)`);
