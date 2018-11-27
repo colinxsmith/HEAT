@@ -35,8 +35,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() chosenShape = this.shape[0];
   @Input() pad = false;
   @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  @Input() colourRangeMapRed = ['rgba(225,0,0,0.1)', 'rgba(225,0,0,1)'];
-  @Input() colourRangeMapBlue = ['rgba(100,100,225,0.1)', 'rgba(100,100,225,1)'];
+  @Input() colourRangeMapRed = ['rgba(207,59,33,0.0001)', 'rgba(207,59,33,1)'];
+  @Input() colourRangeMapBlue = ['rgba(9,110,178,0.0001)', 'rgba(9,110,178,1)'];
   @Input() gamma = 155e-2; // Try to make the colours go green orange red
   @Input() colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
