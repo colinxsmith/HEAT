@@ -35,8 +35,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() chosenShape = this.shape[0];
   @Input() pad = false;
   @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
-  @Input() colourRangeMapRed = ['rgba(225,0,0,0.1)', 'rgba(225,0,0,1)'];
-  @Input() colourRangeMapBlue = ['rgba(100,100,225,0.1)', 'rgba(100,100,225,1)'];
+  @Input() colourRangeMapRed = ['rgba(207,59,33,0.0001)', 'rgba(207,59,33,1)'];
+  @Input() colourRangeMapBlue = ['rgba(9,110,178,0.0001)', 'rgba(9,110,178,1)'];
   @Input() gamma = 155e-2; // Try to make the colours go green orange red
   @Input() colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
@@ -543,17 +543,19 @@ export class HeatmapComponent implements OnInit, OnChanges {
       biggestOffice = Math.max(biggestOffice, officeSize);
     });
     //                  office      KPI
-    const totalKPI: { x: number; y: number; value: number; v2: number; v3: number }[] = []; // this.myData.managerData;
+    const totalKPI: { x: number; y: number; value: number; v2: number; v3: number }[] = [];
+    const largeKPI: { x: string; y: string; kpi: string; value: number; v2: number; v3: number }[][] = [];
     const totalsX: { ind: number; value: number; }[] = [];
     const totalsY: { ind: number; value: number; }[] = [];
     const fix = true;
-    Offices.forEach((office) => {
-      mKPIs.forEach((kpi) => {
+    mKPIs.forEach((kpi) => {
+      const lKPIi: { x: string; y: string; kpi: string; value: number; v2: number; v3: number }[] = [];
+      Offices.forEach((office) => {
         const kk = {
           x: Officesi[office], y: mKPIi[kpi], value: 0,
           v2: undefined, v3: undefined
         };
-        if (/* kpi.startsWith('P_') || */ kpi.startsWith('Out1')) {
+   if (/* kpi.startsWith('P_') || */ kpi.startsWith('Out1')) {
           kk.v2 = 0;
         } else if (kpi.endsWith('_all') || kpi.endsWith('_ALL')) {
           kk.v2 = 0;
@@ -561,7 +563,11 @@ export class HeatmapComponent implements OnInit, OnChanges {
         }
         Names.forEach((name, i) => {
           if (this.myData.newData[i].office === office) {
-            let v0 = +this.myData.newData[i][kpi], v2 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
+            const kkL = {
+              x: office, y: name, value: 0,
+              v2: undefined, v3: undefined, kpi: kpi
+            };
+              let v0 = +this.myData.newData[i][kpi], v2 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
             if (/* kpi.startsWith('P_') ||*/ kpi.toLocaleLowerCase().startsWith('out1')) {
               //              console.log(kpi);
               //             console.log(KPIs[KPIi[kpi]]);
@@ -571,6 +577,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
               }
               kk.value += v0;
               kk.v2 += v2;
+              kkL.value = v0;
+              kkL.v2 = v2;
             } else if (kpi.toLocaleLowerCase().endsWith('_all')) {
               //              console.log(kpi);
               //              console.log(KPIs[KPIi[kpi]]);
@@ -582,17 +590,23 @@ export class HeatmapComponent implements OnInit, OnChanges {
               kk.value += v0;
               kk.v2 += v2;
               kk.v3 += +this.myData.newData[i][KPIs[KPIi[kpi] + 1]];
+              kkL.value = v0;
+              kkL.v2 = v2;
+              kkL.v3 = +this.myData.newData[i][KPIs[KPIi[kpi] + 1]];
             } else {
               kk.value += v0;
+              kkL.value = v0;
             }
+            lKPIi.push(kkL);
           }
         });
         totalKPI.push(kk);
       });
+      largeKPI.push(lKPIi); // Correct data for large heat map, but we need to modify the recatngles to doughnuts
     });
     this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, [], [], this.colourRangeMapRed, this.colourRangeMapBlue,
       this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice);
-
+//    this.largeMap(this.mainScreen.nativeElement, mKPIs, largeKPI, this.colourRange); ready to be put in propery
     if (this.setKPI > -1) {
       const kpiHere = mKPIs[this.setKPI];
       const plotKPI: { x: number, y: number, value: number, v2: number, v3: number }[] = [];
