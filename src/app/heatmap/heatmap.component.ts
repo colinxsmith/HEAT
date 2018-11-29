@@ -606,49 +606,23 @@ export class HeatmapComponent implements OnInit, OnChanges {
     });
     this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, [], [], this.colourRangeMapRed, this.colourRangeMapBlue,
       this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice);
-//    this.largeMap(this.mainScreen.nativeElement, mKPIs, largeKPI, this.colourRange); ready to be put in propery
+    //    this.largeMap(this.mainScreen.nativeElement, mKPIs, largeKPI, this.colourRange); // ready to be put in propery
+
     if (this.setKPI > -1) {
-      const kpiHere = mKPIs[this.setKPI];
-      const plotKPI: { x: number, y: number, value: number, v2: number, v3: number }[] = [];
       Names.forEach((d) => totalsX.push({ ind: 0, value: 0 }));
       Offices.forEach((d) => totalsY.push({ ind: 0, value: 0 }));
-      this.myData.newData.forEach((d) => {
-        let v0 = +d[kpiHere], v2: number, v3: number;
-        if (/* kpiHere.startsWith('P_') ||*/ kpiHere.toLocaleLowerCase().startsWith('out1')) {
-          //          console.log(kpiHere);
-          //          console.log(KPIs[KPIi[kpiHere]]);
-          if (fix) {
-            v0 = Math.max(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
-            v2 = Math.min(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
-          } else {
-            v0 = +d[kpiHere];
-            v2 = +d[KPIs[KPIi[kpiHere]]];
-          }
-        } else if (kpiHere.toLocaleLowerCase().endsWith('_all')) {
-          //          console.log(kpiHere);
-          //          console.log(KPIs[KPIi[kpiHere]]);
-          //          console.log(KPIs[KPIi[kpiHere] + 1]);
-          if (fix) {
-            v0 = Math.max(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
-            v2 = Math.min(+d[kpiHere], +d[KPIs[KPIi[kpiHere]]]);
-          } else {
-            v0 = +d[kpiHere];
-            v2 = +d[KPIs[KPIi[kpiHere]]];
-          }
-          v3 = +d[KPIs[KPIi[kpiHere] + 1]];
-        }
-        totalsY[Officesi[d.office] - 1].value += v0;
-        totalsY[Officesi[d.office] - 1].ind = Officesi[d.office] - 1;
-        totalsX[Namesi[d.Name] - 1].value += v0;
-        totalsX[Namesi[d.Name] - 1].ind = Namesi[d.Name] - 1;
-        plotKPI.push({ x: Officesi[d.office], y: Namesi[d.Name],
-          value: v0, v2: v2, v3: v3 });
+      const PlotKPI = largeKPI[this.setKPI].map((d) => { // largeKPI contains office and manager names, we get indices here via map
+        totalsY[Officesi[d.x] - 1].value += d.value;
+        totalsY[Officesi[d.x] - 1].ind = Officesi[d.x] - 1;
+        totalsX[Namesi[d.y] - 1].value += d.value;
+        totalsX[Namesi[d.y] - 1].ind = Namesi[d.y] - 1;
+        return { x: Officesi[d.x], y: Namesi[d.y], value: d.value, v2: d.v2, v3: d.v3 };
       });
       const orderByTotals = false;
       this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
-        plotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMapRed,
+        PlotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMapRed,
         this.colourRangeMapBlue, this.transposeHeatMap, false, true,
-        this.gamma, kpiHere, true, biggestOffice);
+        this.gamma, mKPIs[this.setKPI], true, biggestOffice);
     }
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
