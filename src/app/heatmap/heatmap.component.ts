@@ -12,7 +12,6 @@ import { AppComponent } from '../app.component';
   encapsulation: ViewEncapsulation.None
 })
 export class HeatmapComponent implements OnInit, OnChanges {
-  myData = new DatamoduleModule();
   @Input() whichKPI = -1;
   @Input() setKPI = -1;
 
@@ -30,7 +29,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
   viewbox = false; // Use viewBox attribute for setting width and height (no good on IE)
   @Input() chosenData = '';
-  perfData = this.myData.perfMap;
+  perfData = this.dumper.perfMap;
   @Input() chosenFigure = this.plotFigure[0];
   @Input() chosenShape = this.shape[0];
   @Input() pad = false;
@@ -460,8 +459,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
           .call(this.wrapFunction, 70 * t, t);
       });
   }
-  constructor(private mainScreen: ElementRef) {
-    this.myData.managerData.forEach((d) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
+  constructor(private mainScreen: ElementRef , private dumper: DatamoduleModule) {
+    this.dumper.managerData.forEach((d) => d.sort((a, b) => (a.x + a.y).localeCompare(b.x + b.y)));
     /*    this.myData.managerData.forEach((d) => { // Remove the numbers from the office group labels (testing)
           d.forEach((dd) => {
             dd.y = dd.y.replace(/[0-9]/g, '');
@@ -486,13 +485,13 @@ export class HeatmapComponent implements OnInit, OnChanges {
     this.totalsY = [];
     let sofar = 0, ik = 0;
     for (let ii = 0, ij = 0; ii < this.managerOffices.length; ii++) { // offices
-      for (let jj = 0; jj < this.myData.managerData.length; jj++) { // KPI
+      for (let jj = 0; jj < this.dumper.managerData.length; jj++) { // KPI
         totalKPI.push({ x: ii + 1, y: jj + 1, value: 0, v2: undefined, v3: undefined });
         ik = sofar;
         for (let kk = 0; kk < this.managerGroups.length; kk++) {
-          if (ik < this.myData.managerData[jj].length && this.myData.managerData[jj][ik].x === this.managerOffices[ii] &&
-            this.myData.managerData[jj][ik].y.replace(/[0-9]/g, '') === this.managerGroups[kk].replace(/[0-9]/g, '')) {
-            totalKPI[ij].value += this.myData.managerData[jj][ik++].value;
+          if (ik < this.dumper.managerData[jj].length && this.dumper.managerData[jj][ik].x === this.managerOffices[ii] &&
+            this.dumper.managerData[jj][ik].y.replace(/[0-9]/g, '') === this.managerGroups[kk].replace(/[0-9]/g, '')) {
+            totalKPI[ij].value += this.dumper.managerData[jj][ik++].value;
           }
         }
         ij++;
@@ -509,7 +508,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     const KPIi = {};
     const Officesi = {};
     const Namesi = {};
-    const keys = Object.keys(this.myData.newData[0]);
+    const keys = Object.keys(this.dumper.newData[0]);
     const mKPIs: string[] = [];
     const mKPIi = {};
     keys.forEach((d) => {
@@ -523,7 +522,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         KPIi[d] = KPIs.length;
       }
     });
-    this.myData.newData.forEach((d) => {
+    this.dumper.newData.forEach((d) => {
       Names.push(d.Name);
       Namesi[d.Name] = Names.length;
       if (Offices.find((k: string) => (k === d.office)) === undefined) {
@@ -535,7 +534,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     let biggestOffice = 0;
     Offices.forEach((office) => {
       let officeSize = 0;
-      this.myData.newData.forEach((d) => {
+      this.dumper.newData.forEach((d) => {
         if (d.office === office) {
           officeSize++;
         }
@@ -562,18 +561,18 @@ export class HeatmapComponent implements OnInit, OnChanges {
           kk.v3 = 0;
         }
         Names.forEach((name, i) => {
-          if (this.myData.newData[i].office === office) {
+          if (this.dumper.newData[i].office === office) {
             const kkL = {
               x: office, y: name, value: 0,
               v2: undefined, v3: undefined, kpi: kpi
             };
-              let v0 = +this.myData.newData[i][kpi], v2 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
+              let v0 = +this.dumper.newData[i][kpi], v2 = +this.dumper.newData[i][KPIs[KPIi[kpi]]];
             if (/* kpi.startsWith('P_') ||*/ kpi.toLocaleLowerCase().startsWith('out1')) {
               //              console.log(kpi);
               //             console.log(KPIs[KPIi[kpi]]);
               if (fix && v2 > v0) {
-                v2 = +this.myData.newData[i][kpi];
-                v0 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
+                v2 = +this.dumper.newData[i][kpi];
+                v0 = +this.dumper.newData[i][KPIs[KPIi[kpi]]];
               }
               kk.value += v0;
               kk.v2 += v2;
@@ -584,15 +583,15 @@ export class HeatmapComponent implements OnInit, OnChanges {
               //              console.log(KPIs[KPIi[kpi]]);
               //              console.log(KPIs[KPIi[kpi] + 1]);
               if (fix && v2 > v0) {
-                v2 = +this.myData.newData[i][kpi];
-                v0 = +this.myData.newData[i][KPIs[KPIi[kpi]]];
+                v2 = +this.dumper.newData[i][kpi];
+                v0 = +this.dumper.newData[i][KPIs[KPIi[kpi]]];
               }
               kk.value += v0;
               kk.v2 += v2;
-              kk.v3 += +this.myData.newData[i][KPIs[KPIi[kpi] + 1]];
+              kk.v3 += +this.dumper.newData[i][KPIs[KPIi[kpi] + 1]];
               kkL.value = v0;
               kkL.v2 = v2;
-              kkL.v3 = +this.myData.newData[i][KPIs[KPIi[kpi] + 1]];
+              kkL.v3 = +this.dumper.newData[i][KPIs[KPIi[kpi] + 1]];
             } else {
               kk.value += v0;
               kkL.value = v0;
@@ -623,6 +622,23 @@ export class HeatmapComponent implements OnInit, OnChanges {
         PlotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMapRed,
         this.colourRangeMapBlue, this.transposeHeatMap, false, true,
         this.gamma, mKPIs[this.setKPI], true, biggestOffice);
+    } else if (false) {
+      let back: any;
+      this.dumper.getData('newData').subscribe(data => {
+        back = data;
+      });
+      if (back === undefined || back.length() === 0) {
+        this.dumper.newData.forEach((d, i) => {
+          this.dumper.dumpData('newData', d)
+            .subscribe(res => {
+              console.log(i + 1);
+              console.log(res);
+            },
+              () => {
+                console.log('Error in post');
+              });
+        });
+      }
     }
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
@@ -632,7 +648,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     this.totalsX = [];
     this.totalsY = [];
     let nx = 0, ny = 0;
-    this.myData.managerData[0].forEach((d) => {
+    this.dumper.managerData[0].forEach((d) => {
       if (xmap[d.x] === undefined) {
         here.managerOffices.push(d.x); // Office
         xmap[d.x] = nx++;
@@ -643,7 +659,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       }
     });
     this.managerGroups.sort((a, b) => a.localeCompare(b));
-    this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.myData.managerKPIs, this.managerSummary(),
+    this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.dumper.managerKPIs, this.managerSummary(),
     this.totalsX, this.totalsY, this.colourRangeMapRed, this.colourRangeMapBlue,
       this.transposeHeatMap, true, false, this.gamma, '');
     let ij = 0;
@@ -711,10 +727,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .style('background-color', 'lightgrey')
         .style('color', 'blue')
         .text('SUBMIT');
-      this.myData.managerKPIs.forEach((d, i) => {
+      this.dumper.managerKPIs.forEach((d, i) => {
         if (this.chosenData === d) {
           this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.managerGroups,
-            this.managerProcess(this.myData.managerData[i]), this.totalsX, this.totalsY, this.colourRangeMapRed, this.colourRangeMapBlue,
+            this.managerProcess(this.dumper.managerData[i]), this.totalsX, this.totalsY, this.colourRangeMapRed, this.colourRangeMapBlue,
             this.transposeHeatMap, false, true, this.gamma, this.chosenData);
         }
       });
@@ -771,11 +787,11 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .text('SUBMIT');
       this.procNewData();
     } else if (this.chosenFigure === 'Large Map') {
-      this.largeMap(this.mainScreen.nativeElement, this.myData.managerKPIs, this.myData.managerData, this.colourRange);
+      this.largeMap(this.mainScreen.nativeElement, this.dumper.managerKPIs, this.dumper.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
       this.perfMap(this.mainScreen.nativeElement, this.perfData);
     } else if (this.chosenFigure === '5 Circles') {
-      this.fiveCircles(this.mainScreen.nativeElement, this.myData.fiveCircles);
+      this.fiveCircles(this.mainScreen.nativeElement, this.dumper.fiveCircles);
     } else if (this.chosenFigure === 'Colour Setup') {
       d3.select(this.mainScreen.nativeElement).append('div') // div for colour picker
         .style('color', 'brown')
@@ -862,7 +878,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         color: radarBlobColour
       };
 
-      this.RadarChart(this.mainScreen.nativeElement, this.myData.radarData, radarChartOptions);
+      this.RadarChart(this.mainScreen.nativeElement, this.dumper.radarData, radarChartOptions);
     }
   }
   fiveCircles(id: string, circData: number[]) {
@@ -1669,9 +1685,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
             this.whichKPI = (transpose ? dd.x : dd.y) - 1;
             d3.selectAll('svg').remove();
             if (this.chosenFigure === 'Heat Map') {
-              this.chosenData = this.myData.managerKPIs[this.whichKPI];
+              this.chosenData = this.dumper.managerKPIs[this.whichKPI];
               this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-                this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRangeRed, colourRangeBlue,
+                this.managerProcess(this.dumper.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRangeRed, colourRangeBlue,
                 transpose, false, true, gamma, this.chosenData);
               this.whichKPI = -1;
             } else if (this.chosenFigure === 'Heat Map 2') {
@@ -1732,9 +1748,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
               this.whichKPI = (transpose ? dd.x : dd.y) - 1;
               d3.selectAll('svg').remove();
               if (this.chosenFigure === 'Heat Map') {
-                this.chosenData = this.myData.managerKPIs[this.whichKPI];
+                this.chosenData = this.dumper.managerKPIs[this.whichKPI];
                 this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-                  this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRangeRed, colourRangeBlue,
+                  this.managerProcess(this.dumper.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRangeRed, colourRangeBlue,
                   transpose, false, true, gamma, this.chosenData);
                 this.whichKPI = -1;
               } else if (this.chosenFigure === 'Heat Map 2') {
@@ -1797,9 +1813,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
             this.whichKPI = (transpose ? dd.x : dd.y) - 1;
             d3.selectAll('svg').remove();
             if (this.chosenFigure === 'Heat Map') {
-              this.chosenData = this.myData.managerKPIs[this.whichKPI];
+              this.chosenData = this.dumper.managerKPIs[this.whichKPI];
               this.heatMaps(this.mainScreen.nativeElement, xLabels, this.managerGroups,
-                this.managerProcess(this.myData.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRangeRed, colourRangeBlue,
+                this.managerProcess(this.dumper.managerData[this.whichKPI]), this.totalsX, this.totalsY, colourRangeRed, colourRangeBlue,
                 transpose, false, true, gamma, this.chosenData);
               this.whichKPI = -1;
             } else if (this.chosenFigure === 'Heat Map 2') {

@@ -1,10 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 
 
 import { AppComponent } from './app.component';
 import { HeatmapComponent } from './heatmap/heatmap.component';
-
+import { DatamoduleModule } from './datamodule/datamodule.module';
 
 @NgModule({
   declarations: [
@@ -12,9 +13,10 @@ import { HeatmapComponent } from './heatmap/heatmap.component';
     HeatmapComponent
     ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [DatamoduleModule ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

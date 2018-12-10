@@ -1,5 +1,14 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
 export interface HD { x: number; y: number; v2: number; v3: number; value: number; group: string; scale: number; }
+@Injectable()
 export class DatamoduleModule {
+  constructor(private http: HttpClient) { }
+  url = 'http://10.2.70.36:4023';
+/*}
+export class DatamoduleModule {
+  constructor() { }*/
   newData = [
 // tslint:disable-next-line:max-line-length
 {Name: 'Zackery Callahan', office: 'Austen', portfolios: '181', P_all_flags_fail: '0.1245', P_fail_nke: '0.0747', Out1_5_nke: '240', Out5_10_nke: '18', Out10_20_nke: '6', Out20_plus_nke: '6', C_vol_und_out_all: '6', C_vol_und_out_NKE: '6', P_vol_und_out_NKE: '0.03', C_vol_ovr_out_all: '56', C_vol_ovr_out_NKE: '33', P_vol_ovr_out_NKE: '0.18', C_TE_OUT_ALL: '36', C_TE_OUT_NKE: '26', P_TE_OUT_NKE: '0.14', C_MHW_OUT_ALL: '21', C_MHW_OUT_NKE: '15', P_MHW_OUT_NKE: '0.08', C_Pconc_OUT_ALL: '41', C_Pconc_OUT_NKE: '26', P_Pconc_OUT_NKE: '0.14', C_iLQ_OUT_ALL: '71', C_iLQ_OUT_NKE: '55', P_iLQ_OUT_NKE: '0.3', C_iLQstk_OUT_ALL: '46', C_iLQstk_OUT_NKE: '29', P_iLQstk_OUT_NKE: '0.16', C_mxSP_OUT_ALL: '40', C_mxSP_OUT_NKE: '29', P_mxSP_OUT_NKE: '0.16', C_HVH_OUT_ALL: '17', C_HVH_OUT_NKE: '11', P_HVH_OUT_NKE: '0.06', C_secW_OUT_ALL: '59', C_secW_OUT_NKE: '33', P_secW_OUT_NKE: '0.18', C_comm_OUT_ALL: '26', C_comm_OUT_NKE: '19', P_comm_OUT_NKE: '0.1', C_FI_UN_OUT_ALL: '56', C_FI_UN_OUT_NKE: '28', P_FI_UN_OUT_NKE: '0.15', C_FI_OVR_OUT_ALL: '36', C_FI_OVR_OUT_NKE: '20', P_FI_OVR_OUT_NKE: '0.11', C_ukEQ_UN_OUT_ALL: '58', C_ukEQ_UN_OUT_NKE: '31', P_ukEQ_UN_OUT_NKE: '0.17', C_ukEQ_OVR_OUT_ALL: '10', C_ukEQ_OVR_OUT_NKE: '10', P_ukEQ_OVR_OUT_NKE: '0.05', C_INTEQ_un_OUT_ALL: '8', C_INTEQ_un_OUT_NKE: '8', P_INTEQ_un_OUT_NKE: '0.04', C_intEQ_OVR_OUT_ALL: '16', C_intEQ_OVR_OUT_NKE: '15', P_intEQ_OVR_OUT_NKE: '0.08', C_PROP_UN_OUT_ALL: '80', C_PROP_UN_OUT_NKE: '40', P_PROP_UN_OUT_NKE: '0.22', C_PROP_OVR_OUT_ALL: '3', C_PROP_OVR_OUT_NKE: '2', P_PROP_OVR_OUT_NKE: '0.01', C_ALT_UN_OUT_ALL: '26', C_ALT_UN_OUT_NKE: '22', P_ALT_UN_OUT_NKE: '0.12', C_ALT_OVR_OUT_ALL: '28', C_ALT_OVR_OUT_NKE: '22', P_ALT_OVR_OUT_NKE: '0.12', C_MIX_UN_OUT_ALL: '58', C_MIX_UN_OUT_NKE: '29', P_MIX_UN_OUT_NKE: '0.16', C_MIX_OVR_OUT_ALL: '20', C_MIX_OVR_OUT_NKE: '20', P_MIX_OVR_OUT_NKE: '0.11', C_cash_UN_OUT_ALL: '21', C_cash_UN_OUT_NKE: '15', P_cash_UN_OUT_NKE: '0.08', C_cash_OVR_OUT_ALL: '16', C_cash_OVR_OUT_NKE: '10', P_cash_OVR_OUT_NKE: '0.05'},
@@ -7174,7 +7183,16 @@ export class DatamoduleModule {
     { x: 'Oslo', y: 'R13', value: 0.000000 },
     { x: 'Moscow', y: 'G14', value: 0.000000 },
     { x: 'Moscow', y: 'J14', value: 0.000000 },
-    { x: 'Moscow', y: 'M14', value: 0.000000 },
-    { x: 'Edinburgh', y: 'G15', value: 0.000000 },
-  ]];
+      { x: 'Moscow', y: 'M14', value: 0.000000 },
+      { x: 'Edinburgh', y: 'G15', value: 0.000000 },
+    ]];
+    getData(name: string) {
+      return this.http.get<any>(`${this.url}/${name}`);
+    }
+    dumpData(name: string, data: any) {
+    const options = { headers: new HttpHeaders().set('Content-Type', 'application/json') };
+    return this.http.post<any>(`${this.url}/${name}`, data, options);
+  }
 }
+
+
