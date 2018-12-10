@@ -5,7 +5,7 @@ export interface HD { x: number; y: number; v2: number; v3: number; value: numbe
 @Injectable()
 export class DatamoduleModule {
   constructor(private http: HttpClient) { }
-  url = 'http://10.2.70.36:4023';
+  url = 'http://192.168.0.27:4023';
 /*}
 export class DatamoduleModule {
   constructor() { }*/
@@ -7188,10 +7188,14 @@ export class DatamoduleModule {
     ]];
     getData(name: string) {
       return this.http.get<any>(`${this.url}/${name}`);
-    }
-    dumpData(name: string, data: any) {
+  }
+  dumpData(name: string, data: any, id = 0) {
     const options = { headers: new HttpHeaders().set('Content-Type', 'application/json') };
-    return this.http.post<any>(`${this.url}/${name}`, data, options);
+    if (id === 0) {
+      return this.http.post<any>(`${this.url}/${name}`, data, options);
+    } else {
+      return this.http.put<any>(`${this.url}/${name}/${id}`, data, options);
+    }
   }
 }
 

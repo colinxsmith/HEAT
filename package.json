@@ -8,6 +8,7 @@
     "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
+    "json-server": "json-server --watch ../router/src/data/db.json --port 4023 --host 192.168.0.27",
     "e2e": "ng e2e"
   },
   "private": true,

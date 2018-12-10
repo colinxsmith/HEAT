@@ -622,20 +622,23 @@ export class HeatmapComponent implements OnInit, OnChanges {
         PlotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMapRed,
         this.colourRangeMapBlue, this.transposeHeatMap, false, true,
         this.gamma, mKPIs[this.setKPI], true, biggestOffice);
-    } else if (false) {
+    } else if (true) {
       let back: any;
       this.dumper.getData('newData').subscribe(data => {
         back = data;
       });
       if (back === undefined || back.length() === 0) {
         this.dumper.newData.forEach((d, i) => {
-          this.dumper.dumpData('newData', d)
+          this.dumper.dumpData('newData', d, i + 1)
             .subscribe(res => {
               console.log(i + 1);
               console.log(res);
             },
               () => {
-                console.log('Error in post');
+                console.log('Error in dumpData');
+                this.dumper.dumpData('newData', d).subscribe(res => {
+                  console.log(res);
+                });
               });
         });
       }
