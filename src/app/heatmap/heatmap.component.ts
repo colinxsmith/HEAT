@@ -533,7 +533,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       }
     });
 
-    let biggestOffice = 0;
+    let biggestOffice = mKPIs.length;
     Offices.forEach((office) => {
       let officeSize = 0;
       dataHere.forEach((d) => {
@@ -605,9 +605,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
       });
       largeKPI.push(lKPIi); // Correct data for large heat map, but we need to modify the recatngles to doughnuts
     });
-    const matchLength = Math.max(Math.max(mKPIs.length, Offices.length), Names.length);
     this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, [], [], this.colourRangeMapRed, this.colourRangeMapBlue,
-      this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice, matchLength);
+      this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice);
     //    this.largeMap(this.mainScreen.nativeElement, mKPIs, largeKPI, this.colourRange); // ready to be put in propery
 
     if (this.setKPI > -1) {
@@ -624,7 +623,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
         PlotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMapRed,
         this.colourRangeMapBlue, this.transposeHeatMap, false, true,
-        this.gamma, mKPIs[this.setKPI], true, biggestOffice, matchLength);
+        this.gamma, mKPIs[this.setKPI], true, biggestOffice);
     } else if (false) { // For writing data to db.json ..... doesn't write everything properly
       let back: any;
       this.dumper.getData('newData').subscribe(data => {
@@ -637,19 +636,19 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 console.log(res);
               },
                 () => {
-                  console.log('Error in dumpData');
-                });
+                console.log('Error in dumpData');
+              });
           });
-        }    else     {
+        } else {
           this.dumper.newData.forEach((d, i) => {
             this.dumper.dumpData('newData', d, i + 1)
               .subscribe(res => {
                 console.log(i + 1);
                 console.log(res);
               },
-              () => {
-                console.log('Error in dumpData ' + i);
-              });
+                () => {
+                  console.log('Error in dumpData ' + i);
+                });
           });
         }
       });
@@ -800,7 +799,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .style('color', 'green')
         .text('SUBMIT');
       const here = this;
-      const fromDb = false;
+      const fromDb = true;
       if (fromDb) {
         this.dumper.getData('newData').subscribe((data) => {
           here.useData = data;
@@ -1320,7 +1319,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     colourRangeRed: string[], colourRangeBlue: string[],
     transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '',
-    composit = false, tableGuess = 0, matchlength = 0) { // "Proper heatmap" if lineMap and sortEach are both false
+    composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
     const mySquare = this.doughnutArc,
       title = chosenData.replace(/_/g, ' '), dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
       ARC = mySquare ? (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius) :
@@ -1357,8 +1356,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
       });
     }
     let legendSize = 40;
-    let nW = transpose ? Math.max(Math.max(tableGuess, labelsXY.x.length), matchlength) : labelsXY.x.length;
-    let nH = !transpose ? Math.max(Math.max(tableGuess, labelsXY.y.length), matchlength) : labelsXY.y.length;
+    let nW = transpose ? tableGuess : labelsXY.x.length;
+    let nH = !transpose ? tableGuess : labelsXY.y.length;
     if (nW === 0) {
       nW = labelsXY.x.length;
     }
