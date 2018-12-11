@@ -5,7 +5,7 @@ export interface HD { x: number; y: number; v2: number; v3: number; value: numbe
 @Injectable()
 export class DatamoduleModule {
   constructor(private http: HttpClient) { }
-  url = 'http://192.168.0.27:4023';
+  url = 'http://10.2.70.36:4023';
 /*}
 export class DatamoduleModule {
   constructor() { }*/
@@ -7173,21 +7173,21 @@ export class DatamoduleModule {
     { x: 'Luxembourg', y: 'U11', value: 0.000000 },
     { x: 'Madrid', y: 'A12', value: 0.000000 },
     { x: 'Madrid', y: 'D12', value: 0.000000 },
-    { x: 'Madrid', y: 'G12', value: 0.010000 },
-    { x: 'Madrid', y: 'J12', value: 0.000000 },
-    { x: 'Madrid', y: 'M12', value: 0.000000 },
-    { x: 'Madrid', y: 'R12', value: 0.000000 },
-    { x: 'Oslo', y: 'G13', value: 0.000000 },
-    { x: 'Oslo', y: 'J13', value: 0.000000 },
-    { x: 'Oslo', y: 'M13', value: 0.000000 },
-    { x: 'Oslo', y: 'R13', value: 0.000000 },
-    { x: 'Moscow', y: 'G14', value: 0.000000 },
-    { x: 'Moscow', y: 'J14', value: 0.000000 },
+      { x: 'Madrid', y: 'G12', value: 0.010000 },
+      { x: 'Madrid', y: 'J12', value: 0.000000 },
+      { x: 'Madrid', y: 'M12', value: 0.000000 },
+      { x: 'Madrid', y: 'R12', value: 0.000000 },
+      { x: 'Oslo', y: 'G13', value: 0.000000 },
+      { x: 'Oslo', y: 'J13', value: 0.000000 },
+      { x: 'Oslo', y: 'M13', value: 0.000000 },
+      { x: 'Oslo', y: 'R13', value: 0.000000 },
+      { x: 'Moscow', y: 'G14', value: 0.000000 },
+      { x: 'Moscow', y: 'J14', value: 0.000000 },
       { x: 'Moscow', y: 'M14', value: 0.000000 },
       { x: 'Edinburgh', y: 'G15', value: 0.000000 },
     ]];
-    getData(name: string) {
-      return this.http.get<any>(`${this.url}/${name}`);
+  getData(name: string) {
+    return this.http.get<any>(`${this.url}/${name}`);
   }
   dumpData(name: string, data: any, id = 0) {
     const options = { headers: new HttpHeaders().set('Content-Type', 'application/json') };

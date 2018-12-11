@@ -19,6 +19,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() colourSetupRange = ['rgb(0,255,0)', 'red', '1'];
   plotFigure = ['Radar ', '5 Circles', 'Large Map', 'Perf Map', 'Colour Setup', 'Heat Map', 'Heat Map 2'].reverse();
   tooltip = AppComponent.toolTipStatic;
+  useData = this.dumper.newData;
   managerOffices: string[] = [];
   managerGroups: string[] = [];
   totalsX: { ind: number, value: number }[] = [];
@@ -502,13 +503,14 @@ export class HeatmapComponent implements OnInit, OnChanges {
   }
   procNewData() {
     d3.selectAll('svg').remove();
+    const dataHere = this.useData;
     const Names = [];
     const Offices = [];
     const KPIs = [];
     const KPIi = {};
     const Officesi = {};
     const Namesi = {};
-    const keys = Object.keys(this.dumper.newData[0]);
+    const keys = Object.keys(dataHere[0]);
     const mKPIs: string[] = [];
     const mKPIi = {};
     keys.forEach((d) => {
@@ -522,7 +524,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         KPIi[d] = KPIs.length;
       }
     });
-    this.dumper.newData.forEach((d) => {
+    dataHere.forEach((d) => {
       Names.push(d.Name);
       Namesi[d.Name] = Names.length;
       if (Offices.find((k: string) => (k === d.office)) === undefined) {
@@ -534,7 +536,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     let biggestOffice = 0;
     Offices.forEach((office) => {
       let officeSize = 0;
-      this.dumper.newData.forEach((d) => {
+      dataHere.forEach((d) => {
         if (d.office === office) {
           officeSize++;
         }
@@ -561,18 +563,18 @@ export class HeatmapComponent implements OnInit, OnChanges {
           kk.v3 = 0;
         }
         Names.forEach((name, i) => {
-          if (this.dumper.newData[i].office === office) {
+          if (dataHere[i].office === office) {
             const kkL = {
               x: office, y: name, value: 0,
               v2: undefined, v3: undefined, kpi: kpi
             };
-              let v0 = +this.dumper.newData[i][kpi], v2 = +this.dumper.newData[i][KPIs[KPIi[kpi]]];
+              let v0 = +dataHere[i][kpi], v2 = +dataHere[i][KPIs[KPIi[kpi]]];
             if (/* kpi.startsWith('P_') ||*/ kpi.toLocaleLowerCase().startsWith('out1')) {
               //              console.log(kpi);
               //             console.log(KPIs[KPIi[kpi]]);
               if (fix && v2 > v0) {
-                v2 = +this.dumper.newData[i][kpi];
-                v0 = +this.dumper.newData[i][KPIs[KPIi[kpi]]];
+                v2 = +dataHere[i][kpi];
+                v0 = +dataHere[i][KPIs[KPIi[kpi]]];
               }
               kk.value += v0;
               kk.v2 += v2;
@@ -583,15 +585,15 @@ export class HeatmapComponent implements OnInit, OnChanges {
               //              console.log(KPIs[KPIi[kpi]]);
               //              console.log(KPIs[KPIi[kpi] + 1]);
               if (fix && v2 > v0) {
-                v2 = +this.dumper.newData[i][kpi];
-                v0 = +this.dumper.newData[i][KPIs[KPIi[kpi]]];
+                v2 = +dataHere[i][kpi];
+                v0 = +dataHere[i][KPIs[KPIi[kpi]]];
               }
               kk.value += v0;
               kk.v2 += v2;
-              kk.v3 += +this.dumper.newData[i][KPIs[KPIi[kpi] + 1]];
+              kk.v3 += +dataHere[i][KPIs[KPIi[kpi] + 1]];
               kkL.value = v0;
               kkL.v2 = v2;
-              kkL.v3 = +this.dumper.newData[i][KPIs[KPIi[kpi] + 1]];
+              kkL.v3 = +dataHere[i][KPIs[KPIi[kpi] + 1]];
             } else {
               kk.value += v0;
               kkL.value = v0;
@@ -603,8 +605,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
       });
       largeKPI.push(lKPIi); // Correct data for large heat map, but we need to modify the recatngles to doughnuts
     });
+    const matchLength = Math.max(Math.max(mKPIs.length, Offices.length), Names.length);
     this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, [], [], this.colourRangeMapRed, this.colourRangeMapBlue,
-      this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice);
+      this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice, matchLength);
     //    this.largeMap(this.mainScreen.nativeElement, mKPIs, largeKPI, this.colourRange); // ready to be put in propery
 
     if (this.setKPI > -1) {
@@ -621,27 +624,35 @@ export class HeatmapComponent implements OnInit, OnChanges {
       this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
         PlotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMapRed,
         this.colourRangeMapBlue, this.transposeHeatMap, false, true,
-        this.gamma, mKPIs[this.setKPI], true, biggestOffice);
-    } else if (true) {
+        this.gamma, mKPIs[this.setKPI], true, biggestOffice, matchLength);
+    } else if (false) { // For writing data to db.json ..... doesn't write everything properly
       let back: any;
       this.dumper.getData('newData').subscribe(data => {
         back = data;
-      });
-      if (back === undefined || back.length() === 0) {
-        this.dumper.newData.forEach((d, i) => {
-          this.dumper.dumpData('newData', d, i + 1)
-            .subscribe(res => {
-              console.log(i + 1);
-              console.log(res);
-            },
-              () => {
-                console.log('Error in dumpData');
-                this.dumper.dumpData('newData', d).subscribe(res => {
-                  console.log(res);
+        if (back.length === 0) {
+          this.dumper.newData.forEach((d, i) => {
+            this.dumper.dumpData('newData', d)
+              .subscribe(res => {
+                console.log(i + 1);
+                console.log(res);
+              },
+                () => {
+                  console.log('Error in dumpData');
                 });
+          });
+        }    else     {
+          this.dumper.newData.forEach((d, i) => {
+            this.dumper.dumpData('newData', d, i + 1)
+              .subscribe(res => {
+                console.log(i + 1);
+                console.log(res);
+              },
+              () => {
+                console.log('Error in dumpData ' + i);
               });
-        });
-      }
+          });
+        }
+      });
     }
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
@@ -788,7 +799,17 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .style('background-color', 'lightgrey')
         .style('color', 'green')
         .text('SUBMIT');
-      this.procNewData();
+      const here = this;
+      const fromDb = false;
+      if (fromDb) {
+        this.dumper.getData('newData').subscribe((data) => {
+          here.useData = data;
+          here.procNewData();
+        });
+      } else {
+        here.useData = here.dumper.newData;
+        here.procNewData();
+      }
     } else if (this.chosenFigure === 'Large Map') {
       this.largeMap(this.mainScreen.nativeElement, this.dumper.managerKPIs, this.dumper.managerData, this.colourRange);
     } else if (this.chosenFigure === 'Perf Map') {
@@ -1299,7 +1320,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     colourRangeRed: string[], colourRangeBlue: string[],
     transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '',
-    composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
+    composit = false, tableGuess = 0, matchlength = 0) { // "Proper heatmap" if lineMap and sortEach are both false
     const mySquare = this.doughnutArc,
       title = chosenData.replace(/_/g, ' '), dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
       ARC = mySquare ? (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius) :
@@ -1336,8 +1357,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
       });
     }
     let legendSize = 40;
-    let nW = transpose ? tableGuess : labelsXY.x.length;
-    let nH = !transpose ? tableGuess : labelsXY.y.length;
+    let nW = transpose ? Math.max(Math.max(tableGuess, labelsXY.x.length), matchlength) : labelsXY.x.length;
+    let nH = !transpose ? Math.max(Math.max(tableGuess, labelsXY.y.length), matchlength) : labelsXY.y.length;
     if (nW === 0) {
       nW = labelsXY.x.length;
     }
