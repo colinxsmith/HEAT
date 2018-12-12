@@ -504,17 +504,23 @@ export class HeatmapComponent implements OnInit, OnChanges {
   procNewData() {
     d3.selectAll('svg').remove();
     const dataHere = this.useData;
-    const Names = [];
-    const Offices = [];
-    const KPIs = [];
+    const Names: string[] = [];
+    const Offices: string[] = [];
+    const KPIs: string[] = [];
     const KPIi = {};
     const Officesi = {};
     const Namesi = {};
     const keys = Object.keys(dataHere[0]);
     const mKPIs: string[] = [];
     const mKPIi = {};
+    let keyName = '', keyOffice = '';
     keys.forEach((d) => {
-      if (d !== 'Name' && d !== 'office') {
+      if (d.toLocaleLowerCase() === 'name') {
+        keyName = d;
+      } else if (d.toLocaleLowerCase() === 'office') {
+        keyOffice = d;
+      }
+      if (d.toLocaleLowerCase() !== 'name' && d.toLocaleLowerCase() !== 'office') {
         KPIs.push(d);
         if (d.startsWith('port') || d.startsWith('P_all') || d.startsWith('P_fail') || d.endsWith('_all') || d.endsWith('_ALL')
           || d.startsWith('Out1')) {
@@ -525,19 +531,19 @@ export class HeatmapComponent implements OnInit, OnChanges {
       }
     });
     dataHere.forEach((d) => {
-      Names.push(d.Name);
-      Namesi[d.Name] = Names.length;
-      if (Offices.find((k: string) => (k === d.office)) === undefined) {
-        Offices.push(d.office);
-        Officesi[d.office] = Offices.length;
+      Names.push(d[keyName]);
+      Namesi[d[keyName]] = Names.length;
+      if (Offices.find((k: string) => (k === d[keyOffice])) === undefined) {
+        Offices.push(d[keyOffice]);
+        Officesi[d[keyOffice]] = Offices.length;
       }
     });
 
-    let biggestOffice = 0;
+    let biggestOffice = mKPIs.length;
     Offices.forEach((office) => {
       let officeSize = 0;
       dataHere.forEach((d) => {
-        if (d.office === office) {
+        if (d[keyOffice] === office) {
           officeSize++;
         }
       });
@@ -550,6 +556,22 @@ export class HeatmapComponent implements OnInit, OnChanges {
     const totalsY: { ind: number; value: number; }[] = [];
     const fix = true;
     mKPIs.forEach((kpi) => {
+      let kpiNKE = kpi.toLocaleLowerCase().endsWith('all') ? kpi.toLocaleLowerCase().replace(/all$/, 'nke') : '';
+      let Pkpi = kpiNKE.replace(/^c_/, 'p_');
+      if (kpiNKE !== '') {
+        KPIs.forEach((kp) => {
+          if (kp.toLocaleLowerCase() === kpiNKE) {
+            kpiNKE = kp;
+          }
+        });
+      }
+      if (Pkpi !== '') {
+        KPIs.forEach((kp) => {
+          if (kp.toLocaleLowerCase() === Pkpi) {
+            Pkpi = kp;
+          }
+        });
+      }
       const lKPIi: { x: string; y: string; kpi: string; value: number; v2: number; v3: number }[] = [];
       Offices.forEach((office) => {
         const kk = {
@@ -563,7 +585,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
           kk.v3 = 0;
         }
         Names.forEach((name, i) => {
-          if (dataHere[i].office === office) {
+          if (dataHere[i] [keyOffice] === office) {
             const kkL = {
               x: office, y: name, value: 0,
               v2: undefined, v3: undefined, kpi: kpi
@@ -584,16 +606,17 @@ export class HeatmapComponent implements OnInit, OnChanges {
               //              console.log(kpi);
               //              console.log(KPIs[KPIi[kpi]]);
               //              console.log(KPIs[KPIi[kpi] + 1]);
+              v0 = +dataHere[i][kpi], v2 = +dataHere[i][kpiNKE];
               if (fix && v2 > v0) {
                 v2 = +dataHere[i][kpi];
-                v0 = +dataHere[i][KPIs[KPIi[kpi]]];
+                v0 = +dataHere[i][kpiNKE];
               }
               kk.value += v0;
               kk.v2 += v2;
-              kk.v3 += +dataHere[i][KPIs[KPIi[kpi] + 1]];
+              kk.v3 += +dataHere[i][Pkpi];
               kkL.value = v0;
               kkL.v2 = v2;
-              kkL.v3 = +dataHere[i][KPIs[KPIi[kpi] + 1]];
+              kkL.v3 = +dataHere[i][Pkpi];
             } else {
               kk.value += v0;
               kkL.value = v0;
@@ -607,7 +630,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     });
     const matchLength = Math.max(Math.max(mKPIs.length, Offices.length), Names.length);
     this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, [], [], this.colourRangeMapRed, this.colourRangeMapBlue,
-      this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice, matchLength);
+      this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice);
     //    this.largeMap(this.mainScreen.nativeElement, mKPIs, largeKPI, this.colourRange); // ready to be put in propery
 
     if (this.setKPI > -1) {
@@ -624,7 +647,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       this.heatMaps(this.mainScreen.nativeElement, Offices, Names,
         PlotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMapRed,
         this.colourRangeMapBlue, this.transposeHeatMap, false, true,
-        this.gamma, mKPIs[this.setKPI], true, biggestOffice, matchLength);
+        this.gamma, mKPIs[this.setKPI], true, biggestOffice);
     } else if (false) { // For writing data to db.json ..... doesn't write everything properly
       let back: any;
       this.dumper.getData('newData').subscribe(data => {
@@ -800,7 +823,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .style('color', 'green')
         .text('SUBMIT');
       const here = this;
-      const fromDb = false;
+      const fromDb = true;
       if (fromDb) {
         this.dumper.getData('newData').subscribe((data) => {
           here.useData = data;
@@ -1320,7 +1343,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     colourRangeRed: string[], colourRangeBlue: string[],
     transpose = false, lineMap = false,
     sortEach = false, gamma = 1, chosenData = '',
-    composit = false, tableGuess = 0, matchlength = 0) { // "Proper heatmap" if lineMap and sortEach are both false
+    composit = false, tableGuess = 0) { // "Proper heatmap" if lineMap and sortEach are both false
     const mySquare = this.doughnutArc,
       title = chosenData.replace(/_/g, ' '), dataHere = lineMap ? 'total' : chosenData, labelsXY = { x: [' '], y: [' '] },
       ARC = mySquare ? (a: d3.DefaultArcObject) => this.squareArc(a.startAngle, a.endAngle, a.innerRadius, a.outerRadius) :
@@ -1357,8 +1380,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
       });
     }
     let legendSize = 40;
-    let nW = transpose ? Math.max(Math.max(tableGuess, labelsXY.x.length), matchlength) : labelsXY.x.length;
-    let nH = !transpose ? Math.max(Math.max(tableGuess, labelsXY.y.length), matchlength) : labelsXY.y.length;
+    let nW = transpose ? tableGuess : labelsXY.x.length;
+    let nH = !transpose ? tableGuess : labelsXY.y.length;
     if (nW === 0) {
       nW = labelsXY.x.length;
     }
