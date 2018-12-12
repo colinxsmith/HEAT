@@ -5,7 +5,7 @@ import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map <input  (change)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="modDough()"> Modify Doughnut</button>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map <input  (change)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="modDough()"> Modify Doughnut</button><button (click)="useDb()">{{dbMessage}}</button>',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="processDisplay()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerKPIs">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -24,6 +24,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   managerGroups: string[] = [];
   totalsX: { ind: number, value: number }[] = [];
   totalsY: { ind: number, value: number }[] = [];
+  fromDb = false;
   @Input() numColours = 250;
   @Input() transposeHeatMap = false;
   @Input() doughnutArc = false;
@@ -35,6 +36,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() chosenShape = this.shape[0];
   @Input() pad = false;
   @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
+  @Input() dbMessage = !this.fromDb ? 'Use DB' : 'Fixed data';
   @Input() colourRangeMapRed = ['rgba(207,59,33,0.0001)', 'rgba(207,59,33,1)'];
   @Input() colourRangeMapBlue = ['rgba(9,110,178,0.0001)', 'rgba(9,110,178,1)'];
   @Input() gamma = 155e-2; // Try to make the colours go green orange red
@@ -822,8 +824,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         .style('color', 'green')
         .text('SUBMIT');
       const here = this;
-      const fromDb = true;
-      if (fromDb) {
+      if (this.fromDb) {
         this.dumper.getData('newData').subscribe((data) => {
           here.useData = data;
           here.procNewData();
@@ -1335,6 +1336,11 @@ export class HeatmapComponent implements OnInit, OnChanges {
   }
   modDough() {
     this.doughnutArc = !this.doughnutArc;
+    this.processDisplay();
+  }
+  useDb() {
+    this.fromDb = !this.fromDb;
+    this.dbMessage = !this.fromDb ? 'Use DB' : 'Fixed data';
     this.processDisplay();
   }
   heatMaps(id: string, xLabels: string[], yLabels: string[], dataXY: { x: number, y: number, value: number, v2: number, v3: number }[],
