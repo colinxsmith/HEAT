@@ -524,8 +524,10 @@ export class HeatmapComponent implements OnInit, OnChanges {
       }
       if (d.toLocaleLowerCase() !== 'name' && d.toLocaleLowerCase() !== 'office') {
         KPIs.push(d);
-        if (d.startsWith('port') || d.startsWith('P_all') || d.startsWith('P_fail') || d.endsWith('_all') || d.endsWith('_ALL')
-          || d.startsWith('Out1')) {
+        if (d.startsWith('port')
+          || d.toLocaleLowerCase().match(/p.*fail/)
+          || d.toLocaleLowerCase().endsWith('_all')
+          || d.toLocaleLowerCase().match(/^out.*nke/)) {
           mKPIs.push(d);
           mKPIi[d] = mKPIs.length;
         }
@@ -581,8 +583,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
           v2: undefined, v3: undefined
         };
    if (/* kpi.startsWith('P_') || */ kpi.startsWith('Out1')) {
-          kk.v2 = 0;
-        } else if (kpi.endsWith('_all') || kpi.endsWith('_ALL')) {
+  //        kk.v2 = 0;
+        } else if (kpi.toLocaleLowerCase().endsWith('_all')) {
           kk.v2 = 0;
           kk.v3 = 0;
         }
@@ -592,23 +594,24 @@ export class HeatmapComponent implements OnInit, OnChanges {
               x: office, y: name, value: 0,
               v2: undefined, v3: undefined, kpi: kpi
             };
-              let v0 = +dataHere[i][kpi], v2 = +dataHere[i][KPIs[KPIi[kpi]]];
+            //  let v0 = +dataHere[i][kpi], v2 = +dataHere[i][KPIs[KPIi[kpi]]];
             if (/* kpi.startsWith('P_') ||*/ kpi.toLocaleLowerCase().startsWith('out1')) {
               //              console.log(kpi);
               //             console.log(KPIs[KPIi[kpi]]);
-              if (fix && v2 > v0) {
+       /*       if (fix && v2 > v0) {
                 v2 = +dataHere[i][kpi];
                 v0 = +dataHere[i][KPIs[KPIi[kpi]]];
-              }
+              }*/
+              const v0 = +dataHere[i][kpi];
               kk.value += v0;
-              kk.v2 += v2;
+              //      kk.v2 += v2;
               kkL.value = v0;
-              kkL.v2 = v2;
+        //      kkL.v2 = v2;
             } else if (kpi.toLocaleLowerCase().endsWith('_all')) {
               //              console.log(kpi);
               //              console.log(KPIs[KPIi[kpi]]);
               //              console.log(KPIs[KPIi[kpi] + 1]);
-              v0 = +dataHere[i][kpi], v2 = +dataHere[i][kpiNKE];
+              let v0 = +dataHere[i][kpi], v2 = +dataHere[i][kpiNKE];
               if (fix && v2 > v0) {
                 v2 = +dataHere[i][kpi];
                 v0 = +dataHere[i][kpiNKE];
@@ -620,6 +623,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
               kkL.v2 = v2;
               kkL.v3 = +dataHere[i][Pkpi];
             } else {
+              const v0 = +dataHere[i][kpi];
               kk.value += v0;
               kkL.value = v0;
             }
