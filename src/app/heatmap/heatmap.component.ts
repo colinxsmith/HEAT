@@ -628,7 +628,6 @@ export class HeatmapComponent implements OnInit, OnChanges {
       });
       largeKPI.push(lKPIi); // Correct data for large heat map, but we need to modify the recatngles to doughnuts
     });
-    const matchLength = Math.max(Math.max(mKPIs.length, Offices.length), Names.length);
     this.heatMaps(this.mainScreen.nativeElement, Offices, mKPIs, totalKPI, [], [], this.colourRangeMapRed, this.colourRangeMapBlue,
       this.transposeHeatMap, true, false, this.gamma, '', true, biggestOffice);
     //    this.largeMap(this.mainScreen.nativeElement, mKPIs, largeKPI, this.colourRange); // ready to be put in propery
@@ -660,19 +659,19 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 console.log(res);
               },
                 () => {
-                  console.log('Error in dumpData');
-                });
+                console.log('Error in dumpData');
+              });
           });
-        }    else     {
+        } else {
           this.dumper.newData.forEach((d, i) => {
             this.dumper.dumpData('newData', d, i + 1)
               .subscribe(res => {
                 console.log(i + 1);
                 console.log(res);
               },
-              () => {
-                console.log('Error in dumpData ' + i);
-              });
+                () => {
+                  console.log('Error in dumpData ' + i);
+                });
           });
         }
       });
