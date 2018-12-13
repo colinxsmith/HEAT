@@ -5,7 +5,7 @@ import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map <input  (change)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="modDough()"> Modify Doughnut</button><button (click)="useDb()">{{dbMessage}}</button>',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map <input  (change)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="modDough()"> Modify Doughnut</button><button (click)="useDb()">{{dbMessage}}</button>Write <input  (change)="noItems = $event.target.value;sendData()" size="1" maxlength="3" value={{noItems}}> items to database',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="processDisplay()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerKPIs">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -26,6 +26,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   totalsY: { ind: number, value: number }[] = [];
   fromDb = false;
   @Input() numColours = 250;
+  @Input() noItems = 120;
   @Input() transposeHeatMap = false;
   @Input() doughnutArc = false;
   @Input() shape = ['Circles', 'Squares', 'Doughnuts', 'Cakes'];
@@ -37,8 +38,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
   @Input() pad = false;
   @Input() padButt = !this.pad ? 'Pad with zero' : 'Don\'t pad';
   @Input() dbMessage = !this.fromDb ? 'Use DB' : 'Fixed data';
-  @Input() colourRangeMapRed = ['rgba(207,59,33,0.0001)', 'rgba(207,59,33,1)'];
-  @Input() colourRangeMapBlue = ['rgba(9,110,178,0.0001)', 'rgba(9,110,178,1)'];
+  @Input() colourRangeMapRed = ['rgba(207,59,33,0.1)', 'rgba(207,59,33,1)'];
+  @Input() colourRangeMapBlue = ['rgba(9,110,178,0.1)', 'rgba(9,110,178,1)'];
   @Input() gamma = 155e-2; // Try to make the colours go green orange red
   @Input() colourRange = ['rgba(245,200,105,0.2)', 'rgb(245,200,105)',
     'rgba(245,100,105,0.2)', 'rgba(245,100,105,1)',
@@ -470,6 +471,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
           });
         }); */
   }
+  sendData() {
+    this.putData('newData', this.dumper.newData, this.noItems);
+  }
   chooseData(daig: string) {
     this.chosenData = daig;
     this.processDisplay();
@@ -481,6 +485,23 @@ export class HeatmapComponent implements OnInit, OnChanges {
   chooseShape(daig: string) {
     this.chosenShape = daig;
     this.processDisplay();
+  }
+  putData(key: string, data: any, limit: number, start = 0) {
+    let datahere: any;
+    this.dumper.getData(key).subscribe((dk) => {
+      datahere = dk;
+      const writeData = (kk: string, dd: any, item: number, last = 10) => { // Need recursion to write all the data
+        if (item < last) {
+          this.dumper.dumpData(kk, dd[item]).subscribe(d => {
+            console.log(d);
+            writeData(kk, dd, item + 1, last);
+          }, () => {
+            console.log('DB write error item  ' + dd[item]);
+          });
+        }
+      };
+      writeData(key, data, datahere.length, limit);
+    });
   }
   managerSummary() {
     const totalKPI: { x: number; y: number; v2: number; v3: number; value: number; }[] = []; // this.myData.managerData;
@@ -653,34 +674,6 @@ export class HeatmapComponent implements OnInit, OnChanges {
         PlotKPI, orderByTotals ? totalsX : [], orderByTotals ? totalsY : [], this.colourRangeMapRed,
         this.colourRangeMapBlue, this.transposeHeatMap, false, true,
         this.gamma, mKPIs[this.setKPI], true, biggestOffice);
-    } else if (false) { // For writing data to db.json ..... doesn't write everything properly
-      let back: any;
-      this.dumper.getData('newData').subscribe(data => {
-        back = data;
-        if (back.length === 0) {
-          this.dumper.newData.forEach((d, i) => {
-            this.dumper.dumpData('newData', d)
-              .subscribe(res => {
-                console.log(i + 1);
-                console.log(res);
-              },
-                () => {
-                console.log('Error in dumpData');
-              });
-          });
-        } else {
-          this.dumper.newData.forEach((d, i) => {
-            this.dumper.dumpData('newData', d, i + 1)
-              .subscribe(res => {
-                console.log(i + 1);
-                console.log(res);
-              },
-                () => {
-                  console.log('Error in dumpData ' + i);
-                });
-          });
-        }
-      });
     }
   }
   managerProcess(dataV: { x: string, y: string, value: number }[]) { // Set up data for individual heatmaps
@@ -702,7 +695,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     });
     this.managerGroups.sort((a, b) => a.localeCompare(b));
     this.heatMaps(this.mainScreen.nativeElement, this.managerOffices, this.dumper.managerKPIs, this.managerSummary(),
-    this.totalsX, this.totalsY, this.colourRangeMapRed, this.colourRangeMapBlue,
+      this.totalsX, this.totalsY, this.colourRangeMapRed, this.colourRangeMapBlue,
       this.transposeHeatMap, true, false, this.gamma, '');
     let ij = 0;
     for (let i = 0; i < nx && dataV.length; ++i) {
@@ -730,7 +723,6 @@ export class HeatmapComponent implements OnInit, OnChanges {
   }
   ngOnChanges(changes: SimpleChanges) { // This never gets called
     console.log('OnChanges' + changes);
-    this.processDisplayI();
   }
   processDisplay() { this.processDisplayI(); } // ngOnChanges should be called when this is called ?? But it isn't.
   processDisplayI() { // Decide which figure
