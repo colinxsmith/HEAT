@@ -599,7 +599,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       }
       const lKPIi: { x: string; y: string; kpi: string; value: number; v2: number; v3: number }[] = [];
       Offices.forEach((office) => {
-        const kk = {
+        const kk: {x: number, y: number, value: number, v2: number, v3: number} = {
           x: Officesi[office], y: mKPIi[kpi], value: 0,
           v2: undefined, v3: undefined
         };
