@@ -5,7 +5,7 @@ import { AppComponent } from '../app.component';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
-  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map <input  (change)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="modDough()"> Modify Doughnut</button><button (click)="useDb()">{{dbMessage}}</button>Write <input  (change)="noItems = $event.target.value;sendData()" size="1" maxlength="3" value={{noItems}}> items to database',
+  template: '<select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select><select (change)="chooseShape($event.target.value)"><option *ngFor="let i of shape">{{i}}</option></select> No. colours in Large Map <input  (change)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="modDough()"> Modify Doughnut</button><button (click)="useDb()">{{dbMessage}}</button><label for="noItems">No. of items to write: </label><input (change)="noItems = $event.target.value;sendData();processDisplay()" type="text" name="noItems" id="noItems" value={{noItems}} required>',
   // tslint:disable-next-line:max-line-length
   //  template: '<button  (click)="processDisplay()">RUN</button><select (change)="chooseFigure($event.target.value)"><option *ngFor="let i of plotFigure">{{i}}</option></select> No. colours in Large Map<input  (input)="numColours = $event.target.value" size="1" maxlength="3" value={{numColours}}><input  (input)="colourRange[0] = $event.target.value" size="3" maxlength="16"  value={{colourRange[0]}}><input (input)="colourRange[1] = $event.target.value" size="3" maxlength="16"  value={{colourRange[1]}}><button  (click)="setPad()">{{padButt}}</button><button (click)="setTrans()"> Transpose</button><button (click)="setSquares()">{{buttonName}}</button><select (change)="chooseData($event.target.value)"><option *ngFor="let i of managerKPIs">{{i}}</option></select>',
   styleUrls: ['./heatmap.component.css'],
@@ -486,7 +486,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     this.chosenShape = daig;
     this.processDisplay();
   }
-  putData(key: string, data: any, limit: number, start = 0) {
+  putData(key: string, data: any, limit: number) {
     let datahere: any;
     this.dumper.getData(key).subscribe((dk) => {
       datahere = dk;
@@ -1358,7 +1358,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       labelsXY.y = yLabels;
     }
     // Sort both axes according to totals
-    if (totalsX !== []) {
+    if (totalsX.length > 0) {
       totalsX.sort((a1, a2) => { // Managers' data
         if (a2.value > a1.value) {
           return 1;
@@ -1369,7 +1369,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
         }
       });
     }
-    if (totalsY !== []) {
+    if (totalsY.length > 0) {
       totalsY.sort((a1, a2) => {
         if (a2.value > a1.value) { // Offices' data
           return 1;
@@ -1509,9 +1509,11 @@ export class HeatmapComponent implements OnInit, OnChanges {
         }
         xLabels.forEach((d, i) => oXinv[i] = i);
         yLabels.forEach((d, i) => oYinv[i] = i);
-        if (totalsX.length > 0 && totalsY.length > 0) {
-          totalsY.forEach((d, i) => oXinv[d.ind] = i);
+        if (totalsX.length > 0) {
           totalsX.forEach((d, i) => oYinv[d.ind] = i);
+        }
+        if (totalsY.length > 0) {
+          totalsY.forEach((d, i) => oXinv[d.ind] = i);
         }
         const rowMax: number[] = [], colMax: number[] = [];
         for (let kk = 0; kk < xLabels.length; ++kk) {
@@ -1556,8 +1558,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 group: string;
               }[] = [];
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
-                i = totalsY.length ? oXinv[dataXY[ij].x - 1] : ii;
-                j = totalsX.length ? oYinv[dataXY[ij].y - 1] : jj;
+                i = oXinv[dataXY[ij].x - 1];
+                j = oYinv[dataXY[ij].y - 1];
                 if (ii === dataXY[ij].x - 1) {
                   tempY.push({
                     x: i + 1, y: j + 1,
@@ -1598,8 +1600,8 @@ export class HeatmapComponent implements OnInit, OnChanges {
                 group: string;
               }[] = [];
               for (let jj = 0; jj < yLabels.length && ij < dataXY.length; jj++) {
-                j = totalsX.length ? oYinv[dataXY[ij].y - 1] : jj;
-                i = totalsY.length ? oXinv[dataXY[ij].x - 1] : ii;
+                j = oYinv[dataXY[ij].y - 1];
+                i = oXinv[dataXY[ij].x - 1];
                 if (ii === dataXY[ij].x - 1) {
                   tempY.push({
                     x: i + 1, y: j + 1,
