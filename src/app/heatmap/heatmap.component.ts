@@ -2,6 +2,7 @@ import { Component, OnInit, ViewEncapsulation, ElementRef, OnChanges, Input, Sim
 import * as d3 from 'd3';
 import { DatamoduleModule, HD } from '../datamodule/datamodule.module';
 import { AppComponent } from '../app.component';
+import { BaseType } from 'd3';
 @Component({
   selector: 'app-heatmap',
   // tslint:disable-next-line:max-line-length
@@ -352,7 +353,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
   }
   wrapFunction = (text1, width: number, lineHeight: number) =>  // Adapted from http://bl.ocks.org/mbostock/7555321
     text1.each((kk, i, j) => {
-      const text = d3.select(j[i]),
+      const text: d3.Selection<BaseType, {}, null, string> = d3.select(j[i]),
         words = text.text().split(/\s+/).reverse(),
         y = text.attr('y'),
         x = text.attr('x'),
@@ -2034,9 +2035,9 @@ export class HeatmapComponent implements OnInit, OnChanges {
       .text((d) => d)
       .call(this.wrapFunction, cfg.wrapWidth, cfg.lineHeight);
 
-    const radarLine = d3.lineRadial()
+    const radarLine = d3.lineRadial<{ axis: string, value: number }>()
       .curve(d3.curveLinearClosed)
-      .radius((d: any) => rScale(d.value))
+      .radius((d) => rScale(d.value))
       .angle((d, i) => i * angleSlice);
 
     if (cfg.roundStrokes) {
@@ -2051,7 +2052,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
     blobWrapper
       .append('path')
       .attr('class', 'radarArea')
-      .attr('d', (d: any, i) => radarLine(d))
+      .attr('d', (d) => radarLine(d))
       .style('fill', (d, i) => cfg.color(i))
       .style('fill-opacity', cfg.opacityArea)
       .on('mouseover', (d, i, jj) => {
@@ -2076,7 +2077,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       .transition()
       .ease(d3.easeBounce)
       .duration(2000)
-      .attr('d', (d: any, i) => radarLine(d))
+      .attr('d', (d) => radarLine(d))
       .style('stroke', (d, i) => cfg.color(i))
       .style('fill', 'none')
       .style('filter', 'url(#glow)');
@@ -2088,7 +2089,7 @@ export class HeatmapComponent implements OnInit, OnChanges {
       .attr('r', cfg.dotRadius)
       .attr('cx', (d, i) => rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2))
       .attr('cy', (d, i) => rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2))
-      .style('fill', (d, i, j) => cfg.color(+(d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode).attr('data-index'))))
+      .style('fill', (d, i, j) => cfg.color(+(<HTMLSelectElement>(<HTMLSelectElement>j[i]).parentNode).getAttribute('data-index')))
       .style('fill-opacity', 0.8);
     const blobCircleWrapper = g.selectAll('.radarCircleWrapper')
       .data(data)
@@ -2103,12 +2104,12 @@ export class HeatmapComponent implements OnInit, OnChanges {
       .attr('r', cfg.dotRadius * 1.1)
       .attr('cx', (d, i) => rScale(+d.value) * Math.cos(angleSlice * i - Math.PI / 2))
       .attr('cy', (d, i) => rScale(+d.value) * Math.sin(angleSlice * i - Math.PI / 2))
-      .style('fill', (d, i, j) => cfg.color(+(d3.select(<HTMLInputElement>(<HTMLInputElement>j[i]).parentNode).attr('data-index'))))
+      .style('fill', (d, i, j) => cfg.color(+((<HTMLSelectElement>(<HTMLSelectElement>j[i]).parentNode).getAttribute('data-index'))))
       .style('pointer-events', 'all')
       .on('mouseover', (d, i, j) => {
-        const newX = parseFloat(d3.select(j[i]).attr('cx')) - 10,
-          newY = parseFloat(d3.select(j[i]).attr('cy')) - 10,
-          fill = d3.select(j[i]).style('fill');
+        const newX = parseFloat(((<HTMLSelectElement>j[i])).getAttribute('cx')) - 10,
+          newY = parseFloat(((<HTMLSelectElement>j[i])).getAttribute('cy')) - 10,
+          fill = (<HTMLSelectElement>j[i]).style['fill'];
         localTiptool
           .attr('x', newX)
           .attr('y', newY)
